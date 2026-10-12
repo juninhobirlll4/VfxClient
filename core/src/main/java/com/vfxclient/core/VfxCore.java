@@ -32,6 +32,7 @@ public final class VfxCore implements ClientModInitializer {
 	private ModuleManager modules;
 	private ConfigManager config;
 	private String version = "dev";
+	private boolean openClickGuiPending;
 
 	/**
 	 * Instância ativa do client.
@@ -66,6 +67,12 @@ public final class VfxCore implements ClientModInitializer {
 	 * @param client instância do Minecraft
 	 */
 	public void onClientTick(MinecraftClient client) {
+		if (openClickGuiPending) {
+			openClickGuiPending = false;
+			if (client.currentScreen == null) {
+				client.setScreen(new ClickGuiScreen());
+			}
+		}
 		modules.tick(client);
 		config.tick();
 	}
@@ -73,12 +80,16 @@ public final class VfxCore implements ClientModInitializer {
 	/**
 	 * Chamado quando uma tecla é pressionada durante o jogo (sem tela aberta).
 	 *
+	 * <p>O menu não abre aqui: o Minecraft ainda repassa este mesmo evento de tecla
+	 * para a tela recém-aberta, que o trataria como "fechar". Por isso só marcamos
+	 * o pedido e abrimos no fim do tick, depois que o teclado já foi processado.</p>
+	 *
 	 * @param keyCode código LWJGL da tecla
 	 */
 	public void onKeyPressed(int keyCode) {
 		MinecraftClient client = MinecraftClient.getInstance();
 		if (client.currentScreen == null && keyCode == config.getClickGuiKey()) {
-			client.setScreen(new ClickGuiScreen());
+			openClickGuiPending = true;
 		}
 	}
 

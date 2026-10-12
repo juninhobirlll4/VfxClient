@@ -1,6 +1,5 @@
 package com.vfxclient.core.gui;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -359,7 +358,7 @@ public class ClickGuiScreen extends Screen {
 	}
 
 	@Override
-	public void handleMouse() throws IOException {
+	public void handleMouse() {
 		super.handleMouse();
 		int wheel = Mouse.getEventDWheel();
 		if (wheel != 0 && settingsModule == null) {
