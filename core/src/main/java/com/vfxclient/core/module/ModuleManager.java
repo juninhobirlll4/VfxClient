@@ -15,7 +15,11 @@ import com.vfxclient.core.module.hud.FpsModule;
 import com.vfxclient.core.module.hud.KeystrokesModule;
 import com.vfxclient.core.module.hud.PingModule;
 import com.vfxclient.core.module.hud.PotionEffectsModule;
+import com.vfxclient.core.module.performance.BlockEntityDistanceModule;
+import com.vfxclient.core.module.performance.EntityCullingModule;
 import com.vfxclient.core.module.performance.EntityDistanceModule;
+import com.vfxclient.core.module.performance.PerformanceProfileModule;
+import com.vfxclient.core.module.performance.RenderTweaksModule;
 import com.vfxclient.core.module.performance.FpsLimiterModule;
 import com.vfxclient.core.module.performance.NoCloudsModule;
 import com.vfxclient.core.module.performance.ParticleLimitModule;
@@ -51,10 +55,14 @@ public final class ModuleManager {
 		register(new LowFireModule());
 		register(new NoHurtCamModule());
 		// Desempenho
-		register(new FpsLimiterModule());
+		register(new PerformanceProfileModule());
+		register(new RenderTweaksModule());
+		register(new EntityCullingModule());
 		register(new EntityDistanceModule());
+		register(new BlockEntityDistanceModule());
 		register(new ParticleLimitModule());
 		register(new NoCloudsModule());
+		register(new FpsLimiterModule());
 	}
 
 	/**

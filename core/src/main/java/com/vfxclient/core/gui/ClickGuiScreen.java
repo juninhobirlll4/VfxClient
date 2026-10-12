@@ -10,7 +10,9 @@ import com.vfxclient.core.VfxCore;
 import com.vfxclient.core.module.Category;
 import com.vfxclient.core.module.Module;
 import com.vfxclient.core.module.general.MenuModule;
+import com.vfxclient.core.module.performance.PerformanceProfileModule;
 import com.vfxclient.core.module.setting.BooleanSetting;
+import com.vfxclient.core.module.setting.ChoiceSetting;
 import com.vfxclient.core.module.setting.KeySetting;
 import com.vfxclient.core.module.setting.NumberSetting;
 import com.vfxclient.core.module.setting.Setting;
@@ -158,7 +160,11 @@ public class ClickGuiScreen extends Screen {
 	}
 
 	private void drawModules(int mouseX, int mouseY) {
-		drawHeader(category.getDisplayName(), category.getDescription());
+		String subtitle = category.getDescription();
+		if (category == Category.PERFORMANCE) {
+			subtitle += "  -  agora: " + net.minecraft.client.MinecraftClient.getCurrentFps() + " FPS";
+		}
+		drawHeader(category.getDisplayName(), subtitle);
 		List<Module> modules = VfxCore.get().getModules().byCategory(category);
 
 		if (modules.isEmpty()) {
@@ -276,6 +282,13 @@ public class ClickGuiScreen extends Screen {
 			drawSlider(sx, y + 8, number);
 			String value = number.format();
 			text(value, sx - textRenderer.getStringWidth(value) - 6, y + 6, Theme.TEXT_MUTED);
+		} else if (setting instanceof ChoiceSetting) {
+			ChoiceSetting choice = (ChoiceSetting) setting;
+			String value = "< " + choice.format() + " >";
+			int bw = Math.max(70, textRenderer.getStringWidth(value) + 12);
+			boolean overButton = inside(mouseX, mouseY, right - bw, y + 3, bw, 14);
+			Render2D.roundedRect(right - bw, y + 3, bw, 14, 4, Theme.lerp(Theme.TRACK_OFF, Theme.PRIMARY, hover("choice:" + choice.getId(), overButton)));
+			textCentered(value, right - bw / 2, y + 6, Theme.WHITE);
 		} else if (setting instanceof KeySetting) {
 			KeySetting keySetting = (KeySetting) setting;
 			boolean capturing = keySetting == capturingKey;
@@ -375,6 +388,7 @@ public class ClickGuiScreen extends Screen {
 				openSettings(module);
 			} else if (button == 0) {
 				module.toggle();
+				changed(module, null);
 			}
 			return;
 		}
@@ -411,9 +425,13 @@ public class ClickGuiScreen extends Screen {
 		int right = contentX + contentW - 8;
 		if (setting == null) {
 			settingsModule.toggle();
+			changed(settingsModule, null);
 		} else if (setting instanceof BooleanSetting) {
 			((BooleanSetting) setting).toggle();
-			VfxCore.get().getConfig().markDirty();
+			changed(settingsModule, setting);
+		} else if (setting instanceof ChoiceSetting) {
+			((ChoiceSetting) setting).cycle(1);
+			changed(settingsModule, setting);
 		} else if (setting instanceof NumberSetting) {
 			int sx = right - SLIDER_W;
 			if (mouseX >= sx - 4) {
@@ -425,6 +443,18 @@ public class ClickGuiScreen extends Screen {
 		} else if (setting instanceof TextSetting) {
 			editingText = (TextSetting) setting;
 		}
+	}
+
+	/**
+	 * Avisa o módulo e a config de que o jogador mudou algo. Mudanças manuais em
+	 * Desempenho deixam o perfil de FPS como "Personalizado".
+	 */
+	private void changed(Module module, Setting<?> setting) {
+		module.onSettingChanged(setting);
+		if (module.getCategory() == Category.PERFORMANCE && !(module instanceof PerformanceProfileModule)) {
+			VfxCore.get().getModules().get(PerformanceProfileModule.class).markCustom();
+		}
+		VfxCore.get().getConfig().markDirty();
 	}
 
 	private void openSettings(Module module) {
@@ -439,8 +469,8 @@ public class ClickGuiScreen extends Screen {
 	}
 
 	private void stopEditing() {
-		if (editingText != null || capturingKey != null) {
-			VfxCore.get().getConfig().markDirty();
+		if ((editingText != null || capturingKey != null) && settingsModule != null) {
+			changed(settingsModule, editingText != null ? editingText : capturingKey);
 		}
 		editingText = null;
 		capturingKey = null;
@@ -449,8 +479,11 @@ public class ClickGuiScreen extends Screen {
 	@Override
 	protected void mouseReleased(int mouseX, int mouseY, int button) {
 		if (draggingSlider != null) {
+			NumberSetting released = draggingSlider;
 			draggingSlider = null;
-			VfxCore.get().getConfig().markDirty();
+			if (settingsModule != null) {
+				changed(settingsModule, released);
+			}
 		}
 	}
 

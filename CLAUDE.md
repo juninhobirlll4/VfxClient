@@ -44,7 +44,10 @@ Tudo é nosso: nome, logo, cores (roxo → branco), código e assets.
   - Geral: `menu` (tecla do menu, sempre ligado), `titleScreen`.
   - HUD: `fps`, `ping`, `coordinates`, `clock`, `cps`, `keystrokes`, `armor`, `potions`, `customText`.
   - Visual: `zoom`, `fullbright`, `lowFire`, `noHurtCam`.
-  - Desempenho: `fpsLimiter`, `entityDistance`, `particleLimit`, `noClouds`.
+  - Desempenho: `performanceProfile` (perfis que ajustam módulos + GameOptions vanilla), `renderTweaks`, `entityCulling`,
+    `entityDistance`, `blockEntityDistance`, `particleLimit`, `noClouds`, `fpsLimiter`.
+  - Settings também: `ChoiceSetting` (ciclo de opções). `Module.onSettingChanged` é chamado pela GUI após mudança manual;
+    mudar algo em Desempenho marca o perfil como "Personalizado".
 - `hud/`: `HudRenderer` (desenha a HUD), `ClickTracker` (CPS, alimentado por `KeyBinding.onKeyPressed`, códigos -100/-99).
 - `command/VfxCommands`: `/vfx`, `/vfx menu`, `/vfx hud`, `/vfx reset` (interceptados antes de ir ao servidor).
 - `config/ConfigManager`: salva com debounce de 1 s, hot-reload por data de modificação, arquivo corrompido vira `.broken`.
@@ -52,18 +55,24 @@ Tudo é nosso: nome, logo, cores (roxo → branco), código e assets.
 - `gui/`: `ClickGuiScreen`, `HudEditorScreen`, `Render2D`, `Theme`, `Anim`, `Logo` (ícone e wordmark carregados do classpath).
 - `mixin/`: `InGameHud` (HUD), `KeyBinding` (teclas/cliques), `MinecraftClient` (tick + FPS sem foco), `TitleScreen` (logo e versão),
   `GameRenderer` (zoom, sem tremor, sem nuvens), `HeldItemRenderer` (fogo baixo), `ParticleManager` (limite),
-  `EntityRenderDispatcher` (distância de entidades), `ClientPlayerEntity` (comandos).
+  `EntityRenderDispatcher` (distância + culling de entidades), `ClientPlayerEntity` (comandos).
+  `mixin/perf/`: `SpriteAtlasTexture` (animações), `WorldRenderer` (céu, tempo de chunks), `ItemRenderer`/`ArmorFeatureRenderer` (brilho),
+  `ItemEntityRenderer` (`method_10222` = cópias do modelo do item), `BlockEntityRenderDispatcher` (distância de baús).
+- **Não** coloque classes comuns dentro de `com.vfxclient.core.mixin`: o Mixin proíbe carregar classes do pacote de mixins.
 
-## Estado atual (v0.2.0)
+## Estado atual (v0.3.0)
 - Build ok. `runClient` sobe sem erro (todos os Mixins de inicialização aplicam). O de `ClientPlayerEntity` só carrega ao entrar num mundo.
-- Click GUI, HUD e editor confirmados pelo usuário na v0.1. Os módulos da v0.2 ainda precisam ser testados por ele no jogo.
+- Click GUI, HUD e editor confirmados pelo usuário na v0.1. Módulos da v0.2 e v0.3 sobem sem erro, mas precisam de teste dele dentro de um mundo.
+- Para testar inicialização sozinho: rodar `runClient` em background, esperar ~45 s sem `core/run/crash-reports` e matar o processo java do jogo.
 - O log do jogo em dev quase não aparece: o log4j antigo do 1.8.9 não entende a config que o Loom gera. Para depurar, use `System.out`
   temporariamente ou procure crash reports em `core/run/crash-reports`.
 
 ## Próximos passos (ver roadmap no README)
-1. Usuário testar os módulos da v0.2 e reportar.
-2. v0.3: Social → waypoints.
-3. v0.4: launcher jogável offline (baixa MC 1.8.9 da Mojang, Legacy Fabric, Java 8 e o `vfxcore`).
+O usuário quer, por partes, as mesmas funcionalidades de clients populares (estilo Lunar + contas/skins estilo CMClient),
+com código e identidade próprios, e muita personalização de FPS. Ordem combinada:
+1. v0.4: qualidade de vida (sprint automático, mira, contorno de bloco, cor do hit, hora/clima, nametag, chat, placar).
+2. v0.5: Social → waypoints.
+3. v0.6: launcher jogável offline. 4. v0.7: login Microsoft. 5. v0.8: contas e skins (backend pendente).
 
 ## Decisões pendentes (perguntar ao usuário)
 - Backend de contas/skins (v0.9–v0.10): Firebase (recomendado) ou servidor próprio.

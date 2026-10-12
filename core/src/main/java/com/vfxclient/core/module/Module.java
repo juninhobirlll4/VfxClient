@@ -92,6 +92,29 @@ public abstract class Module {
 		markDirty();
 	}
 
+	/**
+	 * Chamado pela Click GUI depois que o jogador muda uma opção deste módulo.
+	 *
+	 * @param setting opção alterada
+	 */
+	public void onSettingChanged(Setting<?> setting) {
+	}
+
+	/**
+	 * Procura uma opção pelo id.
+	 *
+	 * @param id chave do JSON
+	 * @return a opção ou {@code null}
+	 */
+	public Setting<?> getSetting(String id) {
+		for (Setting<?> setting : settings) {
+			if (setting.getId().equals(id)) {
+				return setting;
+			}
+		}
+		return null;
+	}
+
 	/** @return {@code true} para módulos que não podem ser desligados (sem chave na GUI) */
 	public boolean isAlwaysOn() {
 		return false;

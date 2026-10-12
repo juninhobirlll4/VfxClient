@@ -74,42 +74,37 @@ Tags com sufixo (`v0.2.0-beta`) saem como *pre-release*.
 - [x] CI de build e de release (instalador + portátil + jar do mod)
 - [x] Marca placeholder (SVG → PNG/ICO) versionada
 
-### MVP – "dá pra jogar com a nossa cara"
-- [x] **v0.1 – Click GUI + base:** menu no **Right Shift** com categorias (HUD, Visual, Desempenho, Social), cartões de módulos, opções por módulo e animações
-- [x] **v0.1 – Config:** `.minecraft/vfxclient/config/modules.json`, salva sozinha, hot-reload ao editar o arquivo, "Restaurar padrão" por módulo
-- [x] **v0.1 – HUD:** FPS, ping, coordenadas e relógio, com fundo, sombra, cor da marca e tamanho configuráveis
-- [x] **v0.1 – Editor de HUD:** arrastar e soltar, grudar nas bordas/centro, botão direito volta à posição padrão
-- [x] **v0.1 – Visual:** Brilho total
-- [x] **v0.2 – Geral:** logo do VfxClient na tela inicial; tecla do menu configurável; comandos `/vfx`, `/vfx menu`, `/vfx hud`, `/vfx reset`
-- [x] **v0.2 – Mais HUD:** CPS, teclas (WASD + cliques), armadura com durabilidade, efeitos de poção, texto personalizado
-- [x] **v0.2 – Visual:** zoom (tecla C, configurável), fogo baixo, sem tremor ao levar dano
-- [x] **v0.2 – Desempenho (1ª leva):** FPS limitado sem foco, distância máxima de entidades, limite de partículas, sem nuvens
-- [ ] **v0.3 – Social:** waypoints (criar, cor, distância, compartilhar no chat)
-- [ ] **v0.4 – Launcher jogável (offline):** baixa o Minecraft 1.8.9 dos servidores da Mojang, o Legacy Fabric, um runtime Java 8 e o `vfxcore`; botão Jogar e status de download
-- [ ] **v0.5 – Login Microsoft:** contas premium
-- [ ] **v0.6 – Performance (FPS), 2ª leva:** culling atrás de blocos, distância de baús/placas, HUD em cache (ver abaixo)
+### Feito
+- [x] **v0.1 – Base:** Click GUI (Right Shift), config JSON com hot-reload, HUD (FPS, ping, coordenadas, relógio), editor de HUD, brilho total
+- [x] **v0.2 – Geral + HUD + Visual:** logo na tela inicial, tecla do menu configurável, comandos `/vfx`; CPS, teclas, armadura, poções, texto; zoom, fogo baixo, sem tremor; 1ª leva de desempenho
+- [x] **v0.3 – Desempenho 2ª leva + perfis de FPS:** perfis Qualidade / Equilibrado / Máximo FPS / PC fraco (ajustam o VfxClient e as opções gráficas do Minecraft), culling de entidades atrás de blocos, distância de baús/placas, texturas animadas, chuva, céu e brilho de encantamento desligáveis, itens no chão como um só modelo, limite de tempo de chunks por frame
 
-### v1 – "client completo"
-- [ ] **v0.7 – Partículas:** toggles geral e por tipo, vanilla e custom
-- [ ] **v0.9 – Contas VfxClient:** cadastro e login próprios (ver abaixo)
-- [ ] **v0.10 – Skins VfxClient:** cada jogador envia a skin pelo client; todos com o VfxClient veem
-- [ ] **v0.11 – Perfis e auto-update:** perfis performance / partículas / social; atualização via GitHub Releases
+### Próximas partes
+- [ ] **v0.4 – Qualidade de vida:** sprint/agachar automático, mira personalizada, contorno de bloco, cor do hit, hora e clima locais, nametag própria, chat (horário, empilhar mensagens repetidas), placar
+- [ ] **v0.5 – Social:** waypoints (criar, cor, distância, compartilhar no chat)
+- [ ] **v0.6 – Launcher jogável (offline):** baixa o Minecraft 1.8.9 dos servidores da Mojang, o Legacy Fabric, um runtime Java 8 e o `vfxcore`; botão Jogar e status de download
+- [ ] **v0.7 – Login Microsoft:** contas premium
+- [ ] **v0.8 – Contas e skins VfxClient:** cadastro próprio; skin enviada pelo client e vista por todos que usam o VfxClient (ver abaixo)
+- [ ] **v0.9 – Perfis de mods e auto-update** via GitHub Releases
 - [ ] **v1.0 – Polimento:** arte final, Javadoc completo, testes com o grupo
 
-### Performance (v0.6)
+### Desempenho: como os ganhos são feitos
 
-Implementações **nossas** das técnicas que clients de PvP usam para ganhar FPS na 1.8.9.
-Cada uma vira um módulo com toggle e é medida com benchmark antes/depois:
+Implementações **nossas** das técnicas conhecidas para ganhar FPS na 1.8.9. Cada uma é um toggle e os perfis ligam várias de uma vez:
 
-- Culling de entidades e tile entities fora da visão ou atrás de blocos
-- Distância máxima de render para entidades, baús, placas e banners
-- Limite e culling de partículas
-- HUD/texto em cache, redesenhado só quando muda
-- FPS limitado em menus e com a janela sem foco
-- Limite de atualizações de chunk por frame
-- Opções para desligar névoa, nuvens, céu e texturas animadas
+| Técnica | Módulo | Ganho típico |
+|---|---|---|
+| Não desenhar entidades atrás de blocos | Culling de entidades | Alto em lobbies e farms |
+| Distância máxima de entidades e de baús/placas | Distância de entidades / de baús | Alto em lobbies cheios |
+| Menos partículas | Partículas | Alto em PvP (crits, poções) |
+| Texturas animadas, céu, chuva, brilho e nuvens desligáveis | Ajustes de render / Sem nuvens | Médio, maior em PCs fracos |
+| Itens no chão como um só modelo | Ajustes de render | Médio com muitos drops |
+| Limite de tempo de chunks por frame | Ajustes de render | Menos travadas ao andar |
+| Gráficos rápidos, VBO, sem sombras, sem vsync, distância menor | Perfil de FPS | Alto, varia por placa de vídeo |
+| FPS baixo com a janela sem foco | FPS sem foco | Libera o PC fora do jogo |
 
-### Contas e skins (v0.9–v0.10)
+Próximas ideias: HUD em cache (redesenhada só quando muda) e culling de baús atrás de blocos.
+### Contas e skins (v0.8)
 
 - **Conta VfxClient:** e-mail + senha, com nick único reservado. Entra em servidores **não-premium**
   (offline-mode). Servidores premium continuam exigindo conta Microsoft; isso é regra do Minecraft.

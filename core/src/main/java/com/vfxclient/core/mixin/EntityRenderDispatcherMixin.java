@@ -1,6 +1,7 @@
 package com.vfxclient.core.mixin;
 
 import com.vfxclient.core.VfxCore;
+import com.vfxclient.core.module.performance.EntityCullingModule;
 import com.vfxclient.core.module.performance.EntityDistanceModule;
 import net.minecraft.client.render.CameraView;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
@@ -19,6 +20,11 @@ public abstract class EntityRenderDispatcherMixin {
 			CallbackInfoReturnable<Boolean> cir) {
 		EntityDistanceModule module = VfxCore.module(EntityDistanceModule.class);
 		if (module != null && module.shouldSkip(entity)) {
+			cir.setReturnValue(false);
+			return;
+		}
+		EntityCullingModule culling = VfxCore.module(EntityCullingModule.class);
+		if (culling != null && culling.shouldCull(entity)) {
 			cir.setReturnValue(false);
 		}
 	}

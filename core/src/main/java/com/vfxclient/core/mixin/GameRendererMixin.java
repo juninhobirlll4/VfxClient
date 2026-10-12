@@ -2,6 +2,7 @@ package com.vfxclient.core.mixin;
 
 import com.vfxclient.core.VfxCore;
 import com.vfxclient.core.module.performance.NoCloudsModule;
+import com.vfxclient.core.module.performance.RenderTweaksModule;
 import com.vfxclient.core.module.visual.NoHurtCamModule;
 import com.vfxclient.core.module.visual.ZoomModule;
 import net.minecraft.client.render.GameRenderer;
@@ -30,6 +31,22 @@ public abstract class GameRendererMixin {
 	private void vfx$noHurtCam(float tickDelta, CallbackInfo ci) {
 		NoHurtCamModule module = VfxCore.module(NoHurtCamModule.class);
 		if (module != null && module.isEnabled()) {
+			ci.cancel();
+		}
+	}
+
+	@Inject(method = "renderWeather(F)V", at = @At("HEAD"), cancellable = true)
+	private void vfx$noWeather(float tickDelta, CallbackInfo ci) {
+		RenderTweaksModule tweaks = VfxCore.module(RenderTweaksModule.class);
+		if (tweaks != null && !tweaks.weather()) {
+			ci.cancel();
+		}
+	}
+
+	@Inject(method = "tickRainSplashing()V", at = @At("HEAD"), cancellable = true)
+	private void vfx$noRainSplash(CallbackInfo ci) {
+		RenderTweaksModule tweaks = VfxCore.module(RenderTweaksModule.class);
+		if (tweaks != null && !tweaks.weather()) {
 			ci.cancel();
 		}
 	}

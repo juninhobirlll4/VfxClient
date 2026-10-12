@@ -13,7 +13,13 @@
     "KeyBindingMixin",
     "MinecraftClientMixin",
     "ParticleManagerMixin",
-    "TitleScreenMixin"
+    "TitleScreenMixin",
+    "perf.ArmorFeatureRendererMixin",
+    "perf.BlockEntityRenderDispatcherMixin",
+    "perf.ItemEntityRendererMixin",
+    "perf.ItemRendererMixin",
+    "perf.SpriteAtlasTextureMixin",
+    "perf.WorldRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1
