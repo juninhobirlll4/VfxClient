@@ -1,8 +1,12 @@
 package com.vfxclient.core;
 
+import com.vfxclient.core.command.VfxCommands;
 import com.vfxclient.core.config.ConfigManager;
 import com.vfxclient.core.gui.ClickGuiScreen;
+import com.vfxclient.core.hud.ClickTracker;
+import com.vfxclient.core.module.Module;
 import com.vfxclient.core.module.ModuleManager;
+import com.vfxclient.core.module.general.MenuModule;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
@@ -73,6 +77,7 @@ public final class VfxCore implements ClientModInitializer {
 				client.setScreen(new ClickGuiScreen());
 			}
 		}
+		VfxCommands.tick(client);
 		modules.tick(client);
 		config.tick();
 	}
@@ -87,10 +92,23 @@ public final class VfxCore implements ClientModInitializer {
 	 * @param keyCode código LWJGL da tecla
 	 */
 	public void onKeyPressed(int keyCode) {
+		ClickTracker.onPress(keyCode);
 		MinecraftClient client = MinecraftClient.getInstance();
-		if (client.currentScreen == null && keyCode == config.getClickGuiKey()) {
+		if (client.currentScreen == null && keyCode == modules.get(MenuModule.class).getKey()) {
 			openClickGuiPending = true;
 		}
+	}
+
+	/**
+	 * Atalho para os Mixins pegarem um módulo sem se preocupar com a inicialização.
+	 *
+	 * @param type classe do módulo
+	 * @param <T>  tipo do módulo
+	 * @return o módulo, ou {@code null} se o client ainda não carregou
+	 */
+	public static <T extends Module> T module(Class<T> type) {
+		VfxCore core = instance;
+		return core == null || core.modules == null ? null : core.modules.get(type);
 	}
 
 	/** @return gerenciador de módulos */

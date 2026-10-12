@@ -3,12 +3,12 @@ package com.vfxclient.core.module.hud;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import com.vfxclient.core.module.HudModule;
+import com.vfxclient.core.module.TextHudModule;
 import com.vfxclient.core.module.setting.BooleanSetting;
 import net.minecraft.client.MinecraftClient;
 
 /** Mostra o horário do computador. */
-public class ClockModule extends HudModule {
+public class ClockModule extends TextHudModule {
 
 	private final BooleanSetting format24h = add(new BooleanSetting("format24h", "Formato 24 horas", true));
 

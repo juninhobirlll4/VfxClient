@@ -80,15 +80,17 @@ Tags com sufixo (`v0.2.0-beta`) saem como *pre-release*.
 - [x] **v0.1 – HUD:** FPS, ping, coordenadas e relógio, com fundo, sombra, cor da marca e tamanho configuráveis
 - [x] **v0.1 – Editor de HUD:** arrastar e soltar, grudar nas bordas/centro, botão direito volta à posição padrão
 - [x] **v0.1 – Visual:** Brilho total
-- [ ] **v0.2 – Identidade in-game:** logo na tela de título e splash; comando `/vfx reset`; trocar a tecla do menu pela GUI
-- [ ] **v0.3 – Mais HUD:** CPS, armadura, efeitos de poção, teclas (keystrokes), widget de texto custom
+- [x] **v0.2 – Geral:** logo do VfxClient na tela inicial; tecla do menu configurável; comandos `/vfx`, `/vfx menu`, `/vfx hud`, `/vfx reset`
+- [x] **v0.2 – Mais HUD:** CPS, teclas (WASD + cliques), armadura com durabilidade, efeitos de poção, texto personalizado
+- [x] **v0.2 – Visual:** zoom (tecla C, configurável), fogo baixo, sem tremor ao levar dano
+- [x] **v0.2 – Desempenho (1ª leva):** FPS limitado sem foco, distância máxima de entidades, limite de partículas, sem nuvens
+- [ ] **v0.3 – Social:** waypoints (criar, cor, distância, compartilhar no chat)
 - [ ] **v0.4 – Launcher jogável (offline):** baixa o Minecraft 1.8.9 dos servidores da Mojang, o Legacy Fabric, um runtime Java 8 e o `vfxcore`; botão Jogar e status de download
 - [ ] **v0.5 – Login Microsoft:** contas premium
-- [ ] **v0.6 – Performance (FPS):** módulos de otimização próprios (ver abaixo)
+- [ ] **v0.6 – Performance (FPS), 2ª leva:** culling atrás de blocos, distância de baús/placas, HUD em cache (ver abaixo)
 
 ### v1 – "client completo"
 - [ ] **v0.7 – Partículas:** toggles geral e por tipo, vanilla e custom
-- [ ] **v0.8 – Waypoints:** criar, renomear, cor, distância, compartilhar via comando/chat
 - [ ] **v0.9 – Contas VfxClient:** cadastro e login próprios (ver abaixo)
 - [ ] **v0.10 – Skins VfxClient:** cada jogador envia a skin pelo client; todos com o VfxClient veem
 - [ ] **v0.11 – Perfis e auto-update:** perfis performance / partículas / social; atualização via GitHub Releases

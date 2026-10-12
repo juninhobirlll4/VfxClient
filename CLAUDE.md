@@ -36,23 +36,34 @@ Tudo é nosso: nome, logo, cores (roxo → branco), código e assets.
 
 ## Arquitetura do core
 - `VfxCore` (entrypoint `client`): cria `ModuleManager`, carrega `ConfigManager`, recebe tick e teclas dos Mixins.
-- `module/`: `Module` (liga/desliga + `Setting`s + JSON), `HudModule` (texto arrastável com fundo/sombra/cor/tamanho), `Category`.
-  Módulos atuais: HUD (`fps`, `ping`, `coordinates`, `clock`), Visual (`fullbright`).
+  `VfxCore.module(Classe.class)` é o atalho que os Mixins usam (devolve `null` antes da inicialização).
+- `module/`: `Module` (liga/desliga + `Setting`s + JSON; `isAlwaysOn()` esconde a chave), `Category` (Geral, HUD, Visual, Desempenho, Social).
+  - `HudModule`: base de tudo que aparece na HUD (posição, fundo, escala); subclasses informam tamanho e desenham a partir de (0,0).
+    `TextHudModule` para texto de uma ou várias linhas.
+  - Settings: `BooleanSetting`, `NumberSetting` (slider), `TextSetting` (caixa de texto), `KeySetting` (captura de tecla/botão do mouse).
+  - Geral: `menu` (tecla do menu, sempre ligado), `titleScreen`.
+  - HUD: `fps`, `ping`, `coordinates`, `clock`, `cps`, `keystrokes`, `armor`, `potions`, `customText`.
+  - Visual: `zoom`, `fullbright`, `lowFire`, `noHurtCam`.
+  - Desempenho: `fpsLimiter`, `entityDistance`, `particleLimit`, `noClouds`.
+- `hud/`: `HudRenderer` (desenha a HUD), `ClickTracker` (CPS, alimentado por `KeyBinding.onKeyPressed`, códigos -100/-99).
+- `command/VfxCommands`: `/vfx`, `/vfx menu`, `/vfx hud`, `/vfx reset` (interceptados antes de ir ao servidor).
 - `config/ConfigManager`: salva com debounce de 1 s, hot-reload por data de modificação, arquivo corrompido vira `.broken`.
-- `gui/`: `ClickGuiScreen` (Right Shift), `HudEditorScreen` (drag-and-drop), `Render2D` (rounded rect, degradê, scissor), `Theme` (paleta), `Anim`, `Logo`.
-- `mixin/`: `InGameHudMixin` (desenha HUD), `KeyBindingMixin` (tecla do menu), `MinecraftClientMixin` (tick), `TitleScreenMixin`.
+  Migra a antiga chave `clickGuiKey` (v0.1) para o módulo `menu`.
+- `gui/`: `ClickGuiScreen`, `HudEditorScreen`, `Render2D`, `Theme`, `Anim`, `Logo` (ícone e wordmark carregados do classpath).
+- `mixin/`: `InGameHud` (HUD), `KeyBinding` (teclas/cliques), `MinecraftClient` (tick + FPS sem foco), `TitleScreen` (logo e versão),
+  `GameRenderer` (zoom, sem tremor, sem nuvens), `HeldItemRenderer` (fogo baixo), `ParticleManager` (limite),
+  `EntityRenderDispatcher` (distância de entidades), `ClientPlayerEntity` (comandos).
 
-## Estado atual (v0.1.0)
-- Build e `runClient` funcionam; HUD do FPS aparece no jogo.
-- **Em teste:** abrir o menu no Right Shift. Corrigido: o menu abria e fechava no mesmo evento de tecla; agora `onKeyPressed`
-  só marca o pedido e a tela abre no fim do tick (`VfxCore.onClientTick`).
-- **A confirmar com o usuário:** se as Coordenadas aparecem abaixo do FPS (deveriam; Ping só em servidor; Relógio começa desligado).
+## Estado atual (v0.2.0)
+- Build ok. `runClient` sobe sem erro (todos os Mixins de inicialização aplicam). O de `ClientPlayerEntity` só carrega ao entrar num mundo.
+- Click GUI, HUD e editor confirmados pelo usuário na v0.1. Os módulos da v0.2 ainda precisam ser testados por ele no jogo.
+- O log do jogo em dev quase não aparece: o log4j antigo do 1.8.9 não entende a config que o Loom gera. Para depurar, use `System.out`
+  temporariamente ou procure crash reports em `core/run/crash-reports`.
 
 ## Próximos passos (ver roadmap no README)
-1. Confirmar Click GUI, Coordenadas e editor de HUD funcionando no jogo.
-2. v0.2: logo na tela de título/splash, `/vfx reset`, trocar a tecla do menu pela GUI.
-3. v0.3: mais HUD (CPS, armadura, poções, keystrokes, texto custom).
-4. v0.4: launcher jogável offline (baixa MC 1.8.9 da Mojang, Legacy Fabric, Java 8 e o `vfxcore`).
+1. Usuário testar os módulos da v0.2 e reportar.
+2. v0.3: Social → waypoints.
+3. v0.4: launcher jogável offline (baixa MC 1.8.9 da Mojang, Legacy Fabric, Java 8 e o `vfxcore`).
 
 ## Decisões pendentes (perguntar ao usuário)
 - Backend de contas/skins (v0.9–v0.10): Firebase (recomendado) ou servidor próprio.

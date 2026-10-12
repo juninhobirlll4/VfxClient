@@ -24,18 +24,14 @@ public final class HudRenderer {
 		}
 		Window window = new Window(client);
 		for (HudModule module : core.getModules().hudModules()) {
-			if (!module.isEnabled()) {
+			if (!module.isEnabled() || !module.isVisible(client, false)) {
 				continue;
 			}
-			String text = module.getText(client);
-			if (text == null || text.isEmpty()) {
-				continue;
-			}
-			int w = module.getWidth(client.textRenderer, text);
-			int h = module.getHeight(client.textRenderer);
+			int w = module.getWidth(client, false);
+			int h = module.getHeight(client, false);
 			int x = clamp(module.getX(), window.getWidth() - w);
 			int y = clamp(module.getY(), window.getHeight() - h);
-			module.render(client.textRenderer, text, x, y);
+			module.render(client, x, y, false);
 		}
 	}
 

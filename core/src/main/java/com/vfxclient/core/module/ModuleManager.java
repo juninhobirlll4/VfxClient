@@ -4,11 +4,25 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.vfxclient.core.module.general.MenuModule;
+import com.vfxclient.core.module.general.TitleScreenModule;
+import com.vfxclient.core.module.hud.ArmorModule;
 import com.vfxclient.core.module.hud.ClockModule;
 import com.vfxclient.core.module.hud.CoordinatesModule;
+import com.vfxclient.core.module.hud.CpsModule;
+import com.vfxclient.core.module.hud.CustomTextModule;
 import com.vfxclient.core.module.hud.FpsModule;
+import com.vfxclient.core.module.hud.KeystrokesModule;
 import com.vfxclient.core.module.hud.PingModule;
+import com.vfxclient.core.module.hud.PotionEffectsModule;
+import com.vfxclient.core.module.performance.EntityDistanceModule;
+import com.vfxclient.core.module.performance.FpsLimiterModule;
+import com.vfxclient.core.module.performance.NoCloudsModule;
+import com.vfxclient.core.module.performance.ParticleLimitModule;
 import com.vfxclient.core.module.visual.FullbrightModule;
+import com.vfxclient.core.module.visual.LowFireModule;
+import com.vfxclient.core.module.visual.NoHurtCamModule;
+import com.vfxclient.core.module.visual.ZoomModule;
 import net.minecraft.client.MinecraftClient;
 
 /** Guarda todos os módulos do client, na ordem em que aparecem na Click GUI. */
@@ -18,11 +32,45 @@ public final class ModuleManager {
 
 	/** Registra os módulos que vêm com o client. */
 	public void registerDefaults() {
+		// Geral
+		register(new MenuModule());
+		register(new TitleScreenModule());
+		// HUD
 		register(new FpsModule());
 		register(new PingModule());
 		register(new CoordinatesModule());
 		register(new ClockModule());
+		register(new CpsModule());
+		register(new KeystrokesModule());
+		register(new ArmorModule());
+		register(new PotionEffectsModule());
+		register(new CustomTextModule());
+		// Visual
+		register(new ZoomModule());
 		register(new FullbrightModule());
+		register(new LowFireModule());
+		register(new NoHurtCamModule());
+		// Desempenho
+		register(new FpsLimiterModule());
+		register(new EntityDistanceModule());
+		register(new ParticleLimitModule());
+		register(new NoCloudsModule());
+	}
+
+	/**
+	 * Procura um módulo pela classe.
+	 *
+	 * @param type classe do módulo
+	 * @param <T>  tipo do módulo
+	 * @return o módulo (nunca {@code null} para módulos registrados em {@link #registerDefaults()})
+	 */
+	public <T extends Module> T get(Class<T> type) {
+		for (Module module : modules) {
+			if (type.isInstance(module)) {
+				return type.cast(module);
+			}
+		}
+		throw new IllegalArgumentException("Módulo não registrado: " + type.getSimpleName());
 	}
 
 	/**

@@ -1,11 +1,11 @@
 package com.vfxclient.core.module.hud;
 
-import com.vfxclient.core.module.HudModule;
+import com.vfxclient.core.module.TextHudModule;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
 
 /** Mostra a latência com o servidor (só em multiplayer). */
-public class PingModule extends HudModule {
+public class PingModule extends TextHudModule {
 
 	public PingModule() {
 		super("ping", "Ping", "Latência com o servidor", true, 4, 22);

@@ -1,12 +1,12 @@
 package com.vfxclient.core.module.hud;
 
-import com.vfxclient.core.module.HudModule;
+import com.vfxclient.core.module.TextHudModule;
 import com.vfxclient.core.module.setting.BooleanSetting;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.MathHelper;
 
 /** Mostra as coordenadas do jogador e, opcionalmente, a direção. */
-public class CoordinatesModule extends HudModule {
+public class CoordinatesModule extends TextHudModule {
 
 	/** Pontos cardeais na ordem do yaw do Minecraft (0 = sul). */
 	private static final String[] DIRECTIONS = {"S", "O", "N", "L"};

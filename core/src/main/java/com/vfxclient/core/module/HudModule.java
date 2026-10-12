@@ -7,17 +7,19 @@ import com.vfxclient.core.gui.Theme;
 import com.vfxclient.core.module.setting.BooleanSetting;
 import com.vfxclient.core.module.setting.NumberSetting;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
 
 /**
- * Módulo que desenha um texto na HUD, numa posição que o jogador pode arrastar.
+ * Módulo que desenha algo na HUD, numa posição que o jogador pode arrastar.
  *
- * <p>As posições ficam em pixels escalados da GUI (o mesmo sistema de coordenadas
- * das telas do Minecraft) e são salvas no JSON junto com as opções.</p>
+ * <p>Subclasses informam o tamanho do conteúdo e o desenham a partir de (0, 0);
+ * fundo, espaçamento interno e escala ficam a cargo desta classe. Para módulos
+ * que só mostram texto, use {@link TextHudModule}.</p>
+ *
+ * <p>As posições ficam em pixels escalados da GUI e são salvas no JSON.</p>
  */
 public abstract class HudModule extends Module {
 
-	/** Espaço interno entre o texto e a borda do fundo. */
+	/** Espaço interno entre o conteúdo e a borda do fundo. */
 	public static final int PADDING = 4;
 
 	protected final BooleanSetting background = add(new BooleanSetting("background", "Fundo", true));
@@ -47,63 +49,108 @@ public abstract class HudModule extends Module {
 	}
 
 	/**
-	 * Texto atual do elemento.
+	 * Se há algo para desenhar agora.
 	 *
-	 * @param client instância do Minecraft
-	 * @return o texto, ou {@code null} para não desenhar nada agora
+	 * @param client  instância do Minecraft
+	 * @param preview {@code true} no editor de HUD (deve mostrar um exemplo mesmo sem dados)
+	 * @return se o elemento aparece
 	 */
-	public abstract String getText(MinecraftClient client);
+	public abstract boolean isVisible(MinecraftClient client, boolean preview);
 
 	/**
-	 * Texto de exemplo mostrado no editor de HUD quando {@link #getText} não tem valor.
-	 *
-	 * @return texto de exemplo
+	 * @param client  instância do Minecraft
+	 * @param preview modo editor
+	 * @return largura do conteúdo, sem escala e sem espaçamento
 	 */
-	public abstract String getSampleText();
+	protected abstract int contentWidth(MinecraftClient client, boolean preview);
 
 	/**
-	 * Largura final do elemento, já com fundo e escala.
-	 *
-	 * @param textRenderer fonte do jogo
-	 * @param text         texto a medir
-	 * @return largura em pixels escalados
+	 * @param client  instância do Minecraft
+	 * @param preview modo editor
+	 * @return altura do conteúdo, sem escala e sem espaçamento
 	 */
-	public int getWidth(TextRenderer textRenderer, String text) {
-		return (int) Math.ceil((textRenderer.getStringWidth(text) + PADDING * 2) * scale.get());
+	protected abstract int contentHeight(MinecraftClient client, boolean preview);
+
+	/**
+	 * Desenha o conteúdo com origem em (0, 0).
+	 *
+	 * @param client  instância do Minecraft
+	 * @param preview modo editor
+	 */
+	protected abstract void renderContent(MinecraftClient client, boolean preview);
+
+	/** @return {@code false} se o módulo desenha o próprio fundo (ex.: teclas) */
+	protected boolean usesSharedBackground() {
+		return true;
 	}
 
 	/**
-	 * Altura final do elemento, já com fundo e escala.
+	 * Largura final, com espaçamento e escala.
 	 *
-	 * @param textRenderer fonte do jogo
+	 * @param client  instância do Minecraft
+	 * @param preview modo editor
+	 * @return largura em pixels escalados
+	 */
+	public int getWidth(MinecraftClient client, boolean preview) {
+		return (int) Math.ceil((contentWidth(client, preview) + padding() * 2) * scale.get());
+	}
+
+	/**
+	 * Altura final, com espaçamento e escala.
+	 *
+	 * @param client  instância do Minecraft
+	 * @param preview modo editor
 	 * @return altura em pixels escalados
 	 */
-	public int getHeight(TextRenderer textRenderer) {
-		return (int) Math.ceil((textRenderer.fontHeight - 1 + PADDING * 2) * scale.get());
+	public int getHeight(MinecraftClient client, boolean preview) {
+		return (int) Math.ceil((contentHeight(client, preview) + padding() * 2) * scale.get());
 	}
 
 	/**
 	 * Desenha o elemento na posição indicada.
 	 *
-	 * @param textRenderer fonte do jogo
-	 * @param text         texto
-	 * @param drawX        posição X
-	 * @param drawY        posição Y
+	 * @param client  instância do Minecraft
+	 * @param drawX   posição X
+	 * @param drawY   posição Y
+	 * @param preview modo editor
 	 */
-	public void render(TextRenderer textRenderer, String text, int drawX, int drawY) {
+	public void render(MinecraftClient client, int drawX, int drawY, boolean preview) {
 		float s = scale.get().floatValue();
-		int w = textRenderer.getStringWidth(text) + PADDING * 2;
-		int h = textRenderer.fontHeight - 1 + PADDING * 2;
+		int pad = padding();
+		int w = contentWidth(client, preview) + pad * 2;
+		int h = contentHeight(client, preview) + pad * 2;
 
 		GlStateManager.pushMatrix();
-		GlStateManager.translate((float) drawX, (float) drawY, 0f);
-		GlStateManager.scale(s, s, 1f);
-		if (background.get()) {
+		GlStateManager.translate((float) drawX, (float) drawY, 0F);
+		GlStateManager.scale(s, s, 1F);
+		if (usesSharedBackground() && background.get()) {
 			Render2D.roundedRect(0, 0, w, h, 3, Theme.HUD_BACKGROUND);
 		}
-		int color = brandColor.get() ? Theme.PRIMARY_LIGHT : Theme.WHITE;
-		textRenderer.draw(text, (float) PADDING, (float) PADDING, color, shadow.get());
+		GlStateManager.translate((float) pad, (float) pad, 0F);
+		renderContent(client, preview);
 		GlStateManager.popMatrix();
+		GlStateManager.color(1F, 1F, 1F, 1F);
+	}
+
+	private int padding() {
+		return usesSharedBackground() ? PADDING : 0;
+	}
+
+	/**
+	 * Desenha texto com a cor e a sombra escolhidas pelo jogador.
+	 *
+	 * @param client instância do Minecraft
+	 * @param text   texto
+	 * @param x      posição X dentro do conteúdo
+	 * @param y      posição Y dentro do conteúdo
+	 */
+	protected void drawText(MinecraftClient client, String text, float x, float y) {
+		client.textRenderer.draw(text, x, y, textColor(), shadow.get());
+	}
+
+	/** @return cor do texto conforme a opção "cor da marca" */
+	protected int textColor() {
+		return brandColor.get() ? Theme.PRIMARY_LIGHT : Theme.WHITE;
 	}
 
 	/** @return posição X salva */

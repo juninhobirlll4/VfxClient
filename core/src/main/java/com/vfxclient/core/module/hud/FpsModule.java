@@ -1,10 +1,10 @@
 package com.vfxclient.core.module.hud;
 
-import com.vfxclient.core.module.HudModule;
+import com.vfxclient.core.module.TextHudModule;
 import net.minecraft.client.MinecraftClient;
 
 /** Mostra os quadros por segundo. */
-public class FpsModule extends HudModule {
+public class FpsModule extends TextHudModule {
 
 	public FpsModule() {
 		super("fps", "FPS", "Quadros por segundo", true, 4, 4);

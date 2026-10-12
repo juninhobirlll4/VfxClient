@@ -48,12 +48,11 @@ public class HudEditorScreen extends Screen {
 
 		HudModule hovered = dragging != null ? dragging : findAt(mouseX, mouseY);
 		for (HudModule module : enabledModules()) {
-			String text = displayText(module);
-			int w = module.getWidth(textRenderer, text);
-			int h = module.getHeight(textRenderer);
+			int w = module.getWidth(client, true);
+			int h = module.getHeight(client, true);
 			int x = HudRenderer.clamp(module.getX(), width - w);
 			int y = HudRenderer.clamp(module.getY(), height - h);
-			module.render(textRenderer, text, x, y);
+			module.render(client, x, y, true);
 			Render2D.outline(x - 1, y - 1, w + 2, h + 2, module == hovered ? Theme.PRIMARY_LIGHT : 0x66FFFFFF);
 		}
 
@@ -71,8 +70,8 @@ public class HudEditorScreen extends Screen {
 		}
 		if (button == 0) {
 			dragging = module;
-			offsetX = mouseX - HudRenderer.clamp(module.getX(), width - module.getWidth(textRenderer, displayText(module)));
-			offsetY = mouseY - HudRenderer.clamp(module.getY(), height - module.getHeight(textRenderer));
+			offsetX = mouseX - HudRenderer.clamp(module.getX(), width - module.getWidth(client, true));
+			offsetY = mouseY - HudRenderer.clamp(module.getY(), height - module.getHeight(client, true));
 		} else if (button == 1) {
 			module.resetPosition();
 		}
@@ -83,8 +82,8 @@ public class HudEditorScreen extends Screen {
 		if (dragging == null) {
 			return;
 		}
-		int w = dragging.getWidth(textRenderer, displayText(dragging));
-		int h = dragging.getHeight(textRenderer);
+		int w = dragging.getWidth(client, true);
+		int h = dragging.getHeight(client, true);
 		int x = snap(mouseX - offsetX, w, width);
 		int y = snap(mouseY - offsetY, h, height);
 		dragging.setPosition(HudRenderer.clamp(x, width - w), HudRenderer.clamp(y, height - h));
@@ -99,6 +98,7 @@ public class HudEditorScreen extends Screen {
 	protected void keyPressed(char character, int keyCode) {
 		if (keyCode == Keyboard.KEY_ESCAPE) {
 			client.setScreen(parent);
+			return;
 		}
 	}
 
@@ -121,9 +121,8 @@ public class HudEditorScreen extends Screen {
 		List<HudModule> modules = enabledModules();
 		for (int i = modules.size() - 1; i >= 0; i--) {
 			HudModule module = modules.get(i);
-			String text = displayText(module);
-			int w = module.getWidth(textRenderer, text);
-			int h = module.getHeight(textRenderer);
+			int w = module.getWidth(client, true);
+			int h = module.getHeight(client, true);
 			int x = HudRenderer.clamp(module.getX(), width - w);
 			int y = HudRenderer.clamp(module.getY(), height - h);
 			if (mouseX >= x && mouseX < x + w && mouseY >= y && mouseY < y + h) {
@@ -131,11 +130,6 @@ public class HudEditorScreen extends Screen {
 			}
 		}
 		return null;
-	}
-
-	private String displayText(HudModule module) {
-		String text = module.getText(client);
-		return text == null || text.isEmpty() ? module.getSampleText() : text;
 	}
 
 	private static List<HudModule> enabledModules() {

@@ -16,7 +16,7 @@ import com.google.gson.JsonParser;
 import com.vfxclient.core.VfxCore;
 import com.vfxclient.core.module.Module;
 import com.vfxclient.core.module.ModuleManager;
-import org.lwjgl.input.Keyboard;
+import com.vfxclient.core.module.general.MenuModule;
 
 /**
  * Lê e grava {@code .minecraft/vfxclient/config/modules.json}.
@@ -37,7 +37,6 @@ public final class ConfigManager {
 	private final ModuleManager modules;
 	private final Path file;
 
-	private int clickGuiKey = Keyboard.KEY_RSHIFT;
 	private boolean dirty;
 	private int ticksSinceDirty;
 	private int ticksSinceCheck;
@@ -73,8 +72,9 @@ public final class ConfigManager {
 	}
 
 	private void apply(JsonObject root) {
+		// Configs da v0.1.0 guardavam a tecla do menu na raiz; hoje ela fica no módulo "menu".
 		if (root.has("clickGuiKey") && root.get("clickGuiKey").isJsonPrimitive()) {
-			clickGuiKey = root.get("clickGuiKey").getAsInt();
+			modules.get(MenuModule.class).setKey(root.get("clickGuiKey").getAsInt());
 		}
 		if (root.has("modules") && root.get("modules").isJsonObject()) {
 			JsonObject saved = root.getAsJsonObject("modules");
@@ -90,7 +90,6 @@ public final class ConfigManager {
 	public void save() {
 		JsonObject root = new JsonObject();
 		root.addProperty("formatVersion", FORMAT_VERSION);
-		root.addProperty("clickGuiKey", clickGuiKey);
 		JsonObject saved = new JsonObject();
 		for (Module module : modules.all()) {
 			saved.add(module.getId(), module.toJson());
@@ -122,7 +121,6 @@ public final class ConfigManager {
 		for (Module module : modules.all()) {
 			module.resetToDefaults();
 		}
-		clickGuiKey = Keyboard.KEY_RSHIFT;
 		save();
 	}
 
@@ -158,10 +156,5 @@ public final class ConfigManager {
 		} catch (IOException e) {
 			VfxCore.LOGGER.warn("Não foi possível guardar a config corrompida", e);
 		}
-	}
-
-	/** @return código LWJGL da tecla que abre a Click GUI (padrão: Right Shift) */
-	public int getClickGuiKey() {
-		return clickGuiKey;
 	}
 }

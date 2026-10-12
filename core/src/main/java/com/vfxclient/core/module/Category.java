@@ -2,6 +2,7 @@ package com.vfxclient.core.module;
 
 /** Categorias exibidas na barra lateral da Click GUI. */
 public enum Category {
+	GENERAL("Geral", "Menu, tela inicial e comandos"),
 	HUD("HUD", "Elementos na tela durante o jogo"),
 	VISUAL("Visual", "Aparência do mundo e do jogo"),
 	PERFORMANCE("Desempenho", "Ganhos de FPS"),

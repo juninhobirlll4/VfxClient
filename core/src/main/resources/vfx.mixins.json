@@ -5,9 +5,14 @@
   "compatibilityLevel": "JAVA_8",
   "mixins": [],
   "client": [
+    "ClientPlayerEntityMixin",
+    "EntityRenderDispatcherMixin",
+    "GameRendererMixin",
+    "HeldItemRendererMixin",
     "InGameHudMixin",
     "KeyBindingMixin",
     "MinecraftClientMixin",
+    "ParticleManagerMixin",
     "TitleScreenMixin"
   ],
   "injectors": {

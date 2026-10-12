@@ -77,6 +77,9 @@ public abstract class Module {
 	 * @param enabled novo estado
 	 */
 	public void setEnabled(boolean enabled) {
+		if (isAlwaysOn()) {
+			enabled = true;
+		}
 		if (this.enabled == enabled) {
 			return;
 		}
@@ -87,6 +90,11 @@ public abstract class Module {
 			onDisable();
 		}
 		markDirty();
+	}
+
+	/** @return {@code true} para módulos que não podem ser desligados (sem chave na GUI) */
+	public boolean isAlwaysOn() {
+		return false;
 	}
 
 	/** Inverte o estado do módulo. */
