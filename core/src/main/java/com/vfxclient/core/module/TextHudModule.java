@@ -28,6 +28,21 @@ public abstract class TextHudModule extends HudModule {
 	}
 
 	/**
+	 * Para módulos de outra categoria que também mostram texto na HUD.
+	 *
+	 * @param id               chave do JSON
+	 * @param name             nome exibido
+	 * @param description      descrição curta
+	 * @param category         categoria da Click GUI
+	 * @param enabledByDefault se começa ligado
+	 * @param defaultX         posição X padrão
+	 * @param defaultY         posição Y padrão
+	 */
+	protected TextHudModule(String id, String name, String description, Category category, boolean enabledByDefault, int defaultX, int defaultY) {
+		super(id, name, description, category, enabledByDefault, defaultX, defaultY);
+	}
+
+	/**
 	 * Texto de uma linha.
 	 *
 	 * @param client instância do Minecraft

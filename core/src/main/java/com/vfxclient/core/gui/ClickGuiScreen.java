@@ -458,6 +458,7 @@ public class ClickGuiScreen extends Screen {
 	}
 
 	private void openSettings(Module module) {
+		module.onSettingsOpened();
 		settingsModule = module;
 		settingsScrollTarget = 0;
 		stopEditing();

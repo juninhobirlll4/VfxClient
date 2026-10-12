@@ -62,13 +62,28 @@ public class PerformanceProfileModule extends Module {
 		set(modules.get(BlockEntityDistanceModule.class), level >= BALANCED);
 		number(modules.get(BlockEntityDistanceModule.class), "distance", level == BALANCED ? 40 : level == MAX_FPS ? 24 : 16);
 		set(modules.get(ParticleLimitModule.class), !quality);
-		number(modules.get(ParticleLimitModule.class), "amount", level == BALANCED ? 60 : level == MAX_FPS ? 25 : 10);
+		ParticleLimitModule particles = modules.get(ParticleLimitModule.class);
+		number(particles, "amount", level == BALANCED ? 60 : level == MAX_FPS ? 25 : 10);
+		bool(particles, "explosions", level <= MAX_FPS);
+		bool(particles, "smoke", level <= BALANCED);
+		bool(particles, "blocks", level <= MAX_FPS);
+		bool(particles, "water", level <= BALANCED);
+		bool(particles, "magic", level <= BALANCED);
+		bool(particles, "footsteps", quality);
+		bool(particles, "crits", true);
+		bool(particles, "potions", true);
 		set(modules.get(NoCloudsModule.class), !quality);
 		set(modules.get(FpsLimiterModule.class), true);
 
 		RenderTweaksModule tweaks = modules.get(RenderTweaksModule.class);
 		set(tweaks, true);
-		bool(tweaks, "animatedTextures", level <= BALANCED);
+		bool(tweaks, "animatedTextures", level <= MAX_FPS);
+		bool(tweaks, "animWater", level <= BALANCED);
+		bool(tweaks, "animLava", level <= BALANCED);
+		bool(tweaks, "animFire", true);
+		bool(tweaks, "animPortal", level <= BALANCED);
+		bool(tweaks, "fog", level <= BALANCED);
+		bool(tweaks, "vignette", quality);
 		bool(tweaks, "weather", level <= BALANCED);
 		bool(tweaks, "sky", level <= MAX_FPS);
 		bool(tweaks, "glint", level <= BALANCED);
@@ -100,6 +115,12 @@ public class PerformanceProfileModule extends Module {
 			options.viewDistance = Math.min(options.viewDistance, max);
 		}
 		org.lwjgl.opengl.Display.setVSyncEnabled(options.vsync);
+		options.bobView = level < MAX_FPS;
+		// Mipmap 0 recarrega as texturas (alguns segundos), por isso só nos perfis mais leves.
+		int mipmap = level >= MAX_FPS ? 0 : level == BALANCED ? 2 : 4;
+		if (options.mipmapLevels != mipmap) {
+			options.setValue(GameOptions.Option.MIPMAP_LEVELS, mipmap);
+		}
 		options.save();
 		if (client.worldRenderer != null && client.world != null) {
 			client.worldRenderer.reload();

@@ -53,6 +53,12 @@ troque `run_java_version` em `gradle.properties`.
 **Abrir no IntelliJ:** *File → Open* na pasta do repo e aceitar o import do Gradle.
 Depois rode `gradlew :core:genSources` para ter o código do Minecraft navegável.
 
+## Site de download
+
+A pasta `site/` é publicada no GitHub Pages pela CI (`.github/workflows/pages.yml`) e sempre aponta para os arquivos
+da última versão em GitHub Releases. Para ativar: no GitHub, **Settings > Pages > Source = GitHub Actions**.
+O repositório precisa ser **público** para o site e os downloads funcionarem para quem não é colaborador.
+
 ## Release
 
 ```bat
@@ -79,8 +85,9 @@ Tags com sufixo (`v0.2.0-beta`) saem como *pre-release*.
 - [x] **v0.2 – Geral + HUD + Visual:** logo na tela inicial, tecla do menu configurável, comandos `/vfx`; CPS, teclas, armadura, poções, texto; zoom, fogo baixo, sem tremor; 1ª leva de desempenho
 - [x] **v0.3 – Desempenho 2ª leva + perfis de FPS:** perfis Qualidade / Equilibrado / Máximo FPS / PC fraco (ajustam o VfxClient e as opções gráficas do Minecraft), culling de entidades atrás de blocos, distância de baús/placas, texturas animadas, chuva, céu e brilho de encantamento desligáveis, itens no chão como um só modelo, limite de tempo de chunks por frame
 
+- [x] **v0.4 – Utilidades + opções estilo OptiFine:** sprint automático e agachar alternado, mira (5 formatos), contorno de bloco, cor do hit, chat com horário e mensagens agrupadas, placar sem números, hora e clima locais, nome próprio no F5; opções gráficas do Minecraft dentro do menu (distância, FPS, vsync, VBO, mipmap, luz...), sem névoa, sem vinheta, animação por tipo, partículas por tipo; site de download
+
 ### Próximas partes
-- [ ] **v0.4 – Qualidade de vida:** sprint/agachar automático, mira personalizada, contorno de bloco, cor do hit, hora e clima locais, nametag própria, chat (horário, empilhar mensagens repetidas), placar
 - [ ] **v0.5 – Social:** waypoints (criar, cor, distância, compartilhar no chat)
 - [ ] **v0.6 – Launcher jogável (offline):** baixa o Minecraft 1.8.9 dos servidores da Mojang, o Legacy Fabric, um runtime Java 8 e o `vfxcore`; botão Jogar e status de download
 - [ ] **v0.7 – Login Microsoft:** contas premium

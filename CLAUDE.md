@@ -43,9 +43,13 @@ Tudo é nosso: nome, logo, cores (roxo → branco), código e assets.
   - Settings: `BooleanSetting`, `NumberSetting` (slider), `TextSetting` (caixa de texto), `KeySetting` (captura de tecla/botão do mouse).
   - Geral: `menu` (tecla do menu, sempre ligado), `titleScreen`.
   - HUD: `fps`, `ping`, `coordinates`, `clock`, `cps`, `keystrokes`, `armor`, `potions`, `customText`.
+  - Utilidades: `toggleSprint` (HUD de estado, força `KeyBinding.isPressed`), `crosshair`, `blockOutline`, `hitColor`, `chat`,
+    `scoreboard`, `timeChanger`, `weatherChanger`, `ownNametag`.
   - Visual: `zoom`, `fullbright`, `lowFire`, `noHurtCam`.
   - Desempenho: `performanceProfile` (perfis que ajustam módulos + GameOptions vanilla), `renderTweaks`, `entityCulling`,
-    `entityDistance`, `blockEntityDistance`, `particleLimit`, `noClouds`, `fpsLimiter`.
+    `vanillaOptions` (GameOptions dentro da GUI; lê no `onSettingsOpened`), `entityDistance`, `blockEntityDistance`,
+    `particleLimit` (por tipo), `noClouds`, `fpsLimiter`. Não dá para usar OptiFine (não existe para Fabric 1.8.9 e a licença
+    proíbe redistribuir): as otimizações são nossas.
   - Settings também: `ChoiceSetting` (ciclo de opções). `Module.onSettingChanged` é chamado pela GUI após mudança manual;
     mudar algo em Desempenho marca o perfil como "Personalizado".
 - `hud/`: `HudRenderer` (desenha a HUD), `ClickTracker` (CPS, alimentado por `KeyBinding.onKeyPressed`, códigos -100/-99).
@@ -60,9 +64,9 @@ Tudo é nosso: nome, logo, cores (roxo → branco), código e assets.
   `ItemEntityRenderer` (`method_10222` = cópias do modelo do item), `BlockEntityRenderDispatcher` (distância de baús).
 - **Não** coloque classes comuns dentro de `com.vfxclient.core.mixin`: o Mixin proíbe carregar classes do pacote de mixins.
 
-## Estado atual (v0.3.0)
+## Estado atual (v0.4.0)
 - Build ok. `runClient` sobe sem erro (todos os Mixins de inicialização aplicam). O de `ClientPlayerEntity` só carrega ao entrar num mundo.
-- Click GUI, HUD e editor confirmados pelo usuário na v0.1. Módulos da v0.2 e v0.3 sobem sem erro, mas precisam de teste dele dentro de um mundo.
+- Click GUI, HUD e editor confirmados pelo usuário na v0.1. Módulos da v0.2 a v0.4 sobem sem erro, mas precisam de teste dele dentro de um mundo.
 - Para testar inicialização sozinho: rodar `runClient` em background, esperar ~45 s sem `core/run/crash-reports` e matar o processo java do jogo.
 - O log do jogo em dev quase não aparece: o log4j antigo do 1.8.9 não entende a config que o Loom gera. Para depurar, use `System.out`
   temporariamente ou procure crash reports em `core/run/crash-reports`.
@@ -70,14 +74,14 @@ Tudo é nosso: nome, logo, cores (roxo → branco), código e assets.
 ## Próximos passos (ver roadmap no README)
 O usuário quer, por partes, as mesmas funcionalidades de clients populares (estilo Lunar + contas/skins estilo CMClient),
 com código e identidade próprios, e muita personalização de FPS. Ordem combinada:
-1. v0.4: qualidade de vida (sprint automático, mira, contorno de bloco, cor do hit, hora/clima, nametag, chat, placar).
-2. v0.5: Social → waypoints.
+1. v0.5: Social → waypoints.
+2. Site de download em `site/` (GitHub Pages via `pages.yml`); repo precisa ser público.
 3. v0.6: launcher jogável offline. 4. v0.7: login Microsoft. 5. v0.8: contas e skins (backend pendente).
 
 ## Decisões pendentes (perguntar ao usuário)
-- Backend de contas/skins (v0.9–v0.10): Firebase (recomendado) ou servidor próprio.
+- Backend de contas/skins (v0.8): usuário não quer Firebase; opções apresentadas: Supabase, Cloudflare (Workers + D1 + R2) ou VPS própria.
 - Remover authlib-injector da stack (proposto; o modelo de skins via API própria não precisa dele).
-- Contas Microsoft também usam skin VfxClient?
+- Decidido: contas Microsoft usam a skin original (oficial); skin VfxClient só para contas VfxClient.
 - Performance (v0.6): o usuário quer ganhos "como o Lunar" → implementar técnicas equivalentes com código próprio, nunca copiar.
 
 ## Comandos

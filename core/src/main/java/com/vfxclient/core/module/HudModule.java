@@ -41,7 +41,22 @@ public abstract class HudModule extends Module {
 	 * @param defaultY         posição Y padrão (pixels escalados)
 	 */
 	protected HudModule(String id, String name, String description, boolean enabledByDefault, int defaultX, int defaultY) {
-		super(id, name, description, Category.HUD, enabledByDefault);
+		this(id, name, description, Category.HUD, enabledByDefault, defaultX, defaultY);
+	}
+
+	/**
+	 * Igual ao outro construtor, mas para módulos de outra categoria que também desenham na HUD.
+	 *
+	 * @param id               chave do JSON
+	 * @param name             nome exibido
+	 * @param description      descrição curta
+	 * @param category         categoria da Click GUI
+	 * @param enabledByDefault se começa ligado
+	 * @param defaultX         posição X padrão
+	 * @param defaultY         posição Y padrão
+	 */
+	protected HudModule(String id, String name, String description, Category category, boolean enabledByDefault, int defaultX, int defaultY) {
+		super(id, name, description, category, enabledByDefault);
 		this.defaultX = defaultX;
 		this.defaultY = defaultY;
 		this.x = defaultX;

@@ -59,6 +59,68 @@ public final class Render2D {
 	}
 
 	/**
+	 * Anel (círculo vazado), usado pela mira em formato de círculo.
+	 *
+	 * @param cx        centro X
+	 * @param cy        centro Y
+	 * @param radius    raio externo
+	 * @param thickness espessura do anel
+	 * @param color     cor ARGB
+	 */
+	public static void ring(float cx, float cy, float radius, float thickness, int color) {
+		float inner = Math.max(0F, radius - thickness);
+		int segments = 32;
+		begin(color);
+		// A ordem dos vértices de uma faixa não garante o sentido; desliga o culling só aqui
+		// (direto no GL e restaurando igual, para não dessincronizar o cache do GlStateManager).
+		boolean cull = GL11.glIsEnabled(GL11.GL_CULL_FACE);
+		if (cull) {
+			GL11.glDisable(GL11.GL_CULL_FACE);
+		}
+		BufferBuilder buffer = Tessellator.getInstance().getBuffer();
+		buffer.begin(GL11.GL_QUAD_STRIP, VertexFormats.POSITION);
+		for (int i = 0; i <= segments; i++) {
+			double angle = Math.PI * 2 * i / segments;
+			double cos = Math.cos(angle);
+			double sin = Math.sin(angle);
+			buffer.vertex(cx + cos * radius, cy + sin * radius, 0D).next();
+			buffer.vertex(cx + cos * inner, cy + sin * inner, 0D).next();
+		}
+		Tessellator.getInstance().draw();
+		if (cull) {
+			GL11.glEnable(GL11.GL_CULL_FACE);
+		}
+		end();
+	}
+
+	/**
+	 * Retângulo sólido que não mexe no modo de mistura atual (para efeitos como inverter cor).
+	 *
+	 * @param x     esquerda
+	 * @param y     topo
+	 * @param w     largura
+	 * @param h     altura
+	 * @param color cor ARGB
+	 */
+	public static void rawRect(float x, float y, float w, float h, int color) {
+		GlStateManager.disableTexture();
+		GlStateManager.color(
+				((color >> 16) & 0xFF) / 255F,
+				((color >> 8) & 0xFF) / 255F,
+				(color & 0xFF) / 255F,
+				((color >>> 24) & 0xFF) / 255F);
+		BufferBuilder buffer = Tessellator.getInstance().getBuffer();
+		buffer.begin(GL11.GL_QUADS, VertexFormats.POSITION);
+		buffer.vertex(x, y + h, 0D).next();
+		buffer.vertex(x + w, y + h, 0D).next();
+		buffer.vertex(x + w, y, 0D).next();
+		buffer.vertex(x, y, 0D).next();
+		Tessellator.getInstance().draw();
+		GlStateManager.enableTexture();
+		GlStateManager.color(1F, 1F, 1F, 1F);
+	}
+
+	/**
 	 * Retângulo com degradê horizontal (esquerda → direita).
 	 *
 	 * @param x     esquerda

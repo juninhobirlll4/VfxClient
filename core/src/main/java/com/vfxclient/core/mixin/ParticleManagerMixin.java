@@ -16,7 +16,7 @@ public abstract class ParticleManagerMixin {
 	@Inject(method = "addParticle(Lnet/minecraft/client/particle/Particle;)V", at = @At("HEAD"), cancellable = true)
 	private void vfx$limitParticles(Particle particle, CallbackInfo ci) {
 		ParticleLimitModule module = VfxCore.module(ParticleLimitModule.class);
-		if (module != null && module.shouldDrop()) {
+		if (module != null && module.shouldDrop(particle)) {
 			ci.cancel();
 		}
 	}

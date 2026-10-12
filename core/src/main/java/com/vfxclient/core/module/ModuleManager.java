@@ -2,7 +2,9 @@ package com.vfxclient.core.module;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.vfxclient.core.module.general.MenuModule;
 import com.vfxclient.core.module.general.TitleScreenModule;
@@ -23,6 +25,16 @@ import com.vfxclient.core.module.performance.RenderTweaksModule;
 import com.vfxclient.core.module.performance.FpsLimiterModule;
 import com.vfxclient.core.module.performance.NoCloudsModule;
 import com.vfxclient.core.module.performance.ParticleLimitModule;
+import com.vfxclient.core.module.performance.VanillaOptionsModule;
+import com.vfxclient.core.module.util.BlockOutlineModule;
+import com.vfxclient.core.module.util.ChatModule;
+import com.vfxclient.core.module.util.CrosshairModule;
+import com.vfxclient.core.module.util.HitColorModule;
+import com.vfxclient.core.module.util.OwnNametagModule;
+import com.vfxclient.core.module.util.ScoreboardModule;
+import com.vfxclient.core.module.util.TimeChangerModule;
+import com.vfxclient.core.module.util.ToggleSprintModule;
+import com.vfxclient.core.module.util.WeatherChangerModule;
 import com.vfxclient.core.module.visual.FullbrightModule;
 import com.vfxclient.core.module.visual.LowFireModule;
 import com.vfxclient.core.module.visual.NoHurtCamModule;
@@ -33,6 +45,7 @@ import net.minecraft.client.MinecraftClient;
 public final class ModuleManager {
 
 	private final List<Module> modules = new ArrayList<Module>();
+	private final Map<Class<?>, Module> byType = new HashMap<Class<?>, Module>();
 
 	/** Registra os módulos que vêm com o client. */
 	public void registerDefaults() {
@@ -49,6 +62,16 @@ public final class ModuleManager {
 		register(new ArmorModule());
 		register(new PotionEffectsModule());
 		register(new CustomTextModule());
+		// Utilidades
+		register(new ToggleSprintModule());
+		register(new CrosshairModule());
+		register(new BlockOutlineModule());
+		register(new HitColorModule());
+		register(new ChatModule());
+		register(new ScoreboardModule());
+		register(new TimeChangerModule());
+		register(new WeatherChangerModule());
+		register(new OwnNametagModule());
 		// Visual
 		register(new ZoomModule());
 		register(new FullbrightModule());
@@ -56,6 +79,7 @@ public final class ModuleManager {
 		register(new NoHurtCamModule());
 		// Desempenho
 		register(new PerformanceProfileModule());
+		register(new VanillaOptionsModule());
 		register(new RenderTweaksModule());
 		register(new EntityCullingModule());
 		register(new EntityDistanceModule());
@@ -73,8 +97,14 @@ public final class ModuleManager {
 	 * @return o módulo (nunca {@code null} para módulos registrados em {@link #registerDefaults()})
 	 */
 	public <T extends Module> T get(Class<T> type) {
+		// Os Mixins chamam isto em todo frame: guardamos o resultado num mapa.
+		Module cached = byType.get(type);
+		if (cached != null) {
+			return type.cast(cached);
+		}
 		for (Module module : modules) {
 			if (type.isInstance(module)) {
+				byType.put(type, module);
 				return type.cast(module);
 			}
 		}

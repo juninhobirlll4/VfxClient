@@ -8,6 +8,7 @@
     "ClientPlayerEntityMixin",
     "EntityRenderDispatcherMixin",
     "GameRendererMixin",
+    "InGameHudAccessor",
     "HeldItemRendererMixin",
     "InGameHudMixin",
     "KeyBindingMixin",
@@ -19,7 +20,12 @@
     "perf.ItemEntityRendererMixin",
     "perf.ItemRendererMixin",
     "perf.SpriteAtlasTextureMixin",
-    "perf.WorldRendererMixin"
+    "perf.SpriteMixin",
+    "perf.WorldRendererMixin",
+    "util.ChatHudMixin",
+    "util.LivingEntityRendererMixin",
+    "util.WorldMixin",
+    "util.WorldRendererOutlineMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -25,3 +25,6 @@ dist/
 # Sistema
 .DS_Store
 Thumbs.db
+
+# Site: a CI copia a marca para cá antes de publicar
+site/assets/

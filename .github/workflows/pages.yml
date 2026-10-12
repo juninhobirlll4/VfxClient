@@ -1,0 +1,45 @@
+# Publica o site de download (pasta site/) no GitHub Pages a cada push na main.
+# Primeira vez: no GitHub, Settings > Pages > Source = "GitHub Actions".
+name: Site
+
+on:
+  push:
+    branches: [main]
+    paths: ["site/**", "branding/generated/**", ".github/workflows/pages.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Copiar a marca para o site
+        run: |
+          mkdir -p site/assets
+          cp branding/generated/wordmark.png branding/generated/vfxclient-64.png site/assets/
+
+      - name: Configurar Pages
+        uses: actions/configure-pages@v5
+
+      - name: Enviar o site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Publicar
+        id: deployment
+        uses: actions/deploy-pages@v4

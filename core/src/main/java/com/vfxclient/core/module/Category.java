@@ -4,6 +4,7 @@ package com.vfxclient.core.module;
 public enum Category {
 	GENERAL("Geral", "Menu, tela inicial e comandos"),
 	HUD("HUD", "Elementos na tela durante o jogo"),
+	UTILITY("Utilidades", "Sprint, mira, chat e outros ajustes"),
 	VISUAL("Visual", "Aparência do mundo e do jogo"),
 	PERFORMANCE("Desempenho", "Ganhos de FPS"),
 	SOCIAL("Social", "Amigos, skins e waypoints");

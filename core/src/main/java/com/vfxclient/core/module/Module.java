@@ -92,6 +92,10 @@ public abstract class Module {
 		markDirty();
 	}
 
+	/** Chamado pela Click GUI quando a tela de opções deste módulo abre (ex.: para ler valores do jogo). */
+	public void onSettingsOpened() {
+	}
+
 	/**
 	 * Chamado pela Click GUI depois que o jogador muda uma opção deste módulo.
 	 *

@@ -7,6 +7,7 @@ import com.vfxclient.core.hud.ClickTracker;
 import com.vfxclient.core.module.Module;
 import com.vfxclient.core.module.ModuleManager;
 import com.vfxclient.core.module.general.MenuModule;
+import com.vfxclient.core.module.util.ToggleSprintModule;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
@@ -93,6 +94,7 @@ public final class VfxCore implements ClientModInitializer {
 	 */
 	public void onKeyPressed(int keyCode) {
 		ClickTracker.onPress(keyCode);
+		modules.get(ToggleSprintModule.class).onKeyPressed(keyCode);
 		MinecraftClient client = MinecraftClient.getInstance();
 		if (client.currentScreen == null && keyCode == modules.get(MenuModule.class).getKey()) {
 			openClickGuiPending = true;

@@ -1,6 +1,11 @@
 package com.vfxclient.core.mixin;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.vfxclient.core.VfxCore;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.effect.StatusEffect;
 import com.vfxclient.core.module.performance.NoCloudsModule;
 import com.vfxclient.core.module.performance.RenderTweaksModule;
 import com.vfxclient.core.module.visual.NoHurtCamModule;
@@ -33,6 +38,23 @@ public abstract class GameRendererMixin {
 		if (module != null && module.isEnabled()) {
 			ci.cancel();
 		}
+	}
+
+	/**
+	 * Sem névoa: desliga a névoa logo depois que o jogo a configura. Cegueira continua
+	 * funcionando (é efeito de jogo, não enfeite).
+	 */
+	@Inject(method = "renderFog(IF)V", at = @At("TAIL"))
+	private void vfx$noFog(int mode, float tickDelta, CallbackInfo ci) {
+		RenderTweaksModule tweaks = VfxCore.module(RenderTweaksModule.class);
+		if (tweaks == null || tweaks.fog()) {
+			return;
+		}
+		Entity camera = MinecraftClient.getInstance().getCameraEntity();
+		if (camera instanceof LivingEntity && ((LivingEntity) camera).hasStatusEffect(StatusEffect.BLINDNESS)) {
+			return;
+		}
+		GlStateManager.disableFog();
 	}
 
 	@Inject(method = "renderWeather(F)V", at = @At("HEAD"), cancellable = true)

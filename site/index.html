@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VfxClient</title>
+<meta name="description" content="VfxClient: client de Minecraft 1.8.9 com HUD, perfis de FPS e utilidades.">
+<link rel="icon" href="assets/vfxclient-64.png">
+<style>
+  :root {
+    --deep: #5B16D0;
+    --primary: #7B2FF7;
+    --light: #B48CFF;
+    --white: #FFFFFF;
+    --bg: #0D0817;
+    --surface: #1C1430;
+    --surface-2: #241a3e;
+    --text: #F4EFFF;
+    --muted: #A99CC4;
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", Inter, system-ui, sans-serif;
+    line-height: 1.55;
+  }
+  a { color: var(--light); }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+
+  header {
+    position: relative;
+    overflow: hidden;
+    padding: 28px 0 96px;
+    background:
+      radial-gradient(900px 420px at 85% -10%, rgba(180,140,255,.35), transparent 60%),
+      radial-gradient(700px 380px at 0% 0%, rgba(91,22,208,.55), transparent 60%),
+      var(--bg);
+  }
+  nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  nav img { height: 40px; }
+  nav .links a { color: var(--muted); text-decoration: none; margin-left: 20px; font-size: 15px; }
+  nav .links a:hover { color: var(--white); }
+
+  .hero { margin-top: 72px; display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px; align-items: center; }
+  .eyebrow { color: var(--light); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; font-size: 13px; }
+  h1 {
+    font-size: clamp(36px, 6vw, 60px);
+    line-height: 1.05;
+    margin: 12px 0 18px;
+    background: linear-gradient(90deg, var(--white) 0%, var(--light) 55%, var(--primary) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .lead { color: var(--muted); font-size: 18px; max-width: 520px; }
+  .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 14px 22px; border-radius: 12px; font-weight: 700; text-decoration: none;
+    border: 1px solid transparent; transition: transform .15s ease, box-shadow .15s ease, background .15s;
+  }
+  .btn-primary { background: linear-gradient(90deg, var(--primary), var(--light)); color: var(--white); box-shadow: 0 10px 30px rgba(123,47,247,.4); }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 14px 36px rgba(123,47,247,.55); }
+  .btn-ghost { border-color: rgba(255,255,255,.15); color: var(--text); background: rgba(255,255,255,.03); }
+  .btn-ghost:hover { border-color: var(--light); }
+  .btn small { font-weight: 500; opacity: .8; }
+  .version { margin-top: 14px; color: var(--muted); font-size: 14px; }
+
+  .mock {
+    background: linear-gradient(160deg, var(--surface-2), var(--surface));
+    border: 1px solid rgba(180,140,255,.18);
+    border-radius: 18px; padding: 18px; box-shadow: 0 30px 80px rgba(0,0,0,.45);
+  }
+  .mock-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .mock-head img { width: 26px; height: 26px; }
+  .mock-head b { font-size: 15px; }
+  .mock-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .card { background: #2a1f48; border-radius: 10px; padding: 12px; font-size: 13px; }
+  .card.on { background: #2e1a5c; box-shadow: inset 0 1px 0 var(--light); }
+  .card b { display: block; margin-bottom: 3px; }
+  .card span { color: var(--muted); font-size: 12px; }
+  .switch { float: right; width: 22px; height: 12px; border-radius: 6px; background: #3a2e55; position: relative; margin-top: 2px; }
+  .on .switch { background: var(--primary); }
+  .switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 8px; height: 8px; border-radius: 50%; background: #fff; }
+  .on .switch::after { left: 12px; }
+
+  section { padding: 72px 0; }
+  h2 { font-size: 30px; margin-bottom: 8px; }
+  .sub { color: var(--muted); margin-bottom: 32px; }
+  .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .feature { background: var(--surface); border-radius: var(--radius); padding: 22px; border: 1px solid rgba(255,255,255,.05); }
+  .feature h3 { font-size: 17px; margin-bottom: 8px; }
+  .feature p { color: var(--muted); font-size: 15px; }
+  .feature .tag { display: inline-block; font-size: 12px; color: var(--light); background: rgba(123,47,247,.18); padding: 2px 10px; border-radius: 99px; margin-bottom: 10px; }
+
+  .steps { counter-reset: step; display: grid; gap: 14px; }
+  .step { background: var(--surface); border-radius: var(--radius); padding: 18px 20px 18px 64px; position: relative; }
+  .step::before {
+    counter-increment: step; content: counter(step);
+    position: absolute; left: 18px; top: 16px; width: 30px; height: 30px; border-radius: 50%;
+    display: grid; place-items: center; font-weight: 700;
+    background: linear-gradient(135deg, var(--primary), var(--light));
+  }
+  .step b { display: block; margin-bottom: 4px; }
+  .step p { color: var(--muted); font-size: 15px; }
+  code { background: rgba(255,255,255,.07); padding: 1px 6px; border-radius: 6px; font-size: 14px; }
+  .note { border-left: 3px solid var(--light); padding: 12px 16px; background: rgba(180,140,255,.07); border-radius: 0 10px 10px 0; color: var(--muted); margin-top: 22px; }
+
+  footer { border-top: 1px solid rgba(255,255,255,.06); padding: 28px 0 40px; color: var(--muted); font-size: 14px; }
+
+  @media (max-width: 860px) {
+    .hero { grid-template-columns: 1fr; }
+    .features { grid-template-columns: 1fr; }
+    nav .links { display: none; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <nav>
+      <img src="assets/wordmark.png" alt="VfxClient">
+      <div class="links">
+        <a href="#recursos">Recursos</a>
+        <a href="#instalar">Instalar</a>
+        <a id="nav-releases" href="#">Versões</a>
+      </div>
+    </nav>
+
+    <div class="hero">
+      <div>
+        <div class="eyebrow">Minecraft 1.8.9</div>
+        <h1>Mais FPS, HUD do seu jeito.</h1>
+        <p class="lead">O VfxClient é o nosso client: perfis de FPS com um clique, HUD que você arrasta para onde quiser, sprint automático, mira personalizada e muito mais.</p>
+        <div class="cta">
+          <a class="btn btn-primary" id="dl-installer" href="#">Baixar para Windows <small id="dl-installer-size"></small></a>
+          <a class="btn btn-ghost" id="dl-portable" href="#">Versão portátil (.zip)</a>
+          <a class="btn btn-ghost" id="dl-mod" href="#">Só o mod (.jar)</a>
+        </div>
+        <p class="version" id="version">Buscando a versão mais recente…</p>
+      </div>
+
+      <div class="mock" aria-hidden="true">
+        <div class="mock-head"><img src="assets/vfxclient-64.png" alt=""><b>Desempenho</b></div>
+        <div class="mock-grid">
+          <div class="card on"><i class="switch"></i><b>Perfil de FPS</b><span>Máximo FPS</span></div>
+          <div class="card on"><i class="switch"></i><b>Culling</b><span>Esconde o que está atrás de blocos</span></div>
+          <div class="card on"><i class="switch"></i><b>Partículas</b><span>25% · por tipo</span></div>
+          <div class="card"><i class="switch"></i><b>Sem nuvens</b><span>Desliga as nuvens</span></div>
+          <div class="card on"><i class="switch"></i><b>Sprint automático</b><span>Corre sem segurar</span></div>
+          <div class="card on"><i class="switch"></i><b>Mira</b><span>Cruz com ponto · roxa</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section id="recursos">
+    <div class="wrap">
+      <h2>Tudo que você usa num client, com a nossa cara</h2>
+      <p class="sub">Abra o menu com <code>Right Shift</code> e ligue só o que quiser.</p>
+      <div class="features">
+        <div class="feature"><span class="tag">Desempenho</span><h3>Perfis de FPS</h3><p>Qualidade, Equilibrado, Máximo FPS ou PC fraco. Um clique ajusta o client e os gráficos do jogo.</p></div>
+        <div class="feature"><span class="tag">Desempenho</span><h3>Otimização fina</h3><p>Culling de entidades, distância de baús, partículas por tipo, névoa, céu, animações e mais, cada um com sua chave.</p></div>
+        <div class="feature"><span class="tag">HUD</span><h3>HUD arrastável</h3><p>FPS, ping, CPS, coordenadas, teclas, armadura, poções, relógio e texto próprio. Posicione com o mouse.</p></div>
+        <div class="feature"><span class="tag">Utilidades</span><h3>Sprint e agachar</h3><p>Sprint automático e agachar alternado, com o estado na tela.</p></div>
+        <div class="feature"><span class="tag">Utilidades</span><h3>Mira, contorno e hit</h3><p>Mira em 5 formatos, contorno de bloco colorido e a cor de quando alguém leva dano.</p></div>
+        <div class="feature"><span class="tag">Visual</span><h3>Zoom e mais</h3><p>Zoom suave, brilho total, fogo baixo, sem tremor de dano, hora e clima só para você.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="instalar">
+    <div class="wrap">
+      <h2>Como instalar</h2>
+      <p class="sub">Enquanto o launcher completo não fica pronto, o jeito mais simples é instalar o mod no seu Minecraft.</p>
+      <div class="steps">
+        <div class="step"><b>Instale o Legacy Fabric para 1.8.9</b><p>Baixe o instalador em <a href="https://legacyfabric.net/" target="_blank" rel="noopener">legacyfabric.net</a>, escolha a versão <code>1.8.9</code> e instale no seu launcher.</p></div>
+        <div class="step"><b>Baixe o VfxClient</b><p>Use o botão <b>Só o mod (.jar)</b> acima.</p></div>
+        <div class="step"><b>Coloque na pasta de mods</b><p>Abra <code>%appdata%\.minecraft\mods</code> (crie a pasta se não existir) e coloque o arquivo lá.</p></div>
+        <div class="step"><b>Jogue</b><p>Abra o perfil <i>fabric-loader-1.8.9</i> no seu launcher. Dentro do jogo, aperte <code>Right Shift</code>.</p></div>
+      </div>
+      <p class="note">O instalador para Windows já instala o launcher do VfxClient. Ele ainda está em construção: login, download do jogo e o botão Jogar chegam nas próximas versões.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">VfxClient — feito por nós, para nós. Não é afiliado à Mojang ou à Microsoft.</div>
+</footer>
+
+<script>
+  // Repositório no GitHub de onde vêm os arquivos de cada versão.
+  const REPO = "juninhobirlll4/VfxClient";
+  const releasesUrl = `https://github.com/${REPO}/releases`;
+
+  document.getElementById("nav-releases").href = releasesUrl;
+  ["dl-installer", "dl-portable", "dl-mod"].forEach(id => document.getElementById(id).href = releasesUrl + "/latest");
+
+  const mb = bytes => (bytes / 1048576).toFixed(0) + " MB";
+
+  fetch(`https://api.github.com/repos/${REPO}/releases/latest`)
+    .then(r => r.ok ? r.json() : Promise.reject(r.status))
+    .then(release => {
+      const find = test => (release.assets || []).find(a => test(a.name));
+      const installer = find(n => /Setup.*\.exe$/i.test(n));
+      const portable = find(n => /portable\.zip$/i.test(n));
+      const mod = find(n => /^vfxcore-.*\.jar$/i.test(n));
+      if (installer) {
+        document.getElementById("dl-installer").href = installer.browser_download_url;
+        document.getElementById("dl-installer-size").textContent = "· " + mb(installer.size);
+      }
+      if (portable) document.getElementById("dl-portable").href = portable.browser_download_url;
+      if (mod) document.getElementById("dl-mod").href = mod.browser_download_url;
+      const date = new Date(release.published_at).toLocaleDateString("pt-BR");
+      document.getElementById("version").textContent = `Versão ${release.tag_name} · publicada em ${date}`;
+    })
+    .catch(() => {
+      document.getElementById("version").innerHTML = `Veja todas as versões em <a href="${releasesUrl}">GitHub Releases</a>.`;
+    });
+</script>
+</body>
+</html>
