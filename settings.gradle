@@ -1,0 +1,26 @@
+pluginManagement {
+	repositories {
+		maven {
+			name = "Fabric"
+			url = "https://maven.fabricmc.net/"
+		}
+		maven {
+			name = "Legacy Fabric"
+			url = "https://maven.legacyfabric.net/"
+		}
+		mavenCentral()
+		gradlePluginPortal()
+	}
+}
+
+plugins {
+	// Baixa automaticamente o JDK 8 do runClient se ele não for encontrado na máquina.
+	id "org.gradle.toolchains.foojay-resolver-convention" version "1.0.0"
+}
+
+rootProject.name = "VfxClient"
+
+// Mod que roda dentro do Minecraft 1.8.9 (Legacy Fabric, Java 8).
+include "core"
+// Launcher desktop (JavaFX, Java 21).
+include "launcher"

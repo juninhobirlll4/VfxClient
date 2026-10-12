@@ -1,0 +1,45 @@
+// Módulo "vfxcore": o mod que roda dentro do Minecraft 1.8.9 via Legacy Fabric.
+plugins {
+	id "net.fabricmc.fabric-loom-remap"
+	id "legacy-looming" // precisa ter a mesma versão do fabric-loom (definida no build raiz)
+}
+
+base {
+	archivesName = "vfxcore"
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings(legacy.yarn(project.minecraft_version, project.yarn_build))
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+}
+
+processResources {
+	def props = [version: project.version]
+	inputs.properties props
+
+	filesMatching("fabric.mod.json") {
+		expand props
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	options.encoding = "UTF-8"
+	// O Minecraft 1.8.9 roda em Java 8: o código do mod fica limitado à sintaxe do Java 8.
+	options.release = 8
+}
+
+java {
+	withSourcesJar()
+	sourceCompatibility = JavaVersion.VERSION_1_8
+	targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+// Roda o jogo de desenvolvimento no Java configurado em gradle.properties (padrão: 8).
+def runJavaVersion = Integer.parseInt(project.run_java_version.toString())
+tasks.matching { it.name == "runClient" }.configureEach {
+	javaLauncher = javaToolchains.launcherFor {
+		languageVersion = JavaLanguageVersion.of(runJavaVersion)
+	}
+}
+

@@ -1,0 +1,99 @@
+package com.vfxclient.core;
+
+import com.vfxclient.core.config.ConfigManager;
+import com.vfxclient.core.gui.ClickGuiScreen;
+import com.vfxclient.core.module.ModuleManager;
+import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.MinecraftClient;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+/**
+ * Ponto de entrada do VfxClient dentro do Minecraft.
+ *
+ * <p>Executado pelo Legacy Fabric quando o jogo está pronto para carregar mods.
+ * Aqui só registramos módulos e lemos a config; nada de renderização, porque o
+ * contexto OpenGL e as texturas ainda podem não existir.</p>
+ */
+public final class VfxCore implements ClientModInitializer {
+
+	/** Identificador do mod; também é o namespace dos assets ({@code assets/vfx/...}). */
+	public static final String MOD_ID = "vfx";
+
+	/** Nome exibido do client. */
+	public static final String NAME = "VfxClient";
+
+	/** Logger compartilhado do client. */
+	public static final Logger LOGGER = LogManager.getLogger(NAME);
+
+	private static VfxCore instance;
+
+	private ModuleManager modules;
+	private ConfigManager config;
+	private String version = "dev";
+
+	/**
+	 * Instância ativa do client.
+	 *
+	 * @return o núcleo do VfxClient (nunca {@code null} depois da inicialização)
+	 */
+	public static VfxCore get() {
+		return instance;
+	}
+
+	@Override
+	public void onInitializeClient() {
+		instance = this;
+		version = FabricLoader.getInstance()
+				.getModContainer(MOD_ID)
+				.map(mod -> mod.getMetadata().getVersion().getFriendlyString())
+				.orElse("dev");
+
+		modules = new ModuleManager();
+		modules.registerDefaults();
+
+		config = new ConfigManager(modules, VfxPaths.config().resolve("modules.json"));
+		config.load();
+
+		LOGGER.info("{} {} carregado com {} módulos. Pasta de dados: {}",
+				NAME, version, modules.all().size(), VfxPaths.root());
+	}
+
+	/**
+	 * Chamado no fim de cada tick do cliente (20 vezes por segundo).
+	 *
+	 * @param client instância do Minecraft
+	 */
+	public void onClientTick(MinecraftClient client) {
+		modules.tick(client);
+		config.tick();
+	}
+
+	/**
+	 * Chamado quando uma tecla é pressionada durante o jogo (sem tela aberta).
+	 *
+	 * @param keyCode código LWJGL da tecla
+	 */
+	public void onKeyPressed(int keyCode) {
+		MinecraftClient client = MinecraftClient.getInstance();
+		if (client.currentScreen == null && keyCode == config.getClickGuiKey()) {
+			client.setScreen(new ClickGuiScreen());
+		}
+	}
+
+	/** @return gerenciador de módulos */
+	public ModuleManager getModules() {
+		return modules;
+	}
+
+	/** @return gerenciador de configuração */
+	public ConfigManager getConfig() {
+		return config;
+	}
+
+	/** @return versão do client, ex.: {@code 0.1.0} */
+	public String getVersion() {
+		return version;
+	}
+}

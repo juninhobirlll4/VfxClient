@@ -1,0 +1,41 @@
+# Build de verificação: roda em todo push e pull request.
+# Garante a regra "a build nunca pode quebrar entre commits".
+name: Build
+
+on:
+  push:
+    branches: ["**"]
+    tags-ignore: ["v*"]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Validar Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v5
+
+      - name: JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Cache do Gradle
+        uses: gradle/actions/setup-gradle@v5
+
+      - name: Build (core + launcher)
+        run: |
+          chmod +x ./gradlew
+          ./gradlew build
+
+      - name: Guardar artefatos
+        uses: actions/upload-artifact@v6
+        with:
+          name: vfxclient-build
+          path: |
+            core/build/libs/
+            launcher/build/libs/

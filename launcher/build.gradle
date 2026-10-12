@@ -1,0 +1,94 @@
+// Módulo "launcher": aplicativo desktop do VfxClient (JavaFX, Java 21).
+plugins {
+	id "application"
+}
+
+base {
+	archivesName = "vfxclient-launcher"
+}
+
+repositories {
+	mavenCentral()
+}
+
+// O JavaFX publica um jar por sistema operacional; escolhemos o do sistema que está buildando.
+def osName = System.getProperty("os.name").toLowerCase(Locale.ROOT)
+def osArch = System.getProperty("os.arch").toLowerCase(Locale.ROOT)
+def isArm = osArch.contains("aarch64") || osArch.contains("arm64")
+def isWindows = osName.contains("win")
+def isMac = osName.contains("mac")
+def fxClassifier = isWindows ? "win" : isMac ? (isArm ? "mac-aarch64" : "mac") : (isArm ? "linux-aarch64" : "linux")
+
+dependencies {
+	["base", "graphics", "controls"].each { module ->
+		implementation "org.openjfx:javafx-${module}:${project.javafx_version}:${fxClassifier}"
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	options.encoding = "UTF-8"
+	options.release = 21
+}
+
+application {
+	// Main não estende Application de propósito: assim o JavaFX roda a partir do classpath.
+	mainClass = "com.vfxclient.launcher.Main"
+	applicationName = "VfxClient"
+}
+
+processResources {
+	def props = [
+			clientVersion   : project.version,
+			minecraftVersion: project.minecraft_version
+	]
+	inputs.properties props
+	filesMatching("**/build-info.properties") {
+		expand props
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Empacotamento com jpackage (app-image). O instalador é feito depois pelo Inno Setup.
+// ---------------------------------------------------------------------------
+
+// No Windows o jpackage só aceita versões numéricas (x.y.z): "0.1.0-beta" vira "0.1.0".
+def numericVersion = project.version.toString().replaceAll(/[^0-9.].*$/, "")
+if (numericVersion.isEmpty()) {
+	numericVersion = "0.0.0"
+}
+
+def javaHome = System.getProperty("java.home")
+def jpackageExe = new File(javaHome, "bin/jpackage" + (isWindows ? ".exe" : "")).absolutePath
+def iconFile = rootProject.file(isWindows ? "branding/generated/vfxclient.ico" : "branding/generated/vfxclient-256.png")
+def libDir = layout.buildDirectory.dir("install/VfxClient/lib")
+def jpackageOut = layout.buildDirectory.dir("jpackage")
+def mainJarName = tasks.named("jar").flatMap { it.archiveFileName }
+
+tasks.register("jpackageImage", Exec) {
+	group = "distribution"
+	description = "Gera a pasta executável do launcher (VfxClient.exe + runtime Java embutido)."
+	dependsOn "installDist"
+
+	inputs.dir libDir
+	outputs.dir jpackageOut
+
+	doFirst {
+		jpackageOut.get().asFile.deleteDir()
+		def args = [
+				jpackageExe,
+				"--type", "app-image",
+				"--name", "VfxClient",
+				"--app-version", numericVersion,
+				"--vendor", "VfxClient",
+				"--input", libDir.get().asFile.absolutePath,
+				"--main-jar", mainJarName.get(),
+				"--main-class", "com.vfxclient.launcher.Main",
+				"--dest", jpackageOut.get().asFile.absolutePath,
+				"--java-options", "-Dfile.encoding=UTF-8"
+		]
+		if (iconFile.exists()) {
+			args += ["--icon", iconFile.absolutePath]
+		}
+		commandLine args
+	}
+}

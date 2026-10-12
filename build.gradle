@@ -1,0 +1,12 @@
+// Build raiz do VfxClient.
+// Os plugins são declarados aqui com "apply false" e aplicados em cada módulo,
+// para que o Gradle resolva uma única versão de cada um.
+plugins {
+	id "net.fabricmc.fabric-loom-remap" version "${loom_version}" apply false
+	id "legacy-looming" version "${loom_version}" apply false
+}
+
+allprojects {
+	group = project.maven_group
+	version = project.client_version
+}

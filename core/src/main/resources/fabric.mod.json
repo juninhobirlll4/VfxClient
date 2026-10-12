@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "vfx",
+  "version": "${version}",
+  "name": "VfxClient",
+  "description": "Núcleo in-game do VfxClient.",
+  "authors": [
+    "VfxClient"
+  ],
+  "contact": {
+    "sources": "https://github.com/juninhobirlll4/VfxClient"
+  },
+  "license": "MIT",
+  "icon": "assets/vfx/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "com.vfxclient.core.VfxCore"
+    ]
+  },
+  "mixins": [
+    "vfx.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": "1.8.9",
+    "java": ">=8"
+  }
+}

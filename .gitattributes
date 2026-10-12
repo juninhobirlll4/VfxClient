@@ -1,2 +1,13 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Scripts de shell precisam de LF; scripts do Windows, de CRLF.
+gradlew text eol=lf
+*.sh text eol=lf
+*.bat text eol=crlf
+*.iss text eol=crlf
+
+# Binários
+*.jar binary
+*.png binary
+*.ico binary
