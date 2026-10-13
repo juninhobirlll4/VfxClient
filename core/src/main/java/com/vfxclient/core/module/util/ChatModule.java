@@ -6,12 +6,13 @@ import java.util.Date;
 import com.vfxclient.core.module.Category;
 import com.vfxclient.core.module.Module;
 import com.vfxclient.core.module.setting.BooleanSetting;
+import com.vfxclient.core.module.setting.NumberSetting;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 
 /**
- * Melhorias do chat: horário em cada mensagem e mensagens repetidas agrupadas em
- * uma linha com contador ("(x3)").
+ * Melhorias do chat: horário em cada mensagem, mensagens repetidas agrupadas em
+ * uma linha com contador ("(x3)") e histórico maior (o jogo guarda só 100 linhas).
  */
 public class ChatModule extends Module {
 
@@ -21,6 +22,7 @@ public class ChatModule extends Module {
 
 	private final BooleanSetting timestamps = add(new BooleanSetting("timestamps", "Horário nas mensagens", true));
 	private final BooleanSetting stack = add(new BooleanSetting("stack", "Agrupar mensagens repetidas", true));
+	private final NumberSetting history = add(new NumberSetting("history", "Linhas guardadas no histórico", 500, 100, 1000, 50, ""));
 
 	private String lastRaw;
 	private int lastId;
@@ -29,6 +31,11 @@ public class ChatModule extends Module {
 
 	public ChatModule() {
 		super("chat", "Chat", "Horário e mensagens agrupadas", Category.UTILITY, true);
+	}
+
+	/** @return quantas linhas o chat guarda (100 com o módulo desligado, como no jogo) */
+	public int historySize() {
+		return isEnabled() ? history.getInt() : 100;
 	}
 
 	/**

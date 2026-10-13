@@ -25,6 +25,7 @@
     "perf.WorldRendererMixin",
     "util.ChatHudMixin",
     "util.LivingEntityRendererMixin",
+    "util.PlayerListHudMixin",
     "util.WorldMixin",
     "util.WorldRendererOutlineMixin"
   ],
