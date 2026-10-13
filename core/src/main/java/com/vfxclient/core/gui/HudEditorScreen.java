@@ -19,12 +19,16 @@ import org.lwjgl.input.Mouse;
  *
  * <p>Redimensionar: arraste a alça no canto inferior direito do elemento, ou use a rodinha
  * do mouse em cima dele. O canto superior esquerdo fica parado.</p>
+ *
+ * <p>O "X" no canto superior direito tira o elemento da tela na hora (desliga o módulo).</p>
  */
 public class HudEditorScreen extends Screen {
 
 	private static final int SNAP = 4;
 	/** Tamanho da alça de redimensionar, em pixels da GUI. */
 	private static final int HANDLE = 5;
+	/** Tamanho do botão "X" de remover. */
+	private static final int CLOSE = 7;
 
 	private final Screen parent;
 	private HudModule dragging;
@@ -62,6 +66,9 @@ public class HudEditorScreen extends Screen {
 		if (hovered == null) {
 			hovered = findHandleAt(mouseX, mouseY);
 		}
+		if (hovered == null) {
+			hovered = findCloseAt(mouseX, mouseY);
+		}
 		for (HudModule module : enabledModules()) {
 			int w = module.getWidth(client, true);
 			int h = module.getHeight(client, true);
@@ -72,6 +79,12 @@ public class HudEditorScreen extends Screen {
 			if (module == hovered) {
 				// Alça de redimensionar no canto inferior direito.
 				DrawableHelper.fill(x + w - HANDLE + 1, y + h - HANDLE + 1, x + w + 2, y + h + 2, Theme.PRIMARY_LIGHT);
+				// Botão "X" para tirar o elemento da tela.
+				int cx = x + w - CLOSE + 2;
+				int cy = y - 2;
+				boolean overClose = mouseX >= cx && mouseX < cx + CLOSE && mouseY >= cy && mouseY < cy + CLOSE;
+				DrawableHelper.fill(cx, cy, cx + CLOSE, cy + CLOSE, overClose ? 0xFFE04848 : 0xE0202026);
+				textRenderer.draw("x", cx + 2, cy - 1, 0xFFFFFFFF, false);
 				if (module == resizing) {
 					String label = String.format("%.1fx", module.getScale());
 					textRenderer.drawWithShadow(label, x + w + 4, y + h - 4, 0xFFFFFFFF);
@@ -79,7 +92,7 @@ public class HudEditorScreen extends Screen {
 			}
 		}
 
-		String hint = "Arraste: mover  -  canto/rodinha: tamanho  -  botão direito: padrão  -  ESC: voltar";
+		String hint = "Arraste: mover  -  canto/rodinha: tamanho  -  X: remover  -  ESC: voltar";
 		int hintW = textRenderer.getStringWidth(hint) + 16;
 		Render2D.roundedRect(width / 2F - hintW / 2F, height - 26, hintW, 16, 5, Theme.PANEL);
 		textRenderer.draw(hint, width / 2F - textRenderer.getStringWidth(hint) / 2F, height - 22, Theme.TEXT, false);
@@ -87,6 +100,11 @@ public class HudEditorScreen extends Screen {
 
 	@Override
 	protected void mouseClicked(int mouseX, int mouseY, int button) {
+		HudModule close = button == 0 ? findCloseAt(mouseX, mouseY) : null;
+		if (close != null) {
+			close.setEnabled(false);
+			return;
+		}
 		HudModule handle = button == 0 ? findHandleAt(mouseX, mouseY) : null;
 		if (handle != null) {
 			resizing = handle;
@@ -157,6 +175,22 @@ public class HudEditorScreen extends Screen {
 		int w = module.getWidth(client, true);
 		int h = module.getHeight(client, true);
 		module.moveTo(HudRenderer.clamp(left, width - w), HudRenderer.clamp(top, height - h), width, height, w, h);
+	}
+
+	/** @return o elemento cujo botão "X" está sob o mouse */
+	private HudModule findCloseAt(int mouseX, int mouseY) {
+		List<HudModule> modules = enabledModules();
+		for (int i = modules.size() - 1; i >= 0; i--) {
+			HudModule module = modules.get(i);
+			int w = module.getWidth(client, true);
+			int h = module.getHeight(client, true);
+			int cx = module.screenX(width, w) + w - CLOSE + 2;
+			int cy = module.screenY(height, h) - 2;
+			if (mouseX >= cx && mouseX < cx + CLOSE && mouseY >= cy && mouseY < cy + CLOSE) {
+				return module;
+			}
+		}
+		return null;
 	}
 
 	/** @return o elemento cuja alça de redimensionar está sob o mouse */
