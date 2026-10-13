@@ -44,9 +44,12 @@ import com.vfxclient.core.module.util.TabListModule;
 import com.vfxclient.core.module.util.TimeChangerModule;
 import com.vfxclient.core.module.util.ToggleSprintModule;
 import com.vfxclient.core.module.util.WeatherChangerModule;
+import com.vfxclient.core.module.visual.FreelookModule;
 import com.vfxclient.core.module.visual.FullbrightModule;
 import com.vfxclient.core.module.visual.LowFireModule;
+import com.vfxclient.core.module.visual.MotionBlurModule;
 import com.vfxclient.core.module.visual.NoHurtCamModule;
+import com.vfxclient.core.module.visual.SaturationModule;
 import com.vfxclient.core.module.visual.ZoomModule;
 import net.minecraft.client.MinecraftClient;
 
@@ -95,6 +98,9 @@ public final class ModuleManager {
 		register(new FullbrightModule());
 		register(new LowFireModule());
 		register(new NoHurtCamModule());
+		register(new FreelookModule());
+		register(new MotionBlurModule());
+		register(new SaturationModule());
 		// Desempenho
 		register(new PerformanceProfileModule());
 		register(new VanillaOptionsModule());

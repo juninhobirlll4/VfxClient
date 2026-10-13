@@ -8,16 +8,21 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffect;
 import com.vfxclient.core.module.performance.NoCloudsModule;
 import com.vfxclient.core.module.performance.RenderTweaksModule;
+import com.vfxclient.core.module.visual.FreelookModule;
+import com.vfxclient.core.module.visual.MotionBlurModule;
 import com.vfxclient.core.module.visual.NoHurtCamModule;
+import com.vfxclient.core.module.visual.SaturationModule;
 import com.vfxclient.core.module.visual.ZoomModule;
 import net.minecraft.client.render.GameRenderer;
+import net.minecraft.entity.player.ClientPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** Zoom, câmera sem tremor ao levar dano e nuvens desligáveis. */
+/** Zoom, câmera sem tremor ao levar dano, nuvens desligáveis, freelook e efeitos de tela. */
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
 
@@ -78,6 +83,47 @@ public abstract class GameRendererMixin {
 		NoCloudsModule module = VfxCore.module(NoCloudsModule.class);
 		if (module != null && module.isEnabled()) {
 			ci.cancel();
+		}
+	}
+
+	/** Freelook: o movimento do mouse gira a câmera em vez do jogador. */
+	@Redirect(method = "render(FJ)V",
+			at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/ClientPlayerEntity;increaseTransforms(FF)V"))
+	private void vfx$freelookMouse(ClientPlayerEntity player, float yaw, float pitch) {
+		FreelookModule freelook = VfxCore.module(FreelookModule.class);
+		if (freelook == null || !freelook.isEnabled() || !freelook.consumeMouse(yaw, pitch)) {
+			player.increaseTransforms(yaw, pitch);
+		}
+	}
+
+	@Inject(method = "transformCamera(F)V", at = @At("HEAD"))
+	private void vfx$freelookBegin(float tickDelta, CallbackInfo ci) {
+		FreelookModule freelook = VfxCore.module(FreelookModule.class);
+		if (freelook != null && freelook.isEnabled()) {
+			freelook.beginCamera(MinecraftClient.getInstance().getCameraEntity());
+		}
+	}
+
+	@Inject(method = "transformCamera(F)V", at = @At("TAIL"))
+	private void vfx$freelookEnd(float tickDelta, CallbackInfo ci) {
+		FreelookModule freelook = VfxCore.module(FreelookModule.class);
+		if (freelook != null && freelook.isEnabled()) {
+			freelook.endCamera(MinecraftClient.getInstance().getCameraEntity());
+		}
+	}
+
+	/** Efeitos de tela do VfxClient, logo depois do mundo e antes da HUD. */
+	@Inject(method = "render(FJ)V",
+			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;drawEntityOutlineFramebuffer()V", shift = At.Shift.AFTER))
+	private void vfx$postEffects(float tickDelta, long nanoTime, CallbackInfo ci) {
+		MinecraftClient client = MinecraftClient.getInstance();
+		SaturationModule saturation = VfxCore.module(SaturationModule.class);
+		if (saturation != null) {
+			saturation.render(client, tickDelta);
+		}
+		MotionBlurModule blur = VfxCore.module(MotionBlurModule.class);
+		if (blur != null) {
+			blur.render(client, tickDelta);
 		}
 	}
 }
