@@ -19,7 +19,7 @@ import com.vfxclient.launcher.settings.LauncherSettings;
  * Modo linha de comando, útil para testar e para atalhos:
  *
  * <pre>
- * VfxClient.exe --cli launch [--profile ID] [--offline NICK] [--wait]
+ * VfxClient.exe --cli launch [--profile ID] [--offline NICK] [--join SERVIDOR[:PORTA]] [--wait]
  * VfxClient.exe --cli diagnose
  * VfxClient.exe --cli clean-cache
  * VfxClient.exe --cli versions
@@ -84,6 +84,10 @@ public final class Cli {
 		String offline = option(args, "--offline", null);
 		if (offline != null) {
 			account = OfflineAuth.create(offline);
+		}
+		String join = option(args, "--join", null);
+		if (join != null) {
+			System.setProperty("vfx.join", join);
 		}
 		GameLauncher.Session session = GameLauncher.launch(profile, account, accounts, settings,
 				(stage, fraction, detail) -> System.out.println("[" + (fraction < 0 ? "..." : Math.round(fraction * 100) + "%") + "] "

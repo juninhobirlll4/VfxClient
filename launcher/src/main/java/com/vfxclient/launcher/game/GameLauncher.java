@@ -212,6 +212,15 @@ public final class GameLauncher {
 		if (arguments != null && arguments.has("game")) {
 			command.addAll(expand(arguments.getAsJsonArray("game"), vars));
 		}
+		// Entrar direto num servidor (atalho/CLI: --join host:porta).
+		String join = System.getProperty("vfx.join");
+		if (join != null && !join.isBlank()) {
+			String[] hostPort = join.trim().split(":", 2);
+			command.add("--server");
+			command.add(hostPort[0]);
+			command.add("--port");
+			command.add(hostPort.length > 1 ? hostPort[1] : "25565");
+		}
 		return command;
 	}
 
