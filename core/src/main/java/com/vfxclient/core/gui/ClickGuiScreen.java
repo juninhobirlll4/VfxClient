@@ -9,6 +9,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.vfxclient.core.VfxCore;
 import com.vfxclient.core.module.Category;
 import com.vfxclient.core.module.HudModule;
+import com.vfxclient.core.module.util.CrosshairModule;
 import com.vfxclient.core.module.Module;
 import com.vfxclient.core.module.general.MenuModule;
 import com.vfxclient.core.module.performance.PerformanceProfileModule;
@@ -152,7 +153,7 @@ public class ClickGuiScreen extends Screen {
 		contentY = py + 40;
 		contentW = panelW - SIDEBAR_W - 24;
 		contentH = panelH - 40 - 10;
-		listW = settingsModule instanceof HudModule && contentW > 220 ? contentW - 96 : contentW;
+		listW = hasPreview(settingsModule) && contentW > 220 ? contentW - 96 : contentW;
 	}
 
 	private void drawSidebar(int mouseX, int mouseY) {
@@ -266,6 +267,8 @@ public class ClickGuiScreen extends Screen {
 
 		if (module instanceof HudModule && listW < contentW) {
 			drawPreview((HudModule) module, contentX + listW + 6, contentY, contentW - listW - 6, listH);
+		} else if (module instanceof CrosshairModule && listW < contentW) {
+			drawCrosshairPreview((CrosshairModule) module, contentX + listW + 6, contentY, contentW - listW - 6, listH);
 		}
 
 		int bw = 96;
@@ -278,6 +281,42 @@ public class ClickGuiScreen extends Screen {
 		int hidden = hiddenAdvancedCount(module);
 		String hint = hidden > 0 ? "+" + hidden + " opções no modo Completo (Geral > Menu)" : maxScroll > 0 ? "Role para ver mais" : "";
 		text(textRenderer.trimToWidth(hint, contentW - bw - 8), contentX, by + 4, Theme.TEXT_MUTED);
+	}
+
+	private static boolean hasPreview(Module module) {
+		return module instanceof HudModule || module instanceof CrosshairModule;
+	}
+
+	/**
+	 * Prévia ao vivo da mira: metade clara (céu) e metade escura (caverna) para ver o contraste,
+	 * com a mira ampliada 2x no centro e em tamanho real embaixo.
+	 */
+	private void drawCrosshairPreview(CrosshairModule module, int x, int y, int w, int h) {
+		Render2D.roundedRect(x, y, w, h, 5, 0xFF0B0812);
+		textCentered("Prévia", x + w / 2, y + 4, Theme.TEXT_MUTED);
+		int top = y + 14;
+		int boxH = h - 32;
+		Render2D.rawRect(x + 4, top, w - 8, boxH / 2F, 0xFF8DB4F2);
+		Render2D.rawRect(x + 4, top + boxH / 2F, w - 8, boxH - boxH / 2F, 0xFF2B2B30);
+		int cx = x + w / 2;
+		int cy = top + boxH / 2;
+		GlStateManager.pushMatrix();
+		GlStateManager.translate(cx, cy, 0F);
+		GlStateManager.scale(2F, 2F, 1F);
+		module.render(0, 0);
+		GlStateManager.popMatrix();
+		int realY = y + h - 12;
+		text("real:", x + 6, realY - 3, Theme.TEXT_MUTED);
+		Render2D.rawRect(x + w - 30, realY - 10, 24, 20, 0xFF5A7A3A);
+		GlStateManager.pushMatrix();
+		GlStateManager.translate(x + w - 18, realY, 0F);
+		module.render(0, 0);
+		GlStateManager.popMatrix();
+		GlStateManager.enableBlend();
+		GlStateManager.color(1F, 1F, 1F, 1F);
+		if (!module.isEnabled()) {
+			textCentered("(desligada)", cx, top + 2, Theme.TEXT_MUTED);
+		}
 	}
 
 	/** Prévia ao vivo do elemento de HUD, redimensionada para caber na caixa. */
