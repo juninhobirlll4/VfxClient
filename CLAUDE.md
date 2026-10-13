@@ -95,7 +95,7 @@ Tudo é nosso: nome, logo, cores (roxo → branco), código e assets.
 - Novos: `ServerIpModule`, `PlaytimeModule`, `TabListModule` (+`PlayerListHudMixin`), `AutoGgModule` (via `ChatHudMixin`),
   `ScreenshotModule` (AWT clipboard), `FreelookModule` (redirect de `increaseTransforms` + troca de yaw/pitch em `transformCamera`),
   `MotionBlurModule`/`SaturationModule` (`render/PostEffect` com shaders vanilla phosphor/color_convolve + `ShaderEffectAccessor`),
-  `DiscordModule` (pipe `discord-ipc-N`, precisa de Application ID), `FpsLimiterModule` com AFK.
+  `FpsLimiterModule` com AFK. Discord Rich Presence foi feito e removido (reprovado pelo usuário na v0.6).
 - Teste em mundo: servidor oficial 1.8.9 offline local + `--cli launch --join localhost:25565`; prints da janela via .NET.
 
 ## Estado atual (v0.5.0)
