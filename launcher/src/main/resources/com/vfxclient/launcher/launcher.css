@@ -233,30 +233,104 @@
     -fx-background-color: -vfx-primary-light;
 }
 
-/* Loaders (VfxClient / OptiFine / Forge) ----------------------------- */
-.loader-button {
-    -fx-background-color: -vfx-surface-2;
-    -fx-text-fill: -vfx-muted;
-    -fx-font-weight: bold;
-    -fx-padding: 7 16 7 16;
-    -fx-background-radius: 8;
+/* Tela inicial minimalista ----------------------------------------- */
+.hero-card {
+    -fx-background-color: linear-gradient(to bottom, #1A1230, #110C1D);
+    -fx-background-radius: 18;
     -fx-border-color: -vfx-border;
-    -fx-border-radius: 8;
-    -fx-cursor: hand;
+    -fx-border-radius: 18;
 }
 
-.loader-button:hover {
-    -fx-text-fill: -vfx-text;
-}
-
-.loader-button:selected {
-    -fx-background-color: rgba(123, 47, 247, 0.30);
-    -fx-border-color: -vfx-primary-light;
+.hero-title {
+    -fx-font-size: 30px;
+    -fx-font-weight: bold;
     -fx-text-fill: -vfx-white;
 }
 
-.loader-panel {
+.hero-card .play-button {
+    -fx-pref-height: 58;
+    -fx-padding: 0 18 0 18;
+    -fx-min-width: 190;
+}
+
+.version-picker {
+    -fx-pref-height: 58;
+    -fx-pref-width: 120;
     -fx-background-color: -vfx-surface-2;
+    -fx-background-radius: 12;
+    -fx-font-size: 13px;
+}
+
+.icon-button {
+    -fx-pref-width: 46;
+    -fx-pref-height: 58;
+    -fx-background-color: -vfx-surface-2;
+    -fx-background-radius: 12;
+    -fx-text-fill: -vfx-text;
+    -fx-font-size: 20px;
+    -fx-cursor: hand;
+}
+
+.icon-button:hover {
+    -fx-background-color: -vfx-border;
+}
+
+.link-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: -vfx-primary-light;
+    -fx-padding: 2 6 2 6;
+    -fx-cursor: hand;
+}
+
+.link-button:hover {
+    -fx-underline: true;
+}
+
+.notice {
+    -fx-background-color: rgba(255, 196, 107, 0.08);
     -fx-background-radius: 10;
-    -fx-padding: 12 14 12 14;
+    -fx-border-color: rgba(255, 196, 107, 0.35);
+    -fx-border-radius: 10;
+    -fx-padding: 10 12 10 12;
+}
+
+.news-card {
+    -fx-background-color: -vfx-surface;
+    -fx-background-radius: 18;
+    -fx-border-color: -vfx-border;
+    -fx-border-radius: 18;
+    -fx-padding: 18 18 18 18;
+}
+
+.news-title {
+    -fx-font-size: 17px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -vfx-white;
+}
+
+.news-underline {
+    -fx-pref-height: 3;
+    -fx-max-width: 64;
+    -fx-background-color: linear-gradient(to right, -vfx-primary, -vfx-primary-light);
+    -fx-background-radius: 2;
+}
+
+.news-version {
+    -fx-font-weight: bold;
+    -fx-text-fill: -vfx-primary-light;
+    -fx-padding: 6 0 0 0;
+}
+
+.news-item {
+    -fx-text-fill: -vfx-text;
+}
+
+.news-scroll, .news-scroll > .viewport {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.news-scroll .scroll-bar {
+    -fx-opacity: 0.4;
 }

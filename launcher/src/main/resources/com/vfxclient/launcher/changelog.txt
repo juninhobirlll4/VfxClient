@@ -1,0 +1,14 @@
+# v0.8
+OptiFine junto, sem nenhuma opção na tela
+Botão "X" para tirar elementos no editor de HUD
+Launcher e menus mais limpos
+# v0.7
+VfxClient + OptiFine no mesmo jogo
+HUD plana e menu com cartões
+Busca de módulos no menu
+Prévia ao vivo da mira
+# v0.6
+Forge embutido
+Layouts prontos da HUD
+Redimensionar arrastando o canto
+Freelook, Motion blur e Saturação

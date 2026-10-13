@@ -9,59 +9,60 @@ import java.util.List;
 import com.vfxclient.launcher.BuildInfo;
 import com.vfxclient.launcher.auth.Account;
 import com.vfxclient.launcher.game.GameLauncher;
+import com.vfxclient.launcher.game.OptiFine;
 import com.vfxclient.launcher.game.VersionManifest;
 import com.vfxclient.launcher.optimization.Diagnostics;
 import com.vfxclient.launcher.profiles.Profile;
 import com.vfxclient.launcher.updater.Updater;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToggleGroup;
-import javafx.stage.FileChooser;
-import com.vfxclient.launcher.game.OptiFine;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 /**
- * Tela inicial: escolha do perfil/versão, botão Iniciar, barra de progresso, status do jogo,
- * diagnóstico do PC e aviso de atualização.
+ * Tela inicial, minimalista: cartão principal com o botão JOGAR, versão e progresso; ao lado,
+ * as novidades da versão. O resto (RAM, preset, Java) fica em Configurações.
+ *
+ * <p>O OptiFine vai junto com o VfxClient sem nenhuma opção na tela; só aparece um aviso
+ * quando o arquivo do OptiFine ainda não está no computador.</p>
  */
 public final class HomeView extends BorderPane {
 
+	/** Página oficial do OptiFine 1.8.9 (o jogador baixa lá; o launcher importa sozinho da pasta Downloads). */
+	private static final String OPTIFINE_PAGE = "https://optifine.net/adloadx?f=OptiFine_1.8.9_HD_U_M5.jar";
+
 	private final LauncherContext ctx;
 	private final ComboBox<Profile> profileBox = new ComboBox<>();
-	private final Label profileInfo = new Label();
-	private final Label diagnosticSummary = new Label("Analisando o computador...");
-	private final Label diagnosticPreset = new Label();
-	private final VBox warnings = new VBox(4);
+	private final Label profileName = new Label();
+	private final Label profileSub = new Label();
+	private final Label footer = new Label("Analisando o computador...");
 	private final ProgressBar progressBar = new ProgressBar(0);
-	private final Label status = new Label("Pronto para jogar");
+	private final Label status = new Label();
 	private final Label detail = new Label();
-	private final Button play = new Button("INICIAR");
+	private final Button play = new Button();
 	private final Button openLog = new Button("Ver log do jogo");
+	private final HBox notice = new HBox(10);
+	private final Button modsFolder = new Button("Abrir pasta de mods");
 	private final HBox updateBanner = new HBox(12);
-	private final ToggleGroup loaderGroup = new ToggleGroup();
-	private final HBox loaderButtons = new HBox(6);
-	private final Label loaderHint = new Label();
-	private final VBox optifineBox = new VBox(10);
-	private final Label optifineStatus = new Label();
-	private final CheckBox forgeWithOptifine = new CheckBox("Usar o OptiFine junto com o Forge (como mod)");
-	private final CheckBox vfxWithOptifine = new CheckBox("OptiFine junto com o VfxClient (recomendado)");
-	private final HBox forgeTools = new HBox(12);
-	private HBox loaderRow;
 	private Path lastLog;
 	private Process running;
+	private Timeline optifineWatch;
 
 	/**
 	 * @param ctx estado do launcher
@@ -69,61 +70,19 @@ public final class HomeView extends BorderPane {
 	public HomeView(LauncherContext ctx) {
 		this.ctx = ctx;
 		getStyleClass().add("view");
-		setPadding(new Insets(28, 32, 24, 32));
-
-		Label title = new Label("Pronto para jogar");
-		title.getStyleClass().add("view-title");
-		Label subtitle = new Label("Escolha o perfil e clique em Iniciar.");
-		subtitle.getStyleClass().add("muted");
-
-		profileBox.getStyleClass().add("big-combo");
-		profileBox.setMaxWidth(Double.MAX_VALUE);
-		profileBox.setOnAction(e -> {
-			Profile selected = profileBox.getValue();
-			if (selected != null) {
-				ctx.profiles().select(selected);
-				ctx.saveAll();
-				refreshProfileInfo();
-				runDiagnostics();
-			}
-		});
-		Button newProfile = new Button("+ Outra versão");
-		newProfile.getStyleClass().add("ghost-button");
-		newProfile.setOnAction(e -> createVanillaProfile());
-		HBox profileRow = new HBox(10, profileBox, newProfile);
-		HBox.setHgrow(profileBox, Priority.ALWAYS);
-		profileRow.setAlignment(Pos.CENTER_LEFT);
-
-		VBox profileCard = card("Perfil e versão", profileRow, buildLoaderRow(), profileInfo, optifineBox);
-		VBox diagnosticsCard = card("Diagnóstico do computador", diagnosticSummary, diagnosticPreset, warnings);
+		setPadding(new Insets(24, 28, 20, 28));
 
 		updateBanner.getStyleClass().add("update-banner");
 		updateBanner.setVisible(false);
 		updateBanner.setManaged(false);
 
-		VBox center = new VBox(16, new VBox(4, title, subtitle), updateBanner, profileCard, diagnosticsCard);
-		setCenter(center);
+		HBox main = new HBox(18, heroCard(), newsCard());
+		HBox.setHgrow(main.getChildren().get(0), Priority.ALWAYS);
+		VBox.setVgrow(main, Priority.ALWAYS);
 
-		progressBar.setMaxWidth(Double.MAX_VALUE);
-		progressBar.getStyleClass().add("launch-progress");
-		status.getStyleClass().add("status");
-		detail.getStyleClass().add("muted");
-		play.getStyleClass().add("play-button");
-		play.setOnAction(e -> startGame());
-		openLog.getStyleClass().add("ghost-button");
-		openLog.setVisible(false);
-		openLog.setOnAction(e -> {
-			if (lastLog != null) {
-				ctx.host().showDocument(lastLog.toUri().toString());
-			}
-		});
-		VBox statusBox = new VBox(6, new HBox(10, status, openLog), detail, progressBar);
-		HBox.setHgrow(statusBox, Priority.ALWAYS);
-		HBox bottom = new HBox(20, statusBox, play);
-		bottom.setAlignment(Pos.BOTTOM_LEFT);
-		bottom.getStyleClass().add("launch-bar");
-		setBottom(bottom);
-		BorderPane.setMargin(bottom, new Insets(18, 0, 0, 0));
+		footer.getStyleClass().add("muted");
+		VBox center = new VBox(14, updateBanner, main, footer);
+		setCenter(center);
 
 		ctx.onProfilesChanged(this::reloadProfiles);
 		reloadProfiles();
@@ -132,124 +91,165 @@ public final class HomeView extends BorderPane {
 	}
 
 	// ------------------------------------------------------------------
-	// Loaders do 1.8.9 (VfxClient / OptiFine / Forge)
+	// Montagem
 	// ------------------------------------------------------------------
 
-	private HBox buildLoaderRow() {
-		String[] names = {"VfxClient", "OptiFine", "Forge"};
-		Profile.Kind[] kinds = {Profile.Kind.VFX, Profile.Kind.OPTIFINE, Profile.Kind.FORGE};
-		for (int i = 0; i < names.length; i++) {
-			Profile.Kind kind = kinds[i];
-			ToggleButton button = new ToggleButton(names[i]);
-			button.setToggleGroup(loaderGroup);
-			button.setUserData(kind);
-			button.getStyleClass().add("loader-button");
-			button.setOnAction(e -> {
-				Profile target = ctx.profiles().loaderProfile(kind);
-				if (target != null) {
-					ctx.profiles().select(target);
-					ctx.profilesChanged();
-					runDiagnostics();
-				}
-			});
-			loaderButtons.getChildren().add(button);
+	/** Cartão principal: logo, perfil, botão JOGAR com o seletor de versão e o andamento. */
+	private VBox heroCard() {
+		ImageView logo = new ImageView();
+		java.io.InputStream in = HomeView.class.getResourceAsStream("/com/vfxclient/launcher/logo-256.png");
+		if (in != null) {
+			logo.setImage(new Image(in));
 		}
-		Label label = new Label("Loader");
-		label.getStyleClass().add("field-label");
-		label.setMinWidth(60);
-		loaderHint.getStyleClass().add("muted");
-		HBox row = new HBox(10, label, loaderButtons, loaderHint);
-		row.setAlignment(Pos.CENTER_LEFT);
-		loaderRow = row;
+		logo.setFitWidth(76);
+		logo.setPreserveRatio(true);
 
-		optifineStatus.setWrapText(true);
-		Button download = new Button("Baixar no site oficial");
-		download.getStyleClass().add("ghost-button");
-		download.setOnAction(e -> ctx.host().showDocument(OptiFine.DOWNLOADS_PAGE));
-		Button select = new Button("Selecionar OptiFine...");
-		select.getStyleClass().add("primary-button");
-		select.setOnAction(e -> selectOptiFine());
-		forgeWithOptifine.setOnAction(e -> {
-			Profile profile = ctx.profiles().selected();
-			profile.optifineWithForge = forgeWithOptifine.isSelected();
-			ctx.profilesChanged();
+		profileName.getStyleClass().add("hero-title");
+		profileSub.getStyleClass().add("muted");
+		VBox titles = new VBox(2, profileName, profileSub);
+		titles.setAlignment(Pos.CENTER);
+
+		play.getStyleClass().add("play-button");
+		play.setOnAction(e -> startGame());
+		play.setMaxWidth(Double.MAX_VALUE);
+
+		profileBox.getStyleClass().add("version-picker");
+		// No botão aparece só a versão (o nome completo fica na lista aberta).
+		profileBox.setButtonCell(new javafx.scene.control.ListCell<>() {
+			@Override
+			protected void updateItem(Profile item, boolean empty) {
+				super.updateItem(item, empty);
+				if (empty || item == null) {
+					setText(null);
+					return;
+				}
+				String kind = switch (item.kind) {
+					case FORGE -> "  Forge";
+					case OPTIFINE -> "  OptiFine";
+					case VANILLA -> "  oficial";
+					default -> "";
+				};
+				setText(item.minecraftVersion + kind);
+			}
 		});
-		vfxWithOptifine.setOnAction(e -> {
-			Profile profile = ctx.profiles().selected();
-			profile.optifineWithVfx = vfxWithOptifine.isSelected();
-			ctx.profilesChanged();
+		profileBox.setOnAction(e -> {
+			Profile selected = profileBox.getValue();
+			if (selected != null && selected != ctx.profiles().selected()) {
+				ctx.profiles().select(selected);
+				ctx.saveAll();
+				refreshProfile();
+				runDiagnostics();
+			}
 		});
-		Button mods = new Button("Abrir pasta de mods");
-		mods.getStyleClass().add("ghost-button");
-		mods.setOnAction(e -> openMods());
-		forgeTools.getChildren().setAll(forgeWithOptifine, mods);
-		forgeTools.setAlignment(Pos.CENTER_LEFT);
-		HBox optifineButtons = new HBox(10, download, select);
-		optifineBox.getChildren().setAll(vfxWithOptifine, optifineStatus, optifineButtons, forgeTools);
-		optifineBox.getStyleClass().add("loader-panel");
-		return row;
+		Button newProfile = new Button("+");
+		newProfile.getStyleClass().add("icon-button");
+		newProfile.setOnAction(e -> createVanillaProfile());
+		javafx.scene.control.Tooltip.install(newProfile, new javafx.scene.control.Tooltip("Outra versão do Minecraft"));
+
+		HBox launchRow = new HBox(8, play, profileBox, newProfile);
+		launchRow.setAlignment(Pos.CENTER);
+		HBox.setHgrow(play, Priority.ALWAYS);
+		launchRow.setMaxWidth(460);
+
+		progressBar.setMaxWidth(460);
+		progressBar.getStyleClass().add("launch-progress");
+		progressBar.setVisible(false);
+		status.getStyleClass().add("status");
+		detail.getStyleClass().add("muted");
+		openLog.getStyleClass().add("link-button");
+		openLog.setVisible(false);
+		openLog.setManaged(false);
+		openLog.setOnAction(e -> {
+			if (lastLog != null) {
+				ctx.host().showDocument(lastLog.toUri().toString());
+			}
+		});
+		notice.getStyleClass().add("notice");
+		notice.setAlignment(Pos.CENTER);
+		notice.setMaxWidth(460);
+		notice.setVisible(false);
+		notice.setManaged(false);
+
+		modsFolder.getStyleClass().add("link-button");
+		modsFolder.setOnAction(e -> openMods());
+
+		VBox box = new VBox(14, logo, titles, launchRow, progressBar, status, detail, openLog, notice, modsFolder);
+		box.setAlignment(Pos.CENTER);
+		box.getStyleClass().add("hero-card");
+		box.setPadding(new Insets(30, 24, 26, 24));
+		return box;
 	}
 
-	/** Mostra os botões de loader e o painel do OptiFine/Forge conforme o perfil escolhido. */
-	private void refreshLoaders() {
+	/** Painel de novidades (lista em resources/changelog.txt). */
+	private VBox newsCard() {
+		Label title = new Label("Novidades");
+		title.getStyleClass().add("news-title");
+		Region underline = new Region();
+		underline.getStyleClass().add("news-underline");
+		VBox items = new VBox(8);
+		for (String line : changelog()) {
+			Label label = new Label(line.startsWith("#") ? line.substring(1).trim() : "•  " + line);
+			label.setWrapText(true);
+			label.getStyleClass().add(line.startsWith("#") ? "news-version" : "news-item");
+			items.getChildren().add(label);
+		}
+		javafx.scene.control.ScrollPane scroll = new javafx.scene.control.ScrollPane(items);
+		scroll.setFitToWidth(true);
+		scroll.getStyleClass().add("news-scroll");
+		VBox.setVgrow(scroll, Priority.ALWAYS);
+		VBox box = new VBox(10, new VBox(4, title, underline), scroll);
+		box.getStyleClass().add("news-card");
+		box.setPrefWidth(280);
+		box.setMinWidth(240);
+		return box;
+	}
+
+	private static List<String> changelog() {
+		List<String> lines = new ArrayList<>();
+		try (java.io.InputStream in = HomeView.class.getResourceAsStream("/com/vfxclient/launcher/changelog.txt")) {
+			if (in != null) {
+				for (String line : new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).split("\\R")) {
+					if (!line.isBlank()) {
+						lines.add(line.trim());
+					}
+				}
+			}
+		} catch (IOException ignored) {
+			// Sem novidades: o painel fica vazio.
+		}
+		return lines;
+	}
+
+	// ------------------------------------------------------------------
+	// Estado do perfil
+	// ------------------------------------------------------------------
+
+	/** Recarrega a lista de perfis (após criar/editar/remover). */
+	public void reloadProfiles() {
+		profileBox.setItems(FXCollections.observableArrayList(ctx.profiles().all()));
+		profileBox.setValue(ctx.profiles().selected());
+		refreshProfile();
+	}
+
+	private void refreshProfile() {
 		Profile profile = ctx.profiles().selected();
-		if (profile.kind != Profile.Kind.VANILLA) {
-			ctx.runAsync(() -> {
-				if (OptiFine.installedJar() == null && OptiFine.autoDetect() != null) {
-					LauncherContext.ui(this::refreshLoaders);
-				}
-			});
+		profileName.setText(profile.isVfx() ? "VfxClient" : profile.name);
+		String sub = switch (profile.kind) {
+			case VFX -> "Versão " + BuildInfo.load().clientVersion() + (profile.optifineWithVfx ? "  ·  com OptiFine" : "");
+			case FORGE -> "Forge" + (profile.optifineWithForge ? " + OptiFine" : "") + "  ·  seus mods";
+			case OPTIFINE -> "Só OptiFine";
+			default -> "Minecraft oficial";
+		};
+		profileSub.setText(sub);
+		if (running == null || !running.isAlive()) {
+			play.setText("JOGAR " + profile.minecraftVersion);
+			status.setText("");
+			detail.setText("");
 		}
-		boolean legacy = "1.8.9".equals(profile.minecraftVersion) && profile.kind != Profile.Kind.VANILLA;
-		loaderRow.setVisible(legacy);
-		loaderRow.setManaged(legacy);
-		for (javafx.scene.Node node : loaderButtons.getChildren()) {
-			ToggleButton button = (ToggleButton) node;
-			button.setSelected(button.getUserData() == profile.kind);
-		}
-		loaderHint.setText(switch (profile.kind) {
-			case VFX -> "Menu, HUD e otimizações do VfxClient";
-			case OPTIFINE -> "Minecraft + OptiFine, sem os recursos do VfxClient";
-			case FORGE -> "Forge para seus mods, sem os recursos do VfxClient";
-			default -> "";
-		});
-
 		boolean forge = profile.kind == Profile.Kind.FORGE;
-		boolean vfx = profile.kind == Profile.Kind.VFX;
-		boolean showOptifine = profile.kind == Profile.Kind.OPTIFINE || forge || vfx;
-		vfxWithOptifine.setVisible(vfx);
-		vfxWithOptifine.setManaged(vfx);
-		vfxWithOptifine.setSelected(profile.optifineWithVfx);
-		optifineBox.setVisible(showOptifine);
-		optifineBox.setManaged(showOptifine);
-		forgeTools.setVisible(forge);
-		forgeTools.setManaged(forge);
-		forgeWithOptifine.setSelected(profile.optifineWithForge);
-		Path jar = OptiFine.installedJar();
-		optifineStatus.setText(jar != null
-				? "OptiFine pronto: " + jar.getFileName()
-				: "OptiFine não encontrado. Baixe o OptiFine 1.8.9 no site oficial e deixe na Área de Trabalho ou em Downloads, "
-				+ "que o launcher encontra sozinho (ou use Selecionar OptiFine). Sem ele, o jogo abre só com o VfxClient.");
-		optifineStatus.getStyleClass().setAll(jar != null ? "accent" : "warning");
-	}
-
-	private void selectOptiFine() {
-		FileChooser chooser = new FileChooser();
-		chooser.setTitle("Selecionar o OptiFine 1.8.9");
-		chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("OptiFine (.jar)", "*.jar"));
-		java.io.File file = chooser.showOpenDialog(ctx.stage());
-		if (file == null) {
-			return;
-		}
-		try {
-			OptiFine.importJar(file.toPath());
-			status.setText("OptiFine selecionado.");
-			detail.setText(file.getName());
-		} catch (IOException ex) {
-			status.setText("Arquivo recusado");
-			detail.setText(ex.getMessage());
-		}
-		refreshLoaders();
+		modsFolder.setVisible(forge);
+		modsFolder.setManaged(forge);
+		checkOptiFine(profile);
 	}
 
 	private void openMods() {
@@ -262,29 +262,81 @@ public final class HomeView extends BorderPane {
 		}
 	}
 
-	private static VBox card(String heading, javafx.scene.Node... children) {
-		Label label = new Label(heading);
-		label.getStyleClass().add("card-title");
-		VBox box = new VBox(10);
-		box.getChildren().add(label);
-		box.getChildren().addAll(children);
-		box.getStyleClass().add("card");
-		return box;
+	/**
+	 * Perfil com OptiFine e sem o arquivo no PC: mostra um aviso com um botão que abre a página
+	 * oficial; o launcher fica de olho na pasta Downloads e importa sozinho quando o arquivo chegar.
+	 */
+	private void checkOptiFine(Profile profile) {
+		boolean needs = (profile.kind == Profile.Kind.VFX && profile.optifineWithVfx)
+				|| profile.kind == Profile.Kind.OPTIFINE
+				|| (profile.kind == Profile.Kind.FORGE && profile.optifineWithForge);
+		if (!needs) {
+			showNotice(false);
+			return;
+		}
+		ctx.runAsync(() -> {
+			Path jar = OptiFine.installedJar() != null ? OptiFine.installedJar() : OptiFine.autoDetect();
+			LauncherContext.ui(() -> showNotice(jar == null));
+		});
 	}
 
-	/** Recarrega a lista de perfis (após criar/editar/remover). */
-	public void reloadProfiles() {
-		profileBox.setItems(FXCollections.observableArrayList(ctx.profiles().all()));
-		profileBox.setValue(ctx.profiles().selected());
-		refreshProfileInfo();
-		refreshLoaders();
+	private void showNotice(boolean show) {
+		if (show && notice.getChildren().isEmpty()) {
+			Label text = new Label("Falta o OptiFine neste PC.");
+			text.getStyleClass().add("warning");
+			Button download = new Button("Baixar OptiFine");
+			download.getStyleClass().add("primary-button");
+			download.setOnAction(e -> {
+				ctx.host().showDocument(OPTIFINE_PAGE);
+				watchForOptiFine(text);
+			});
+			Button select = new Button("Já tenho");
+			select.getStyleClass().add("link-button");
+			select.setOnAction(e -> selectOptiFine());
+			notice.getChildren().setAll(text, download, select);
+		}
+		notice.setVisible(show);
+		notice.setManaged(show);
 	}
 
-	private void refreshProfileInfo() {
-		Profile profile = ctx.profiles().selected();
-		String mod = profile.isVfx() ? "VfxClient " + BuildInfo.load().clientVersion() + " + Legacy Fabric" : "Minecraft oficial, sem mods";
-		profileInfo.setText("Minecraft " + profile.minecraftVersion + "  ·  " + mod + "  ·  " + profile.ramMb + " MB de RAM");
-		profileInfo.getStyleClass().setAll("muted");
+	/** Depois de abrir a página oficial, procura o arquivo baixado a cada 2 s (por até 10 minutos). */
+	private void watchForOptiFine(Label text) {
+		if (optifineWatch != null) {
+			optifineWatch.stop();
+		}
+		text.setText("Clique em Download na página que abriu...");
+		optifineWatch = new Timeline(new KeyFrame(Duration.seconds(2), e -> ctx.runAsync(() -> {
+			Path found = OptiFine.autoDetect();
+			if (found != null) {
+				LauncherContext.ui(() -> {
+					optifineWatch.stop();
+					showNotice(false);
+					status.setText("OptiFine pronto!");
+					detail.setText(found.getFileName().toString());
+				});
+			}
+		})));
+		optifineWatch.setCycleCount(300);
+		optifineWatch.play();
+	}
+
+	private void selectOptiFine() {
+		FileChooser chooser = new FileChooser();
+		chooser.setTitle("Selecionar o OptiFine 1.8.9");
+		chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("OptiFine (.jar)", "*.jar"));
+		java.io.File file = chooser.showOpenDialog(ctx.stage());
+		if (file == null) {
+			return;
+		}
+		try {
+			OptiFine.importJar(file.toPath());
+			showNotice(false);
+			status.setText("OptiFine pronto!");
+			detail.setText(file.getName());
+		} catch (IOException ex) {
+			status.setText("Arquivo recusado");
+			detail.setText(ex.getMessage());
+		}
 	}
 
 	private void runDiagnostics() {
@@ -292,17 +344,11 @@ public final class HomeView extends BorderPane {
 		ctx.runAsync(() -> {
 			Diagnostics.Report report = Diagnostics.run(profile);
 			LauncherContext.ui(() -> {
-				diagnosticSummary.setText(report.summary());
-				diagnosticPreset.setText("Preset recomendado para este PC: " + report.presetLabel()
-						+ (profile.isVfx() && "auto".equals(profile.preset) ? " (aplicado automaticamente)" : ""));
-				diagnosticPreset.getStyleClass().setAll("accent");
-				warnings.getChildren().clear();
-				for (String warning : report.warnings()) {
-					Label label = new Label("•  " + warning);
-					label.setWrapText(true);
-					label.getStyleClass().add("warning");
-					warnings.getChildren().add(label);
+				String text = "Preset para este PC: " + report.presetLabel() + "  ·  " + profile.ramMb + " MB de RAM";
+				if (!report.warnings().isEmpty()) {
+					text += "  ·  " + report.warnings().get(0);
 				}
+				footer.setText(text);
 			});
 		});
 	}
@@ -369,6 +415,10 @@ public final class HomeView extends BorderPane {
 		});
 	}
 
+	// ------------------------------------------------------------------
+	// Jogo
+	// ------------------------------------------------------------------
+
 	private void startGame() {
 		if (running != null && running.isAlive()) {
 			return;
@@ -376,7 +426,8 @@ public final class HomeView extends BorderPane {
 		Profile profile = ctx.profiles().selected();
 		Account account = ctx.accounts().selected();
 		play.setDisable(true);
-		openLog.setVisible(false);
+		setLogVisible(false);
+		progressBar.setVisible(true);
 		progressBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
 		status.setText("Preparando...");
 		detail.setText("");
@@ -391,8 +442,9 @@ public final class HomeView extends BorderPane {
 				running = session.process();
 				lastLog = session.log();
 				LauncherContext.ui(() -> {
-					status.setText("Jogo aberto: " + profile.name);
+					status.setText("Jogo aberto");
 					detail.setText("Feche o Minecraft para voltar ao launcher.");
+					progressBar.setVisible(false);
 					play.setText("JOGANDO");
 					afterLaunch();
 				});
@@ -422,23 +474,25 @@ public final class HomeView extends BorderPane {
 	private void gameClosed(int code) {
 		ctx.stage().setIconified(false);
 		play.setDisable(false);
-		play.setText("INICIAR");
-		progressBar.setProgress(0);
-		if (code == 0) {
-			status.setText("O jogo foi fechado.");
-			detail.setText("");
-		} else {
+		progressBar.setVisible(false);
+		refreshProfile();
+		if (code != 0) {
 			status.setText("O jogo fechou com erro (código " + code + ").");
 			detail.setText("Veja o log para entender o que aconteceu.");
-			openLog.setVisible(lastLog != null && Files.exists(lastLog));
+			setLogVisible(lastLog != null && Files.exists(lastLog));
 		}
 	}
 
 	private void fail(String message) {
 		play.setDisable(false);
-		play.setText("INICIAR");
-		progressBar.setProgress(0);
+		progressBar.setVisible(false);
+		play.setText("JOGAR " + ctx.profiles().selected().minecraftVersion);
 		status.setText("Não foi possível iniciar");
 		detail.setText(message == null ? "Erro desconhecido" : message);
+	}
+
+	private void setLogVisible(boolean visible) {
+		openLog.setVisible(visible);
+		openLog.setManaged(visible);
 	}
 }
