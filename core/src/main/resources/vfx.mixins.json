@@ -14,6 +14,7 @@
     "KeyBindingMixin",
     "MinecraftClientMixin",
     "ParticleManagerMixin",
+    "SkinMixin",
     "TitleScreenMixin",
     "perf.ArmorFeatureRendererMixin",
     "perf.BlockEntityRenderDispatcherMixin",

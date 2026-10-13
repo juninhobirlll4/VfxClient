@@ -12,6 +12,7 @@ public abstract class Setting<T> {
 	private final String id;
 	private final String name;
 	private final T defaultValue;
+	private boolean advanced;
 	protected T value;
 
 	/**
@@ -24,6 +25,16 @@ public abstract class Setting<T> {
 		this.name = name;
 		this.defaultValue = defaultValue;
 		this.value = defaultValue;
+	}
+
+	/** @return {@code true} se a opção só aparece no modo "Completo" do menu */
+	public boolean isAdvanced() {
+		return advanced;
+	}
+
+	/** Marca a opção como avançada (escondida no modo "Simples" do menu). */
+	public void markAdvanced() {
+		advanced = true;
 	}
 
 	/** @return chave do JSON */

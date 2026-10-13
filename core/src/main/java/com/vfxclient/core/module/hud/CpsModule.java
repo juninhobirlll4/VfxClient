@@ -16,14 +16,15 @@ public class CpsModule extends TextHudModule {
 
 	@Override
 	public String getText(MinecraftClient client) {
-		if (showRight.get()) {
-			return ClickTracker.leftCps() + " | " + ClickTracker.rightCps() + " CPS";
-		}
-		return ClickTracker.leftCps() + " CPS";
+		String value = showRight.get()
+				? ClickTracker.leftCps() + " §7|§r " + ClickTracker.rightCps()
+				: String.valueOf(ClickTracker.leftCps());
+		return advanced() ? "CPS " + value : value + " CPS";
 	}
 
 	@Override
 	public String getSampleText() {
-		return "12 | 4 CPS";
+		String value = showRight.get() ? "12 §7|§r 4" : "12";
+		return advanced() ? "CPS " + value : value + " CPS";
 	}
 }

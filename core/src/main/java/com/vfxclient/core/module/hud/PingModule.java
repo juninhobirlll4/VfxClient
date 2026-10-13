@@ -3,8 +3,9 @@ package com.vfxclient.core.module.hud;
 import com.vfxclient.core.module.TextHudModule;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
+import net.minecraft.client.network.ServerInfo;
 
-/** Mostra a latência com o servidor (só em multiplayer). */
+/** Mostra a latência com o servidor (só em multiplayer); no modo avançado, também o endereço. */
 public class PingModule extends TextHudModule {
 
 	public PingModule() {
@@ -17,11 +18,19 @@ public class PingModule extends TextHudModule {
 			return null;
 		}
 		PlayerListEntry entry = client.getNetworkHandler().getPlayerListEntry(client.player.getUuid());
-		return entry == null ? null : entry.getLatency() + " ms";
+		if (entry == null) {
+			return null;
+		}
+		if (!advanced()) {
+			return entry.getLatency() + " ms";
+		}
+		ServerInfo server = client.getCurrentServerEntry();
+		String address = server == null ? "" : "  §7" + server.address;
+		return "Ping " + entry.getLatency() + " ms" + address;
 	}
 
 	@Override
 	public String getSampleText() {
-		return "32 ms";
+		return advanced() ? "Ping 32 ms  §7mc.servidor.com" : "32 ms";
 	}
 }

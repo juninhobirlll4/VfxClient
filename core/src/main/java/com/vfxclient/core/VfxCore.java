@@ -59,7 +59,7 @@ public final class VfxCore implements ClientModInitializer {
 		modules = new ModuleManager();
 		modules.registerDefaults();
 
-		config = new ConfigManager(modules, VfxPaths.config().resolve("modules.json"));
+		config = new ConfigManager(modules, VfxPaths.config());
 		config.load();
 
 		LOGGER.info("{} {} carregado com {} módulos. Pasta de dados: {}",

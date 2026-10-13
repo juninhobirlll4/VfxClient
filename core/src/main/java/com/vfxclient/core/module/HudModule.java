@@ -2,8 +2,10 @@ package com.vfxclient.core.module;
 
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.vfxclient.core.VfxCore;
 import com.vfxclient.core.gui.Render2D;
 import com.vfxclient.core.gui.Theme;
+import com.vfxclient.core.module.general.HudStyleModule;
 import com.vfxclient.core.module.setting.BooleanSetting;
 import com.vfxclient.core.module.setting.NumberSetting;
 import net.minecraft.client.MinecraftClient;
@@ -19,12 +21,12 @@ import net.minecraft.client.MinecraftClient;
  */
 public abstract class HudModule extends Module {
 
-	/** Espaço interno entre o conteúdo e a borda do fundo. */
-	public static final int PADDING = 4;
+	/** Espaço interno padrão (usado antes do estilo global carregar). */
+	public static final int PADDING = 3;
 
 	protected final BooleanSetting background = add(new BooleanSetting("background", "Fundo", true));
-	protected final BooleanSetting shadow = add(new BooleanSetting("shadow", "Sombra no texto", true));
-	protected final BooleanSetting brandColor = add(new BooleanSetting("brandColor", "Texto na cor da marca", false));
+	protected final BooleanSetting shadow = addAdvanced(new BooleanSetting("shadow", "Sombra no texto", false));
+	protected final BooleanSetting brandColor = addAdvanced(new BooleanSetting("brandColor", "Texto na cor de destaque", false));
 	protected final NumberSetting scale = add(new NumberSetting("scale", "Tamanho", 1.0, 0.5, 2.0, 0.1, "x"));
 
 	private final int defaultX;
@@ -139,7 +141,8 @@ public abstract class HudModule extends Module {
 		GlStateManager.translate((float) drawX, (float) drawY, 0F);
 		GlStateManager.scale(s, s, 1F);
 		if (usesSharedBackground() && background.get()) {
-			Render2D.roundedRect(0, 0, w, h, 3, Theme.HUD_BACKGROUND);
+			HudStyleModule style = style();
+			Render2D.roundedRect(0, 0, w, h, style == null ? 3F : style.radius(), style == null ? Theme.HUD_BACKGROUND : style.backgroundColor());
 		}
 		GlStateManager.translate((float) pad, (float) pad, 0F);
 		renderContent(client, preview);
@@ -148,7 +151,22 @@ public abstract class HudModule extends Module {
 	}
 
 	private int padding() {
-		return usesSharedBackground() ? PADDING : 0;
+		if (!usesSharedBackground()) {
+			return 0;
+		}
+		HudStyleModule style = style();
+		return style == null ? PADDING : style.padding();
+	}
+
+	/** @return estilo global da HUD, ou {@code null} antes do client carregar */
+	protected static HudStyleModule style() {
+		return VfxCore.module(HudStyleModule.class);
+	}
+
+	/** @return {@code true} quando o jogador escolheu o modo avançado da HUD */
+	protected static boolean advanced() {
+		HudStyleModule style = style();
+		return style != null && style.advanced();
 	}
 
 	/**
@@ -160,12 +178,23 @@ public abstract class HudModule extends Module {
 	 * @param y      posição Y dentro do conteúdo
 	 */
 	protected void drawText(MinecraftClient client, String text, float x, float y) {
-		client.textRenderer.draw(text, x, y, textColor(), shadow.get());
+		HudStyleModule style = style();
+		client.textRenderer.draw(text, x, y, textColor(), shadow.get() || (style != null && style.shadow()));
 	}
 
 	/** @return cor do texto conforme a opção "cor da marca" */
 	protected int textColor() {
-		return brandColor.get() ? Theme.PRIMARY_LIGHT : Theme.WHITE;
+		HudStyleModule style = style();
+		if (style == null) {
+			return brandColor.get() ? Theme.PRIMARY_LIGHT : Theme.WHITE;
+		}
+		return brandColor.get() ? style.accentColor() : style.textColor();
+	}
+
+	/** @return cor de destaque do estilo global (para rótulos no modo avançado) */
+	protected int accentColor() {
+		HudStyleModule style = style();
+		return style == null ? Theme.PRIMARY_LIGHT : style.accentColor();
 	}
 
 	/** @return posição X salva */

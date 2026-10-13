@@ -55,6 +55,18 @@ public abstract class Module {
 		return setting;
 	}
 
+	/**
+	 * Registra uma opção avançada: some no modo "Simples" do menu.
+	 *
+	 * @param setting opção
+	 * @param <S>     tipo da opção
+	 * @return a própria opção
+	 */
+	protected <S extends Setting<?>> S addAdvanced(S setting) {
+		setting.markAdvanced();
+		return add(setting);
+	}
+
 	/** Chamado quando o módulo é ligado. */
 	protected void onEnable() {
 	}
@@ -90,6 +102,16 @@ public abstract class Module {
 			onDisable();
 		}
 		markDirty();
+	}
+
+	/**
+	 * Se uma opção deve aparecer na Click GUI (módulos escondem opções herdadas que não usam).
+	 *
+	 * @param setting opção
+	 * @return {@code true} para mostrar
+	 */
+	public boolean isSettingVisible(Setting<?> setting) {
+		return true;
 	}
 
 	/** Chamado pela Click GUI quando a tela de opções deste módulo abre (ex.: para ler valores do jogo). */
@@ -156,7 +178,10 @@ public abstract class Module {
 		json.addProperty("enabled", enabled);
 		JsonObject values = new JsonObject();
 		for (Setting<?> setting : settings) {
-			values.add(setting.getId(), setting.toJson());
+			JsonElement element = setting.toJson();
+			if (element != null) {
+				values.add(setting.getId(), element);
+			}
 		}
 		json.add("settings", values);
 		return json;

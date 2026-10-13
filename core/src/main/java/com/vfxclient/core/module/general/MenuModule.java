@@ -2,6 +2,7 @@ package com.vfxclient.core.module.general;
 
 import com.vfxclient.core.module.Category;
 import com.vfxclient.core.module.Module;
+import com.vfxclient.core.module.setting.ChoiceSetting;
 import com.vfxclient.core.module.setting.KeySetting;
 import org.lwjgl.input.Keyboard;
 
@@ -9,6 +10,12 @@ import org.lwjgl.input.Keyboard;
 public class MenuModule extends Module {
 
 	private final KeySetting key = add(new KeySetting("key", "Tecla do menu", Keyboard.KEY_RSHIFT));
+	private final ChoiceSetting mode = add(new ChoiceSetting("mode", "Opções no menu", 0, "Simples", "Completo"));
+
+	/** @return {@code true} quando o menu deve mostrar também as opções avançadas */
+	public boolean showAdvanced() {
+		return mode.get() == 1;
+	}
 
 	public MenuModule() {
 		super("menu", "Menu", "Tecla que abre este menu", Category.GENERAL, true);

@@ -11,17 +11,17 @@ import com.vfxclient.core.module.setting.NumberSetting;
 public class RenderTweaksModule extends Module {
 
 	private final BooleanSetting animatedTextures = add(new BooleanSetting("animatedTextures", "Texturas animadas (todas)", true));
-	private final BooleanSetting animWater = add(new BooleanSetting("animWater", "Animação da água", true));
-	private final BooleanSetting animLava = add(new BooleanSetting("animLava", "Animação da lava", true));
-	private final BooleanSetting animFire = add(new BooleanSetting("animFire", "Animação do fogo", true));
-	private final BooleanSetting animPortal = add(new BooleanSetting("animPortal", "Animação de portais", true));
+	private final BooleanSetting animWater = addAdvanced(new BooleanSetting("animWater", "Animação da água", true));
+	private final BooleanSetting animLava = addAdvanced(new BooleanSetting("animLava", "Animação da lava", true));
+	private final BooleanSetting animFire = addAdvanced(new BooleanSetting("animFire", "Animação do fogo", true));
+	private final BooleanSetting animPortal = addAdvanced(new BooleanSetting("animPortal", "Animação de portais", true));
 	private final BooleanSetting fog = add(new BooleanSetting("fog", "Névoa no horizonte", true));
 	private final BooleanSetting vignette = add(new BooleanSetting("vignette", "Escurecer bordas da tela (vinheta)", true));
 	private final BooleanSetting weather = add(new BooleanSetting("weather", "Chuva e neve", true));
 	private final BooleanSetting sky = add(new BooleanSetting("sky", "Céu, sol, lua e estrelas", true));
 	private final BooleanSetting glint = add(new BooleanSetting("glint", "Brilho de encantamento", true));
 	private final BooleanSetting stackedItems = add(new BooleanSetting("stackedItems", "Item no chão como um só modelo", false));
-	private final NumberSetting chunkBudget = add(new NumberSetting("chunkBudget", "Tempo para carregar chunks por frame", 0, 0, 10, 1, " ms"));
+	private final NumberSetting chunkBudget = addAdvanced(new NumberSetting("chunkBudget", "Tempo para carregar chunks por frame", 0, 0, 10, 1, " ms"));
 
 	public RenderTweaksModule() {
 		super("renderTweaks", "Ajustes de render", "Troque enfeites por FPS", Category.PERFORMANCE, true);

@@ -16,11 +16,10 @@ import org.lwjgl.opengl.GL11;
 /** Contorno do bloco mirado com cor, espessura e preenchimento escolhidos pelo jogador. */
 public class BlockOutlineModule extends Module {
 
-	private final ColorSetting color = add(new ColorSetting("color", "Cor", ColorSetting.BRAND));
-	private final NumberSetting opacity = add(new NumberSetting("opacity", "Opacidade da linha", 80, 10, 100, 5, "%"));
+	private final ColorSetting color = add(new ColorSetting("color", "Cor da linha", 0xCC7B2FF7));
 	private final NumberSetting width = add(new NumberSetting("width", "Espessura", 2, 1, 6, 0.5, ""));
 	private final BooleanSetting fill = add(new BooleanSetting("fill", "Preencher o bloco", false));
-	private final NumberSetting fillOpacity = add(new NumberSetting("fillOpacity", "Opacidade do preenchimento", 15, 5, 60, 5, "%"));
+	private final ColorSetting fillColor = add(new ColorSetting("fillColor", "Cor do preenchimento", 0x267B2FF7));
 
 	public BlockOutlineModule() {
 		super("blockOutline", "Contorno de bloco", "Cor e espessura do contorno", Category.UTILITY, false);
@@ -32,10 +31,6 @@ public class BlockOutlineModule extends Module {
 	 * @param box caixa do bloco em coordenadas relativas à câmera
 	 */
 	public void draw(Box box) {
-		int rgb = color.rgb();
-		float r = ((rgb >> 16) & 0xFF) / 255F;
-		float g = ((rgb >> 8) & 0xFF) / 255F;
-		float b = (rgb & 0xFF) / 255F;
 
 		GlStateManager.enableBlend();
 		GlStateManager.blendFuncSeparate(770, 771, 1, 0);
@@ -43,10 +38,10 @@ public class BlockOutlineModule extends Module {
 		GlStateManager.depthMask(false);
 
 		if (fill.get()) {
-			GlStateManager.color(r, g, b, fillOpacity.get().floatValue() / 100F);
+			glColor(fillColor.argb());
 			fillBox(box);
 		}
-		GlStateManager.color(r, g, b, opacity.get().floatValue() / 100F);
+		glColor(color.argb());
 		GL11.glLineWidth(width.get().floatValue());
 		WorldRenderer.drawBox(box);
 		GL11.glLineWidth(2F);
@@ -55,6 +50,10 @@ public class BlockOutlineModule extends Module {
 		GlStateManager.enableTexture();
 		GlStateManager.disableBlend();
 		GlStateManager.color(1F, 1F, 1F, 1F);
+	}
+
+	private static void glColor(int argb) {
+		GlStateManager.color(((argb >> 16) & 0xFF) / 255F, ((argb >> 8) & 0xFF) / 255F, (argb & 0xFF) / 255F, ((argb >>> 24) & 0xFF) / 255F);
 	}
 
 	private static void fillBox(Box b) {

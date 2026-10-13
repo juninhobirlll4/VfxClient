@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.vfxclient.core.module.general.ConfigProfilesModule;
+import com.vfxclient.core.module.general.HudStyleModule;
+import com.vfxclient.core.module.general.LocalSkinModule;
 import com.vfxclient.core.module.general.MenuModule;
 import com.vfxclient.core.module.general.TitleScreenModule;
 import com.vfxclient.core.module.hud.ArmorModule;
@@ -52,6 +55,9 @@ public final class ModuleManager {
 		// Geral
 		register(new MenuModule());
 		register(new TitleScreenModule());
+		register(new HudStyleModule());
+		register(new ConfigProfilesModule());
+		register(new LocalSkinModule());
 		// HUD
 		register(new FpsModule());
 		register(new PingModule());

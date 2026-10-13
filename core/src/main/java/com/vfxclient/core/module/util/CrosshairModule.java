@@ -22,11 +22,11 @@ public class CrosshairModule extends Module {
 	private final ChoiceSetting style = add(new ChoiceSetting("style", "Formato", CROSS, "Cruz", "Ponto", "Cruz com ponto", "Círculo", "T"));
 	private final ColorSetting color = add(new ColorSetting("color", "Cor", ColorSetting.WHITE));
 	private final NumberSetting size = add(new NumberSetting("size", "Tamanho", 5, 1, 15, 1, ""));
-	private final NumberSetting gap = add(new NumberSetting("gap", "Espaço no meio", 2, 0, 10, 1, ""));
-	private final NumberSetting thickness = add(new NumberSetting("thickness", "Espessura", 1, 1, 4, 1, ""));
-	private final NumberSetting opacity = add(new NumberSetting("opacity", "Opacidade", 100, 20, 100, 5, "%"));
-	private final BooleanSetting outline = add(new BooleanSetting("outline", "Contorno preto", true));
-	private final BooleanSetting invert = add(new BooleanSetting("invert", "Inverter cor como o jogo", false));
+	private final NumberSetting gap = addAdvanced(new NumberSetting("gap", "Espaço no meio", 2, 0, 10, 1, ""));
+	private final NumberSetting thickness = addAdvanced(new NumberSetting("thickness", "Espessura", 1, 1, 4, 1, ""));
+	private final BooleanSetting outline = add(new BooleanSetting("outline", "Contorno", true));
+	private final ColorSetting outlineColor = addAdvanced(new ColorSetting("outlineColor", "Cor do contorno", 0xB0000000));
+	private final BooleanSetting invert = addAdvanced(new BooleanSetting("invert", "Inverter cor como o jogo", false));
 
 	private boolean raw;
 
@@ -43,8 +43,7 @@ public class CrosshairModule extends Module {
 	public void render(int screenW, int screenH) {
 		int cx = screenW / 2;
 		int cy = screenH / 2;
-		int alpha = (int) (opacity.get() * 2.55);
-		int main = color.argb(alpha);
+		int main = color.argb();
 		int s = size.getInt();
 		int g = gap.getInt();
 		int t = thickness.getInt();
@@ -59,7 +58,7 @@ public class CrosshairModule extends Module {
 			return;
 		}
 		if (outline.get()) {
-			drawShape(cx, cy, s, g, t, 0xB0000000, 1);
+			drawShape(cx, cy, s, g, t, outlineColor.argb(), 1);
 		}
 		drawShape(cx, cy, s, g, t, main);
 		GlStateManager.color(1F, 1F, 1F, 1F);

@@ -26,9 +26,9 @@ public class VanillaOptionsModule extends Module {
 	private final ChoiceSetting clouds = add(new ChoiceSetting("clouds", "Nuvens do jogo", 0, "Desligadas", "Rápidas", "Bonitas"));
 	private final ChoiceSetting particles = add(new ChoiceSetting("particles", "Partículas do jogo", 0, "Todas", "Reduzidas", "Mínimas"));
 	private final BooleanSetting entityShadows = add(new BooleanSetting("entityShadows", "Sombras das entidades", true));
-	private final BooleanSetting vbo = add(new BooleanSetting("vbo", "VBO (mais FPS na maioria das placas)", true));
-	private final NumberSetting mipmap = add(new NumberSetting("mipmap", "Mipmap (0 = mais FPS, recarrega texturas)", 4, 0, 4, 1, ""));
-	private final BooleanSetting viewBobbing = add(new BooleanSetting("viewBobbing", "Balançar a câmera ao andar", true));
+	private final BooleanSetting vbo = addAdvanced(new BooleanSetting("vbo", "VBO (mais FPS na maioria das placas)", true));
+	private final NumberSetting mipmap = addAdvanced(new NumberSetting("mipmap", "Mipmap (0 = mais FPS, recarrega texturas)", 4, 0, 4, 1, ""));
+	private final BooleanSetting viewBobbing = addAdvanced(new BooleanSetting("viewBobbing", "Balançar a câmera ao andar", true));
 
 	public VanillaOptionsModule() {
 		super("vanillaOptions", "Opções gráficas", "Gráficos do Minecraft num lugar só", Category.PERFORMANCE, true);

@@ -13,18 +13,18 @@ public final class Theme {
 	public static final int WHITE = 0xFFFFFFFF;
 
 	public static final int BACKDROP = 0x88000000;
-	public static final int PANEL = 0xF0120C1F;
-	public static final int SIDEBAR = 0xFF1C1430;
-	public static final int CARD = 0xFF211839;
-	public static final int CARD_HOVER = 0xFF2B1F4A;
-	public static final int CARD_ENABLED = 0xFF2E1A5C;
-	public static final int TRACK_OFF = 0xFF3A2E55;
-	public static final int DIVIDER = 0x22FFFFFF;
+	public static final int PANEL = 0xF20D0A14;
+	public static final int SIDEBAR = 0xFF151021;
+	public static final int CARD = 0xFF1B1529;
+	public static final int CARD_HOVER = 0xFF251C3A;
+	public static final int CARD_ENABLED = 0xFF27194A;
+	public static final int TRACK_OFF = 0xFF332A48;
+	public static final int DIVIDER = 0x18FFFFFF;
 
 	public static final int TEXT = 0xFFF4EFFF;
 	public static final int TEXT_MUTED = 0xFFA99CC4;
 
-	public static final int HUD_BACKGROUND = 0x66120C1F;
+	public static final int HUD_BACKGROUND = 0x590E0A16;
 
 	private Theme() {
 	}

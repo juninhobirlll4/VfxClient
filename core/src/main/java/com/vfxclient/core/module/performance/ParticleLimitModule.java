@@ -27,14 +27,14 @@ import net.minecraft.client.particle.WaterSplashParticle;
 public class ParticleLimitModule extends Module {
 
 	private final NumberSetting amount = add(new NumberSetting("amount", "Quantidade geral", 50, 0, 100, 5, "%"));
-	private final BooleanSetting explosions = add(new BooleanSetting("explosions", "Explosões", true));
-	private final BooleanSetting crits = add(new BooleanSetting("crits", "Críticos e golpes", true));
-	private final BooleanSetting potions = add(new BooleanSetting("potions", "Poções", true));
-	private final BooleanSetting smoke = add(new BooleanSetting("smoke", "Fumaça e nuvens", true));
-	private final BooleanSetting blocks = add(new BooleanSetting("blocks", "Quebra de blocos", true));
-	private final BooleanSetting water = add(new BooleanSetting("water", "Chuva e respingos", true));
-	private final BooleanSetting magic = add(new BooleanSetting("magic", "Portal e encantamento", true));
-	private final BooleanSetting footsteps = add(new BooleanSetting("footsteps", "Pegadas", true));
+	private final BooleanSetting explosions = addAdvanced(new BooleanSetting("explosions", "Explosões", true));
+	private final BooleanSetting crits = addAdvanced(new BooleanSetting("crits", "Críticos e golpes", true));
+	private final BooleanSetting potions = addAdvanced(new BooleanSetting("potions", "Poções", true));
+	private final BooleanSetting smoke = addAdvanced(new BooleanSetting("smoke", "Fumaça e nuvens", true));
+	private final BooleanSetting blocks = addAdvanced(new BooleanSetting("blocks", "Quebra de blocos", true));
+	private final BooleanSetting water = addAdvanced(new BooleanSetting("water", "Chuva e respingos", true));
+	private final BooleanSetting magic = addAdvanced(new BooleanSetting("magic", "Portal e encantamento", true));
+	private final BooleanSetting footsteps = addAdvanced(new BooleanSetting("footsteps", "Pegadas", true));
 
 	private final Random random = new Random();
 

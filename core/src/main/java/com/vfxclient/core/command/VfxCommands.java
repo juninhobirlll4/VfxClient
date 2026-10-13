@@ -85,7 +85,12 @@ public final class VfxCommands {
 		}
 	}
 
-	private static void say(String text) {
+	/**
+	 * Escreve uma mensagem do VfxClient no chat (só para você).
+	 *
+	 * @param text texto (aceita códigos de cor com §)
+	 */
+	public static void say(String text) {
 		MinecraftClient client = MinecraftClient.getInstance();
 		if (client.inGameHud != null) {
 			client.inGameHud.getChatHud().addMessage(new LiteralText(PREFIX + text));
