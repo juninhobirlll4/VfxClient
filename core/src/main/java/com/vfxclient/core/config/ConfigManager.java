@@ -81,6 +81,8 @@ public final class ConfigManager {
 
 	private void loadFile(Path file) {
 		if (!Files.exists(file)) {
+			// Instalação nova: organiza a HUD com o layout padrão assim que o jogo abrir.
+			modules.get(com.vfxclient.core.module.general.HudLayoutModule.class).requestDefaultLayout();
 			save();
 			return;
 		}

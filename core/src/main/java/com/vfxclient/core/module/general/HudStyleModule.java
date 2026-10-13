@@ -25,7 +25,7 @@ public class HudStyleModule extends Module {
 	private final ColorSetting textColor = add(new ColorSetting("textColor", "Cor do texto", 0xFFF2F2F2));
 	private final ColorSetting accentColor = add(new ColorSetting("accentColor", "Cor principal (destaque)", 0xFFB48CFF));
 	private final BooleanSetting highlightValues = add(new BooleanSetting("highlightValues", "Valores na cor principal", true));
-	private final NumberSetting secondaryShade = addAdvanced(new NumberSetting("secondaryShade", "Cor secundária (mais escura)", 30, 0, 70, 5, "%"));
+	private final NumberSetting secondaryShade = addAdvanced(new NumberSetting("secondaryShade", "Cor secundária (mais escura)", 20, 0, 70, 5, "%"));
 	private final ColorSetting backgroundColor = add(new ColorSetting("backgroundColor", "Cor do fundo", 0x73000000));
 	private final NumberSetting radius = add(new NumberSetting("radius", "Arredondamento dos cantos", 6, 0, 10, 1, " px"));
 	private final NumberSetting padding = addAdvanced(new NumberSetting("padding", "Espaço interno", 4, 1, 8, 1, " px"));

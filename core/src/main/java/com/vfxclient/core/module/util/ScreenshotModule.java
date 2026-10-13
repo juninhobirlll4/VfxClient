@@ -26,7 +26,6 @@ public class ScreenshotModule extends Module {
 	private final BooleanSetting clipboard = add(new BooleanSetting("clipboard", "Copiar o print para a área de transferência", true));
 	private final BooleanSetting notify = add(new BooleanSetting("notify", "Avisar no chat", true));
 
-	private volatile boolean copied;
 	private long lastSeen = -1;
 	private int tickCounter;
 
@@ -36,12 +35,6 @@ public class ScreenshotModule extends Module {
 
 	@Override
 	public void onTick(MinecraftClient client) {
-		if (copied) {
-			copied = false;
-			if (notify.get() && client.player != null) {
-				client.player.sendMessage(new LiteralText("§d[VfxClient] §7Print copiado para a área de transferência."));
-			}
-		}
 		if (!clipboard.get() || ++tickCounter % 10 != 0) {
 			return;
 		}
@@ -81,7 +74,15 @@ public class ScreenshotModule extends Module {
 						return;
 					}
 					Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new ImageSelection(image), null);
-					copied = true;
+					VfxCore.LOGGER.info("Print copiado para a área de transferência: {}", file.getName());
+					client.submit(new Runnable() {
+						@Override
+						public void run() {
+							if (notify.get() && client.player != null) {
+								client.player.sendMessage(new LiteralText("§d[VfxClient] §7Print copiado para a área de transferência."));
+							}
+						}
+					});
 				} catch (Exception e) {
 					VfxCore.LOGGER.warn("Não deu para copiar o print: {}", e.toString());
 				}
