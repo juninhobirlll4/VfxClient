@@ -80,7 +80,9 @@ Tudo é nosso: nome, logo, cores (roxo → branco), código e assets.
 - Loaders (v0.5.1): `Profile.Kind` VFX / OPTIFINE / FORGE / VANILLA; perfis fixos `vfxclient-1.8.9`, `optifine-1.8.9`, `forge-1.8.9`.
   `Forge` lê `install_profile.json` do instalador oficial (pula libs com clientreq=false); o instalador vem embutido em
   `launcher/src/main/resources/com/vfxclient/launcher/loaders/` (LGPL), conferido por SHA-1, com fallback no Maven.
-  `OptiFine` nunca é distribuído (licença; `.gitignore` bloqueia o jar): `OptiFine.autoDetect()` procura em Desktop,
+  OptiFine (decisão do usuário, v0.6): vai SÓ no instalador gerado localmente (`build-installer.ps1` copia o jar de
+  `installer/local/` ou da Área de Trabalho para `{app}\optifine\`); nunca no git/CI/release pública (licença; `.gitignore`
+  bloqueia jars e `installer/local/`). `OptiFine.autoDetect()` procura primeiro em `{app}\optifine\`, depois em Desktop,
   Downloads e .minecraft e importa para `launcher/optifine/`; a versão usa LaunchWrapper + `optifine.OptiFineTweaker`
   (Patcher do OptiFine). Loaders pré-instalados em segundo plano ao abrir o launcher. Forge, OptiFine e Forge+OptiFine
   testados abrindo via CLI (v0.6). CLI `--join host:porta` entra direto num servidor (`-Dvfx.join`).

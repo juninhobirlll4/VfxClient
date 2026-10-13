@@ -73,6 +73,10 @@ Testar com uma pasta de dados separada (não mexe na sua instalação):
 --------------------------
   powershell -ExecutionPolicy Bypass -File installer\build-installer.ps1
 
+Se houver OptiFine_1.8.9_*.jar em installer\local\ (ou na Área de Trabalho), ele entra no
+instalador e no zip (só para mandar aos amigos; não suba esses arquivos no GitHub).
+Sem OptiFine:  powershell -ExecutionPolicy Bypass -File installer\build-installer.ps1 -SemOptiFine
+
 Gera em dist\:
   VfxClient-Setup-<versão>.exe     instalador (instala por usuário, sem pedir administrador)
   VfxClient-<versão>-portable.zip  versão portátil (extraia e abra VfxClient.exe)
@@ -140,8 +144,12 @@ Loaders do 1.8.9 (VfxClient / OptiFine / Forge)
   Cada loader tem a própria pasta de jogo (mods separados).
 - Forge: o instalador oficial do Forge 1.8.9 vem dentro do launcher e é instalado sozinho
   (em segundo plano) quando o launcher abre. Funciona sem internet depois do primeiro jogo.
-- OptiFine: a licença não permite que ele venha no instalador. O launcher procura sozinho um
-  OptiFine 1.8.9 na Área de Trabalho, em Downloads e no .minecraft e importa. Se não achar:
+- OptiFine: o instalador gerado no SEU PC (build-installer.ps1) já leva o OptiFine junto, se o
+  jar estiver em installer\local\ ou na Área de Trabalho; ele vai para a pasta optifine\ do
+  VfxClient instalado e o launcher importa sozinho. Esse instalador é só para o grupo: NÃO
+  publique no GitHub (a licença do OptiFine proíbe distribuição pública). A release da CI
+  (tag no GitHub) sai sem OptiFine. Sem ele, o launcher procura um OptiFine 1.8.9 na Área de
+  Trabalho, em Downloads e no .minecraft e importa. Se não achar:
   "Baixar no site oficial", salve o arquivo na Área de Trabalho ou em Downloads (ou use
   "Selecionar OptiFine..."). Pelo terminal:
   VfxClient.exe --cli import-optifine C:\caminho\OptiFine_1.8.9_HD_U_M5.jar

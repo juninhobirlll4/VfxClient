@@ -32,3 +32,6 @@ site/assets/
 # OptiFine: a licença não permite redistribuir. Nunca versionar o jar.
 *OptiFine*.jar
 *optifine*.jar
+
+# OptiFine local para o instalador do grupo (nunca vai para o GitHub)
+installer/local/

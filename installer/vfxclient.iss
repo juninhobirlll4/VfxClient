@@ -37,6 +37,8 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 Source: "..\launcher\build\jpackage\VfxClient\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+; O OptiFine só aparece em {app}\optifine\ no instalador gerado no PC (build-installer.ps1 copia o
+; jar de installer\local\ para a imagem do app). A CI/GitHub nunca recebe o OptiFine.
 
 [Icons]
 Name: "{autoprograms}\{#AppName}"; Filename: "{app}\{#AppExe}"

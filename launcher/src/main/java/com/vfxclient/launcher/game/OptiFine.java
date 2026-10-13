@@ -18,9 +18,10 @@ import com.vfxclient.launcher.util.Json;
 /**
  * Suporte ao OptiFine 1.8.9.
  *
- * <p>A licença do OptiFine não permite distribuí-lo junto com o launcher: o jogador baixa o
- * arquivo no site oficial e escolhe o arquivo no launcher, que o guarda em
- * {@code launcher/optifine/}. A instalação imita o instalador oficial do OptiFine: cria uma
+ * <p>O OptiFine não vai para o GitHub (a licença não permite distribuição pública). Ele chega
+ * ao launcher de três jeitos: pelo instalador do grupo gerado no PC (pasta {@code optifine\}
+ * ao lado do VfxClient.exe), achado sozinho no computador ou escolhido à mão. O launcher o
+ * guarda em {@code launcher/optifine/}. A instalação imita o instalador oficial do OptiFine: cria uma
  * versão que herda do 1.8.9 e inicia pelo LaunchWrapper com o {@code OptiFineTweaker}.</p>
  */
 public final class OptiFine {
@@ -69,6 +70,11 @@ public final class OptiFine {
 		String home = System.getProperty("user.home");
 		String appData = System.getenv("APPDATA");
 		List<Path> places = new ArrayList<>();
+		// Instalador do grupo (gerado no PC com o OptiFine junto): pasta optifine\ ao lado do VfxClient.exe.
+		Path installed = installDir();
+		if (installed != null) {
+			places.add(installed.resolve("optifine"));
+		}
 		places.add(Path.of(home, "Desktop"));
 		places.add(Path.of(home, "OneDrive", "Desktop"));
 		places.add(Path.of(home, "OneDrive", "Área de Trabalho"));
@@ -88,6 +94,19 @@ public final class OptiFine {
 			}
 		}
 		return null;
+	}
+
+	/** @return pasta do VfxClient instalado (onde fica o VfxClient.exe), ou {@code null} no modo de desenvolvimento */
+	private static Path installDir() {
+		String appPath = System.getProperty("jpackage.app-path");
+		if (appPath != null) {
+			return Path.of(appPath).getParent();
+		}
+		return ProcessHandle.current().info().command()
+				.map(Path::of)
+				.filter(exe -> exe.getFileName().toString().equalsIgnoreCase("VfxClient.exe"))
+				.map(Path::getParent)
+				.orElse(null);
 	}
 
 	private static Path findIn(Path dir, int depth) {
