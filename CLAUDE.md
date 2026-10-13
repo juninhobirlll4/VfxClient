@@ -88,6 +88,14 @@ Tudo é nosso: nome, logo, cores (roxo → branco), código e assets.
   testados abrindo via CLI (v0.6). CLI `--join host:porta` entra direto num servidor (`-Dvfx.join`).
   OptiFine/Forge rodam SEM os recursos do VfxClient (decisão do usuário: opção 1; port para Forge fica para depois).
 
+## v0.8
+- Launcher minimalista: `HomeView` = cartão (logo, JOGAR, seletor de versão com só a versão no botão, "+"), painel Novidades
+  (`resources/.../changelog.txt`, linhas com `#` = versão) e rodapé com preset/RAM. Sem botões de loader nem opções de OptiFine.
+  Sem OptiFine no PC: aviso + "Baixar OptiFine" (abre a página oficial; `Timeline` chama `OptiFine.autoDetect()` a cada 2 s).
+  NÃO baixar o OptiFine automaticamente do site (raspagem bloqueada pela permissão do ambiente).
+- `-Dvfx.snapshot` agora desenha as telas sem mostrar a janela.
+- Editor de HUD: botão "X" no elemento em destaque desliga o módulo.
+
 ## v0.7
 - Perfil VFX carrega o OptiFine junto: `OptiFine.syncFabricMods` põe o jar do OptiFine + Legacy OptiFabric (embutido em
   `resources/.../loaders/optifabric-legacy.jar`, MPL-2.0) em `mods/` (`Profile.optifineWithVfx`, padrão true). Testado: abre e entra

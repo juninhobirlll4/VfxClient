@@ -137,7 +137,10 @@ Launcher
 - Atualização: com uma release mais nova no GitHub, aparece a faixa "Nova versão".
 
 Loaders do 1.8.9 (VfxClient / OptiFine / Forge)
-- Na tela Início, os botões "Loader" trocam entre:
+- Tela Início (v0.8, minimalista): botão JOGAR, seletor de versão ao lado e "+" para outra
+  versão do Minecraft. Se faltar o OptiFine, aparece "Baixar OptiFine": abre a página oficial,
+  você clica em Download e o launcher importa sozinho da pasta Downloads.
+- Perfis disponíveis no seletor de versão:
   VfxClient = Legacy Fabric + todos os recursos do VfxClient (menu, HUD, otimizações) + OptiFine
               no mesmo jogo (via Legacy OptiFabric, que vem no launcher). Para desligar o
               OptiFine: desmarque "OptiFine junto com o VfxClient" na tela Início.
@@ -174,7 +177,7 @@ No jogo (Right Shift)
 - Geral > Estilo da HUD: modo Compacto/Avançado, cor do texto, cor principal (valores em
   destaque), cor secundária mais escura (relógio, servidor, tempo de jogo), fundo (padrão preto
   45%), cantos 0-10 px, espaço interno, atualização do texto (cache).
-- Editor de HUD (/vfx hud): arraste para mover; arraste a alça roxa no canto inferior direito
+- Editor de HUD (/vfx hud): o "X" no canto do elemento tira ele da tela; arraste para mover; arraste a alça roxa no canto inferior direito
   do elemento (ou use a rodinha do mouse em cima dele) para mudar o tamanho (0,5x a 2x).
 - Geral > Layouts da HUD: Minimal, PvP, Survival, Content Creator, Competitivo > Aplicar.
   Instalação nova já começa no PvP. Depois ajuste no editor de HUD (/vfx hud): cada elemento
