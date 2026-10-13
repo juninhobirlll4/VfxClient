@@ -2,137 +2,215 @@
   <img src="branding/generated/wordmark.png" alt="VfxClient" width="480">
 </p>
 
-# VfxClient
+<p align="center">
+  <b>Client de Minecraft 1.8.9 feito por nós, para nós.</b><br>
+  Menu próprio, HUD personalizável, otimizações de FPS e OptiFine no mesmo jogo.
+</p>
 
-Client de Minecraft **1.8.9** feito por nós, para nós. Nosso nome, nossa logo, nossas cores e nosso código.
-
-| | |
-|---|---|
-| Jogo | Minecraft Java Edition 1.8.9 |
-| Mod | Legacy Fabric Loader + Legacy Fabric API, Legacy Yarn, Mixin, **Java 8** |
-| Launcher | JavaFX 21 empacotado com jpackage, instalador Inno Setup |
-| Build | Gradle 9 (wrapper) + Fabric Loom / Legacy Looming |
-| CI | GitHub Actions: build a cada push, release a cada tag `v*` |
-
-## Estrutura
-
-```
-VfxClient/
-├── core/                 # mod "vfxcore" (id: vfx) que roda dentro do jogo
-├── launcher/             # launcher desktop JavaFX
-├── branding/             # SVGs da marca (fonte), PNG/ICO gerados e paleta
-├── installer/            # script do Inno Setup
-├── .github/workflows/    # build.yml (verificação) e release.yml (publicação)
-└── CONTRIBUTING.md       # regras de trabalho
-```
-
-Dados do client no jogador: `.minecraft/vfxclient/` (config em `.minecraft/vfxclient/config/*.json`).
-
-## Como rodar
-
-Guia completo (build, instalador, pastas, testes, login Microsoft): **[INSTRUCOES.txt](INSTRUCOES.txt)**.
-
-
-Requisitos: **JDK 21** (roda o Gradle e o launcher) e **JDK 8** (roda o Minecraft de desenvolvimento).
-
-```bat
-:: abre o Minecraft 1.8.9 com o VfxClient carregado
-gradlew :core:runClient
-
-:: abre o launcher
-gradlew :launcher:run
-
-:: compila tudo (é o que a CI roda)
-gradlew build
-
-:: gera launcher\build\jpackage\VfxClient\VfxClient.exe
-gradlew :launcher:jpackageImage
-```
-
-A primeira execução demora: o Gradle baixa o Minecraft, os mappings e remapeia o jogo.
-Se o Gradle não encontrar o JDK 8, ele baixa um automaticamente. Para rodar em Java 21,
-troque `run_java_version` em `gradle.properties`.
-
-**Abrir no IntelliJ:** *File → Open* na pasta do repo e aceitar o import do Gradle.
-Depois rode `gradlew :core:genSources` para ter o código do Minecraft navegável.
-
-## Site de download
-
-A pasta `site/` é publicada no GitHub Pages pela CI (`.github/workflows/pages.yml`) e sempre aponta para os arquivos
-da última versão em GitHub Releases. Para ativar: no GitHub, **Settings > Pages > Source = GitHub Actions**.
-O repositório precisa ser **público** para o site e os downloads funcionarem para quem não é colaborador.
-
-## Release
-
-```bat
-git tag v0.1.0
-git push origin v0.1.0
-```
-
-A CI publica no GitHub Releases o instalador, o zip portátil e o jar do mod.
-Tags com sufixo (`v0.2.0-beta`) saem como *pre-release*.
+<p align="center">
+  <img alt="Versão" src="https://img.shields.io/badge/vers%C3%A3o-0.7.0-7B2FF7">
+  <img alt="Minecraft" src="https://img.shields.io/badge/Minecraft-1.8.9-62B47A">
+  <img alt="Windows" src="https://img.shields.io/badge/Windows-10%20%7C%2011-0078D6">
+  <img alt="Build" src="https://github.com/juninhobirlll4/VfxClient/actions/workflows/build.yml/badge.svg">
+</p>
 
 ---
 
-## Roadmap
+## Sumário
 
-### M0 – Scaffold ✅
-- [x] Monorepo Gradle com `core` e `launcher`
-- [x] Mod carrega no 1.8.9 e registra no log (valida Mixin)
-- [x] Launcher abre com a nossa identidade, versões visíveis e botão Jogar (desativado)
-- [x] CI de build e de release (instalador + portátil + jar do mod)
-- [x] Marca placeholder (SVG → PNG/ICO) versionada
+- [O que é](#o-que-é)
+- [Novidades da v0.7](#novidades-da-v07)
+- [Instalar e jogar](#instalar-e-jogar)
+- [Recursos](#recursos)
+- [Desempenho](#desempenho)
+- [Para desenvolvedores](#para-desenvolvedores)
+- [Histórico de versões](#histórico-de-versões)
+- [Próximos passos](#próximos-passos)
+- [Terceiros e licenças](#terceiros-e-licenças)
 
-### Feito
-- [x] **v0.1 – Base:** Click GUI (Right Shift), config JSON com hot-reload, HUD (FPS, ping, coordenadas, relógio), editor de HUD, brilho total
-- [x] **v0.2 – Geral + HUD + Visual:** logo na tela inicial, tecla do menu configurável, comandos `/vfx`; CPS, teclas, armadura, poções, texto; zoom, fogo baixo, sem tremor; 1ª leva de desempenho
-- [x] **v0.3 – Desempenho 2ª leva + perfis de FPS:** perfis Qualidade / Equilibrado / Máximo FPS / PC fraco (ajustam o VfxClient e as opções gráficas do Minecraft), culling de entidades atrás de blocos, distância de baús/placas, texturas animadas, chuva, céu e brilho de encantamento desligáveis, itens no chão como um só modelo, limite de tempo de chunks por frame
+## O que é
 
-- [x] **v0.4 – Utilidades + opções estilo OptiFine:** sprint automático e agachar alternado, mira (5 formatos), contorno de bloco, cor do hit, chat com horário e mensagens agrupadas, placar sem números, hora e clima locais, nome próprio no F5; opções gráficas do Minecraft dentro do menu (distância, FPS, vsync, VBO, mipmap, luz...), sem névoa, sem vinheta, animação por tipo, partículas por tipo; site de download
+O VfxClient tem duas partes:
 
-- [x] **v0.5 – Launcher completo + personalização:** launcher jogável (versões oficiais e perfil VfxClient com Legacy Fabric, download de versão/bibliotecas/assets/Java 8 da Mojang, barra de progresso, status do jogo), login Microsoft por código, conta offline, skin (upload oficial ou local) e capa, RAM por perfil com recomendação, diagnóstico do PC, limpeza de cache, atualização pelo GitHub, instalador .exe; no mod: seletor de cor RGB/HEX/alfa, teclas totalmente configuráveis, HUD compacta/avançada, perfis de configuração, presets Baixo/Equilibrado/Alto com otimização automática, skin local
-- [x] **v0.5.1 – Loaders no launcher:** botões VfxClient / OptiFine / Forge para o 1.8.9 (OptiFine escolhido pelo jogador por causa da licença; Forge baixado sozinho; Forge + OptiFine como mod)
-- [x] **v0.6 – HUD nova + loaders prontos:** Forge embutido no launcher e OptiFine encontrado sozinho no PC; HUD com âncoras, cor principal/secundária, valores destacados, cantos 0–10 px, cores por módulo e layouts prontos (Minimal, PvP, Survival, Content Creator, Competitivo); FPS e ping coloridos por faixa, CPS com média de 5 s, bioma e Nether/Overworld, barra de durabilidade, efeitos com ícone e cor, relógio com segundos, Servidor e Tempo de jogo; ping em número na Tab, chat com até 1000 linhas, Auto GG, print copiado; freelook, motion blur, saturação; cache da HUD, FPS reduzido parado (AFK); exportar/importar config em JSON
+| Parte | O que faz |
+|---|---|
+| **Launcher** (`VfxClient.exe`) | Contas (Microsoft ou offline), skin, RAM, diagnóstico do PC, download do jogo e do Java, atualização automática. |
+| **Mod** (`vfxcore`) | Roda dentro do jogo: menu (Right Shift), HUD, utilidades, visual e otimizações. |
 
-- [x] **v0.7 – VfxClient + OptiFine e visual novo:** perfil VfxClient com OptiFine junto (Legacy OptiFabric), HUD plana (cantos retos, fundo 35%), menu com cartões de contorno, busca e engrenagem, prévia ao vivo da mira
+No launcher você escolhe o loader do 1.8.9:
 
-### Próximas partes
-- [ ] **v0.8 – Social:** waypoints (criar, cor, distância, compartilhar no chat)
-- [ ] **v0.8 – Contas e skins VfxClient:** cadastro próprio; skin enviada pelo client e vista por todos que usam o VfxClient (ver abaixo)
-- [ ] **v0.9 – Perfis de mods e auto-update** via GitHub Releases
-- [ ] **v1.0 – Polimento:** arte final, Javadoc completo, testes com o grupo
+| Loader | O que abre |
+|---|---|
+| **VfxClient** (padrão) | VfxClient **+ OptiFine** no mesmo jogo |
+| OptiFine | Só o Minecraft com OptiFine |
+| Forge | Forge 1.8.9 para os seus mods (com OptiFine opcional) |
 
-### Desempenho: como os ganhos são feitos
+## Novidades da v0.7
 
-Implementações **nossas** das técnicas conhecidas para ganhar FPS na 1.8.9. Cada uma é um toggle e os perfis ligam várias de uma vez:
+- **VfxClient + OptiFine juntos:** o perfil VfxClient já abre com o OptiFine, sem precisar escolher outro loader.
+  Dá para desligar na tela Início ("OptiFine junto com o VfxClient").
+- **Visual novo, plano e escuro:**
+  - HUD com fundo translúcido, cantos retos e texto branco com sombra;
+  - teclas (WASD e cliques) quadradas, que ficam brancas ao pressionar;
+  - menu com cartões de contorno (contorno branco = ligado), iniciais de cada módulo e engrenagem para as opções.
+- **Busca no menu:** com o menu aberto, é só digitar o nome do módulo.
+- **Prévia da mira:** nas opções da Mira, a mira aparece ao vivo sobre o céu e sobre um fundo escuro, ampliada e em tamanho real.
+- **Zoom sem conflito:** com o OptiFine junto, vale o zoom do VfxClient (o do OptiFine é desligado se usar a mesma tecla).
+- Quem já tinha config salva passa para o visual novo uma vez, sem perder posições nem módulos ligados.
+
+<details>
+<summary><b>Novidades da v0.6</b></summary>
+
+- Forge embutido no launcher e OptiFine encontrado sozinho no PC.
+- HUD presa a âncoras (continua no lugar ao mudar o tamanho da janela) e redimensionável no editor (arraste o canto ou use a rodinha).
+- Layouts prontos: Minimal, PvP, Survival, Content Creator e Competitivo.
+- FPS e ping coloridos (opcional), CPS com média de 5 s, coordenadas com bioma e conversão Nether/Overworld, armadura com barra de durabilidade, efeitos com ícone e cor, relógio com segundos.
+- Módulos novos: Servidor, Tempo de jogo, ping em número na Tab, chat com até 1000 linhas, Auto GG, print copiado para a área de transferência, Freelook, Motion blur e Saturação.
+- Desempenho: cache da HUD e FPS reduzido quando você fica parado (AFK).
+- Exportar e importar todas as opções em JSON.
+
+</details>
+
+## Instalar e jogar
+
+1. Baixe e rode `VfxClient-Setup-<versão>.exe` (instala por usuário, sem pedir administrador).
+2. Abra o **VfxClient** pelo atalho.
+3. Aba **Conta**: entre com Microsoft ou crie uma conta offline.
+4. Aba **Início**: deixe o loader **VfxClient** e clique em **INICIAR**.
+   Na primeira vez ele baixa cerca de 300 MB (Minecraft, Java 8 e Legacy Fabric).
+5. No jogo, aperte **Right Shift** para abrir o menu.
+
+**OptiFine:** a licença do OptiFine não permite publicá-lo. O instalador público sai sem ele; o launcher procura sozinho
+um `OptiFine_1.8.9_*.jar` na Área de Trabalho, em Downloads ou no `.minecraft`. Também dá para usar
+**Selecionar OptiFine...** na tela Início ou baixar no [site oficial](https://optifine.net/downloads).
+
+Comandos no chat: `/vfx`, `/vfx menu`, `/vfx hud` (editor de HUD) e `/vfx reset`.
+
+## Recursos
+
+### HUD
+| Módulo | Destaques |
+|---|---|
+| FPS | menor valor dos últimos segundos; cor por faixa (opcional) |
+| Ping | cor por qualidade da conexão (opcional) |
+| Coordenadas | direção, chunk, bioma, conversão Nether/Overworld |
+| Relógio | 12 h / 24 h, segundos |
+| CPS | esquerdo, direito, os dois ou a soma; último segundo ou média de 5 s |
+| Teclas | WASD, cliques com CPS, espaço, Shift; estilos, cores e tamanho |
+| Armadura | durabilidade em número ou %, barra e cor por estado |
+| Efeitos | ícone, nível, tempo, cor do efeito, pisca no fim |
+| Servidor / Tempo de jogo | endereço atual; sessão, hoje ou total |
+| Texto livre | qualquer texto na tela |
+
+- **Editor de HUD:** arraste para mover; arraste o canto ou use a rodinha para mudar o tamanho; botão direito volta ao padrão.
+- **Estilo global:** cor do texto, cor de destaque, fundo, cantos (0 a 10 px), sombra, modo Compacto/Avançado.
+- **Layouts prontos:** Minimal, PvP, Survival, Content Creator, Competitivo.
+
+### Utilidades e visual
+- Sprint automático e agachar alternado, mira personalizada (5 formatos, com prévia), contorno de bloco, cor do hit.
+- Chat com horário, mensagens repetidas agrupadas e histórico de até 1000 linhas; placar sem números; ping em número na Tab.
+- Auto GG (desligado por padrão), print copiado para a área de transferência.
+- Zoom suave, brilho total, fogo baixo, sem tremor ao levar dano, hora e clima locais.
+- Freelook (desligado por padrão; **alguns servidores proíbem**), Motion blur e Saturação de cor.
+
+### Geral
+- Perfis de configuração (ex.: "PvP" e "Construção"), exportar/importar em JSON.
+- Seletor de cor com RGB, alfa, HEX e paleta; valores digitáveis; opções avançadas no modo Completo.
+- Skin local para conta offline.
+
+> Nenhum módulo dá vantagem injusta (nada de reach, killaura, X-ray etc.). Respeite as regras de cada servidor.
+
+## Desempenho
+
+Implementações **nossas** das técnicas conhecidas para ganhar FPS na 1.8.9, somadas ao OptiFine no perfil VfxClient.
+Cada uma é um toggle, e os presets **Baixo / Equilibrado / Alto** ligam várias de uma vez (com otimização automática
+se o FPS ficar abaixo da meta).
 
 | Técnica | Módulo | Ganho típico |
 |---|---|---|
 | Não desenhar entidades atrás de blocos | Culling de entidades | Alto em lobbies e farms |
 | Distância máxima de entidades e de baús/placas | Distância de entidades / de baús | Alto em lobbies cheios |
-| Menos partículas | Partículas | Alto em PvP (crits, poções) |
+| Menos partículas (por tipo) | Partículas | Alto em PvP (crits, poções) |
 | Texturas animadas, céu, chuva, brilho e nuvens desligáveis | Ajustes de render / Sem nuvens | Médio, maior em PCs fracos |
 | Itens no chão como um só modelo | Ajustes de render | Médio com muitos drops |
 | Limite de tempo de chunks por frame | Ajustes de render | Menos travadas ao andar |
-| Gráficos rápidos, VBO, sem sombras, sem vsync, distância menor | Perfil de FPS | Alto, varia por placa de vídeo |
-| FPS baixo com a janela sem foco | FPS sem foco | Libera o PC fora do jogo |
+| Opções gráficas do Minecraft dentro do menu | Opções gráficas / Preset | Alto, varia por placa de vídeo |
+| Texto da HUD recalculado no máximo 20x por segundo | Estilo da HUD | Pequeno, sempre ligado |
+| FPS limitado sem foco e parado (AFK) | FPS dinâmico | Libera o PC fora do jogo |
 
-HUD em cache: desde a v0.6 o texto da HUD é recalculado no máximo 20 vezes por segundo. Próxima ideia: culling de baús atrás de blocos.
-### Contas e skins (v0.8)
+## Para desenvolvedores
 
-- **Conta VfxClient:** e-mail + senha, com nick único reservado. Entra em servidores **não-premium**
-  (offline-mode). Servidores premium continuam exigindo conta Microsoft; isso é regra do Minecraft.
-- **Skins:** o jogador envia a skin pelo client. O mod consulta nossa API pelo nick e troca a textura
-  localmente. Quem tem o VfxClient vê a skin de quem também tem; quem não tem vê a skin padrão.
-- **Backend:** precisa de um serviço nosso para contas e skins (decisão pendente, ver abaixo).
+| | |
+|---|---|
+| Mod | Legacy Fabric Loader 0.18 (sem Legacy Fabric API), Legacy Yarn, Mixin, **Java 8** |
+| Launcher | Java 21 + JavaFX 21, jpackage, instalador Inno Setup |
+| Build | Gradle 9 (wrapper) + Fabric Loom / Legacy Looming |
+| CI | GitHub Actions: build a cada push, release a cada tag `v*`, site no GitHub Pages |
 
-## Decisões pendentes
+```
+VfxClient/
+├── core/                 # mod "vfxcore" (id: vfx)
+├── launcher/             # launcher JavaFX
+├── installer/            # Inno Setup + build-installer.ps1
+├── site/                 # página de download (GitHub Pages)
+├── branding/             # logo (SVG fonte, PNG/ICO gerados) e paleta
+└── .github/workflows/    # build.yml, release.yml, pages.yml
+```
 
-- [ ] Backend de contas/skins: Firebase (sem servidor para manter) ou servidor próprio
-- [ ] authlib-injector: com o modelo de skins acima ele deixa de ser necessário; proposta é removê-lo da stack
-- [ ] Contas Microsoft também podem usar skin VfxClient?
+Requisito: **JDK 21**. O Gradle baixa o Java 8 do Minecraft de desenvolvimento sozinho.
 
-## Terceiros
-- [Legacy OptiFabric](https://github.com/tildejustin/optifabric) (MPL-2.0): embutido sem modificação no launcher para carregar o OptiFine junto com o VfxClient.
-- Forge 1.8.9 (LGPL): instalador oficial embutido.
-- OptiFine: não vai para o GitHub; só no instalador gerado no PC para o grupo.
+```bat
+gradlew build                 :: compila tudo (o que a CI roda)
+gradlew :launcher:run         :: abre o launcher
+gradlew :core:runClient       :: Minecraft 1.8.9 só com o mod
+gradlew :core:genSources      :: código do Minecraft navegável (nomes Yarn)
+
+:: modo linha de comando do launcher
+gradlew :launcher:run --args="--cli launch --offline Nick --join localhost:25565"
+
+:: instalador e zip portátil em dist\
+powershell -ExecutionPolicy Bypass -File installer\build-installer.ps1
+```
+
+Guia completo (pastas, testes, login Microsoft, instalador com OptiFine para o grupo): **[INSTRUCOES.txt](INSTRUCOES.txt)**.
+Regras de trabalho: **[CONTRIBUTING.md](CONTRIBUTING.md)**.
+
+### Publicar uma versão
+
+```bat
+git push origin main
+git tag v0.7.0
+git push origin v0.7.0
+```
+
+A CI publica no GitHub Releases o instalador, o zip portátil e o jar do mod (sem OptiFine).
+Tags com sufixo (`v0.8.0-beta`) saem como *pre-release*. O launcher instalado avisa quando há versão nova.
+
+## Histórico de versões
+
+| Versão | Principais mudanças |
+|---|---|
+| **0.7** | VfxClient + OptiFine no mesmo perfil, visual plano, menu com cartões e busca, prévia da mira |
+| 0.6 | Forge embutido, HUD com âncoras e layouts, redimensionar no editor, módulos novos (Servidor, Tempo de jogo, Freelook, Auto GG...) |
+| 0.5.1 | Botões de loader: VfxClient / OptiFine / Forge |
+| 0.5 | Launcher completo (contas, skin, RAM, diagnóstico, atualização, instalador), seletor de cor, perfis de config, presets de FPS |
+| 0.4 | Utilidades (sprint, mira, chat, placar) e opções gráficas no menu; site de download |
+| 0.3 | 2ª leva de desempenho e perfis de FPS |
+| 0.2 | Logo na tela inicial, comandos `/vfx`, CPS, teclas, armadura, poções, zoom |
+| 0.1 | Menu, config JSON, HUD básica, editor de HUD |
+
+## Próximos passos
+
+- [ ] **v0.8 – Social:** waypoints (criar, cor, distância, compartilhar no chat) e minimapa opcional
+- [ ] **Contas e skins VfxClient:** cadastro próprio e skin vista por todos que usam o client (backend em avaliação)
+- [ ] Tela inicial do jogo e launcher no mesmo visual novo
+- [ ] **v1.0 – Polimento:** arte final, testes com o grupo
+
+## Terceiros e licenças
+
+- **[Legacy OptiFabric](https://github.com/tildejustin/optifabric)** (MPL-2.0): vai sem modificação dentro do launcher para carregar o OptiFine junto com o VfxClient.
+- **Forge 1.8.9** (LGPL): instalador oficial vai dentro do launcher.
+- **OptiFine:** não faz parte deste repositório nem das releases públicas (a licença não permite redistribuir).
+- Minecraft é marca da Mojang/Microsoft. O VfxClient não é afiliado à Mojang nem à Microsoft.
+
+Licença do código do VfxClient: veja [LICENSE](LICENSE).
