@@ -79,7 +79,7 @@ public abstract class TextHudModule extends HudModule {
 	protected int contentWidth(MinecraftClient client, boolean preview) {
 		int width = 0;
 		for (String line : getLines(client, preview)) {
-			width = Math.max(width, client.textRenderer.getStringWidth(line));
+			width = Math.max(width, client.textRenderer.getStringWidth(strip(line)));
 		}
 		return width;
 	}

@@ -29,8 +29,8 @@ public final class HudRenderer {
 			}
 			int w = module.getWidth(client, false);
 			int h = module.getHeight(client, false);
-			int x = clamp(module.getX(), window.getWidth() - w);
-			int y = clamp(module.getY(), window.getHeight() - h);
+			int x = module.screenX(window.getWidth(), w);
+			int y = module.screenY(window.getHeight(), h);
 			module.render(client, x, y, false);
 		}
 	}

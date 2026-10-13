@@ -68,7 +68,7 @@ public class KeystrokesModule extends HudModule {
 	@Override
 	public boolean isSettingVisible(com.vfxclient.core.module.setting.Setting<?> setting) {
 		// O fundo e a cor do texto daqui têm opções próprias (estilo e cores das teclas).
-		return setting != background && setting != brandColor;
+		return setting != background && setting != brandColor && super.isSettingVisible(setting);
 	}
 
 	@Override

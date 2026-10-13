@@ -50,8 +50,8 @@ public class HudEditorScreen extends Screen {
 		for (HudModule module : enabledModules()) {
 			int w = module.getWidth(client, true);
 			int h = module.getHeight(client, true);
-			int x = HudRenderer.clamp(module.getX(), width - w);
-			int y = HudRenderer.clamp(module.getY(), height - h);
+			int x = module.screenX(width, w);
+			int y = module.screenY(height, h);
 			module.render(client, x, y, true);
 			Render2D.outline(x - 1, y - 1, w + 2, h + 2, module == hovered ? Theme.PRIMARY_LIGHT : 0x66FFFFFF);
 		}
@@ -70,8 +70,8 @@ public class HudEditorScreen extends Screen {
 		}
 		if (button == 0) {
 			dragging = module;
-			offsetX = mouseX - HudRenderer.clamp(module.getX(), width - module.getWidth(client, true));
-			offsetY = mouseY - HudRenderer.clamp(module.getY(), height - module.getHeight(client, true));
+			offsetX = mouseX - module.screenX(width, module.getWidth(client, true));
+			offsetY = mouseY - module.screenY(height, module.getHeight(client, true));
 		} else if (button == 1) {
 			module.resetPosition();
 		}
@@ -86,7 +86,7 @@ public class HudEditorScreen extends Screen {
 		int h = dragging.getHeight(client, true);
 		int x = snap(mouseX - offsetX, w, width);
 		int y = snap(mouseY - offsetY, h, height);
-		dragging.setPosition(HudRenderer.clamp(x, width - w), HudRenderer.clamp(y, height - h));
+		dragging.moveTo(HudRenderer.clamp(x, width - w), HudRenderer.clamp(y, height - h), width, height, w, h);
 	}
 
 	@Override
@@ -123,8 +123,8 @@ public class HudEditorScreen extends Screen {
 			HudModule module = modules.get(i);
 			int w = module.getWidth(client, true);
 			int h = module.getHeight(client, true);
-			int x = HudRenderer.clamp(module.getX(), width - w);
-			int y = HudRenderer.clamp(module.getY(), height - h);
+			int x = module.screenX(width, w);
+			int y = module.screenY(height, h);
 			if (mouseX >= x && mouseX < x + w && mouseY >= y && mouseY < y + h) {
 				return module;
 			}

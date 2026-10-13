@@ -10,6 +10,9 @@ import com.vfxclient.core.module.setting.NumberSetting;
 /**
  * Estilo global da HUD do VfxClient: modo compacto (só o essencial) ou avançado (mais
  * informações), cores, cantos e espaçamento. Vale para todos os elementos da HUD.
+ *
+ * <p>Padrão: fundo preto translúcido (45%), cantos arredondados, texto claro e os valores
+ * na cor de destaque. Módulos secundários usam um tom mais escuro da mesma cor.</p>
  */
 public class HudStyleModule extends Module {
 
@@ -20,10 +23,12 @@ public class HudStyleModule extends Module {
 
 	private final ChoiceSetting mode = add(new ChoiceSetting("mode", "Modo", COMPACT, "Compacto", "Avançado"));
 	private final ColorSetting textColor = add(new ColorSetting("textColor", "Cor do texto", 0xFFF2F2F2));
-	private final ColorSetting accentColor = addAdvanced(new ColorSetting("accentColor", "Cor de destaque", 0xFFB48CFF));
-	private final ColorSetting backgroundColor = add(new ColorSetting("backgroundColor", "Cor do fundo", 0x590E0A16));
-	private final BooleanSetting rounded = add(new BooleanSetting("rounded", "Cantos arredondados", true));
-	private final NumberSetting padding = addAdvanced(new NumberSetting("padding", "Espaço interno", 3, 1, 8, 1, " px"));
+	private final ColorSetting accentColor = add(new ColorSetting("accentColor", "Cor principal (destaque)", 0xFFB48CFF));
+	private final BooleanSetting highlightValues = add(new BooleanSetting("highlightValues", "Valores na cor principal", true));
+	private final NumberSetting secondaryShade = addAdvanced(new NumberSetting("secondaryShade", "Cor secundária (mais escura)", 30, 0, 70, 5, "%"));
+	private final ColorSetting backgroundColor = add(new ColorSetting("backgroundColor", "Cor do fundo", 0x73000000));
+	private final NumberSetting radius = add(new NumberSetting("radius", "Arredondamento dos cantos", 6, 0, 10, 1, " px"));
+	private final NumberSetting padding = addAdvanced(new NumberSetting("padding", "Espaço interno", 4, 1, 8, 1, " px"));
 	private final BooleanSetting shadow = addAdvanced(new BooleanSetting("shadow", "Sombra no texto", false));
 
 	public HudStyleModule() {
@@ -45,9 +50,24 @@ public class HudStyleModule extends Module {
 		return textColor.argb();
 	}
 
-	/** @return cor de destaque (rótulos, cor da marca) em ARGB */
+	/** @return cor principal (valores, cor da marca) em ARGB */
 	public int accentColor() {
 		return accentColor.argb();
+	}
+
+	/** @return cor principal escurecida, para módulos secundários */
+	public int secondaryColor() {
+		int argb = accentColor.argb();
+		float keep = 1F - secondaryShade.get().floatValue() / 100F;
+		int r = Math.round(((argb >> 16) & 0xFF) * keep);
+		int g = Math.round(((argb >> 8) & 0xFF) * keep);
+		int b = Math.round((argb & 0xFF) * keep);
+		return (argb & 0xFF000000) | (r << 16) | (g << 8) | b;
+	}
+
+	/** @return se os valores (números) aparecem na cor principal */
+	public boolean highlightValues() {
+		return highlightValues.get();
 	}
 
 	/** @return cor de fundo dos elementos (ARGB, com transparência) */
@@ -57,7 +77,7 @@ public class HudStyleModule extends Module {
 
 	/** @return raio dos cantos do fundo */
 	public float radius() {
-		return rounded.get() ? 3F : 0F;
+		return radius.get().floatValue();
 	}
 
 	/** @return espaço interno entre o texto e a borda do fundo */
