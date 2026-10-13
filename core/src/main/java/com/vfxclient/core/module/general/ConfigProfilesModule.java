@@ -10,6 +10,9 @@ import com.vfxclient.core.module.Module;
 import com.vfxclient.core.module.setting.ButtonSetting;
 import com.vfxclient.core.module.setting.ChoiceSetting;
 import com.vfxclient.core.module.setting.TextSetting;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.text.LiteralText;
 
 /**
  * Perfis de configuração: conjuntos completos de opções (HUD, cores, desempenho...) que dá
@@ -51,6 +54,22 @@ public class ConfigProfilesModule extends Module {
 		}
 	}));
 
+	private final ButtonSetting export = add(new ButtonSetting("export", "Exportar opções (copia o JSON)", "Copiar", new Runnable() {
+		@Override
+		public void run() {
+			Screen.setClipboard(config().exportJson());
+			message("§7Opções copiadas. Cole num arquivo .json ou mande para um amigo.");
+		}
+	}));
+	private final ButtonSetting importClipboard = add(new ButtonSetting("import", "Importar opções (JSON copiado)", "Colar", new Runnable() {
+		@Override
+		public void run() {
+			boolean ok = config().importJson(Screen.getClipboard());
+			message(ok ? "§aOpções importadas no perfil " + config().getActiveProfile() + "."
+					: "§cA área de transferência não tem uma config do VfxClient.");
+		}
+	}));
+
 	public ConfigProfilesModule() {
 		super("configProfiles", "Perfis de config", "Troque todas as opções de uma vez", Category.GENERAL, true);
 	}
@@ -86,6 +105,13 @@ public class ConfigProfilesModule extends Module {
 
 	@Override
 	public void fromJson(JsonObject json) {
+	}
+
+	private static void message(String text) {
+		MinecraftClient client = MinecraftClient.getInstance();
+		if (client.player != null) {
+			client.player.sendMessage(new LiteralText("§d[VfxClient] " + text));
+		}
 	}
 
 	private static ConfigManager config() {

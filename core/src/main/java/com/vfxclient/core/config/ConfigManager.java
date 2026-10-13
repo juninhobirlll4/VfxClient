@@ -113,8 +113,7 @@ public final class ConfigManager {
 		}
 	}
 
-	/** Grava o estado atual no perfil ativo, imediatamente. */
-	public void save() {
+	private JsonObject snapshot() {
 		JsonObject root = new JsonObject();
 		root.addProperty("formatVersion", FORMAT_VERSION);
 		root.addProperty("profile", activeProfile);
@@ -123,6 +122,37 @@ public final class ConfigManager {
 			saved.add(module.getId(), module.toJson());
 		}
 		root.add("modules", saved);
+		return root;
+	}
+
+	/** @return todas as opções atuais em JSON (para exportar e compartilhar) */
+	public String exportJson() {
+		return gson.toJson(snapshot());
+	}
+
+	/**
+	 * Aplica opções exportadas por {@link #exportJson()} no perfil em uso e salva.
+	 *
+	 * @param json texto JSON
+	 * @return {@code false} se o texto não for uma config do VfxClient
+	 */
+	public boolean importJson(String json) {
+		try {
+			com.google.gson.JsonElement parsed = new com.google.gson.JsonParser().parse(json);
+			if (!parsed.isJsonObject() || !parsed.getAsJsonObject().has("modules")) {
+				return false;
+			}
+			apply(parsed.getAsJsonObject());
+			save();
+			return true;
+		} catch (RuntimeException e) {
+			return false;
+		}
+	}
+
+	/** Grava o estado atual no perfil ativo, imediatamente. */
+	public void save() {
+		JsonObject root = snapshot();
 
 		Path file = file();
 		try {
