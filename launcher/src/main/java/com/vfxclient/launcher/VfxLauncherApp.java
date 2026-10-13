@@ -82,12 +82,14 @@ public final class VfxLauncherApp extends Application {
 		stage.setMinHeight(580);
 		stage.setScene(scene);
 		stage.setOnCloseRequest(e -> ctx.saveAll());
-		stage.show();
 
 		String snapshotDir = System.getProperty("vfx.snapshot");
 		if (snapshotDir != null) {
+			// Modo de revisão visual: desenha as telas sem mostrar a janela (não rouba o foco).
 			snapshots(scene, Path.of(snapshotDir));
+			return;
 		}
+		stage.show();
 	}
 
 	/** Modo de desenvolvimento: salva um PNG de cada tela e fecha (usado para revisar o visual). */
