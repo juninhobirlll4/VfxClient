@@ -11,8 +11,8 @@ import com.vfxclient.core.module.setting.NumberSetting;
  * Estilo global da HUD do VfxClient: modo compacto (só o essencial) ou avançado (mais
  * informações), cores, cantos e espaçamento. Vale para todos os elementos da HUD.
  *
- * <p>Padrão: fundo preto translúcido (45%), cantos arredondados, texto claro e os valores
- * na cor de destaque. Módulos secundários usam um tom mais escuro da mesma cor.</p>
+ * <p>Padrão (v0.7): visual plano, fundo preto translúcido (35%), cantos retos, texto branco
+ * com sombra. Dá para ligar cantos arredondados e valores na cor de destaque.</p>
  */
 public class HudStyleModule extends Module {
 
@@ -22,16 +22,20 @@ public class HudStyleModule extends Module {
 	public static final int ADVANCED = 1;
 
 	private final ChoiceSetting mode = add(new ChoiceSetting("mode", "Modo", COMPACT, "Compacto", "Avançado"));
-	private final ColorSetting textColor = add(new ColorSetting("textColor", "Cor do texto", 0xFFF2F2F2));
+	private final ColorSetting textColor = add(new ColorSetting("textColor", "Cor do texto", 0xFFFFFFFF));
 	private final ColorSetting accentColor = add(new ColorSetting("accentColor", "Cor principal (destaque)", 0xFFB48CFF));
-	private final BooleanSetting highlightValues = add(new BooleanSetting("highlightValues", "Valores na cor principal", true));
+	private final BooleanSetting highlightValues = add(new BooleanSetting("highlightValues", "Valores na cor principal", false));
 	private final NumberSetting secondaryShade = addAdvanced(new NumberSetting("secondaryShade", "Cor secundária (mais escura)", 20, 0, 70, 5, "%"));
-	private final ColorSetting backgroundColor = add(new ColorSetting("backgroundColor", "Cor do fundo", 0x73000000));
-	private final NumberSetting radius = add(new NumberSetting("radius", "Arredondamento dos cantos", 6, 0, 10, 1, " px"));
+	private final ColorSetting backgroundColor = add(new ColorSetting("backgroundColor", "Cor do fundo", 0x59000000));
+	private final NumberSetting radius = add(new NumberSetting("radius", "Arredondamento dos cantos", 0, 0, 10, 1, " px"));
 	private final NumberSetting padding = addAdvanced(new NumberSetting("padding", "Espaço interno", 4, 1, 8, 1, " px"));
-	private final BooleanSetting shadow = addAdvanced(new BooleanSetting("shadow", "Sombra no texto", false));
+	private final BooleanSetting shadow = addAdvanced(new BooleanSetting("shadow", "Sombra no texto", true));
 	private final ChoiceSetting refresh = addAdvanced(new ChoiceSetting("refresh", "Atualização do texto (cache)", 1,
 			"Todo quadro", "20 vezes por segundo", "10 vezes por segundo"));
+
+	/** Versão do visual padrão; configs mais antigas são trocadas para o visual novo uma vez. */
+	private static final int STYLE_VERSION = 2;
+	private boolean migrate;
 
 	public HudStyleModule() {
 		super("hudStyle", "Estilo da HUD", "Compacto ou avançado, cores e cantos", Category.GENERAL, true);
@@ -40,6 +44,55 @@ public class HudStyleModule extends Module {
 	@Override
 	public boolean isAlwaysOn() {
 		return true;
+	}
+
+	@Override
+	public com.google.gson.JsonObject toJson() {
+		com.google.gson.JsonObject json = super.toJson();
+		json.addProperty("styleVersion", STYLE_VERSION);
+		return json;
+	}
+
+	@Override
+	public void fromJson(com.google.gson.JsonObject json) {
+		super.fromJson(json);
+		int saved = readInt(json, "styleVersion", 1);
+		if (saved < STYLE_VERSION) {
+			migrate = true;
+		}
+	}
+
+	@Override
+	public void onTick(net.minecraft.client.MinecraftClient client) {
+		if (migrate) {
+			migrate = false;
+			applyFlatLook();
+		}
+	}
+
+	/** Troca as cores e formatos da HUD para o visual plano padrão (mantém posições e o que está ligado). */
+	public void applyFlatLook() {
+		String[] own = {"textColor", "highlightValues", "backgroundColor", "radius", "padding", "shadow"};
+		for (String id : own) {
+			getSetting(id).reset();
+		}
+		com.vfxclient.core.module.ModuleManager modules = com.vfxclient.core.VfxCore.get().getModules();
+		resetSettings(modules.get("keystrokes"), "style", "bgColor", "textColor", "borderColor", "pressedColor", "pressedTextColor", "gap");
+		resetSettings(modules.get("fps"), "rangeColor");
+		resetSettings(modules.get("ping"), "qualityColor");
+		markDirty();
+	}
+
+	private static void resetSettings(Module module, String... ids) {
+		if (module == null) {
+			return;
+		}
+		for (String id : ids) {
+			com.vfxclient.core.module.setting.Setting<?> setting = module.getSetting(id);
+			if (setting != null) {
+				setting.reset();
+			}
+		}
 	}
 
 	/** @return {@code true} no modo avançado */

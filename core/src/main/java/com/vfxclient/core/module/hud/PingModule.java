@@ -11,7 +11,7 @@ import net.minecraft.client.network.PlayerListEntry;
  */
 public class PingModule extends TextHudModule {
 
-	private final BooleanSetting qualityColor = add(new BooleanSetting("qualityColor", "Cor por qualidade da conexão", true));
+	private final BooleanSetting qualityColor = add(new BooleanSetting("qualityColor", "Cor por qualidade da conexão", false));
 
 	public PingModule() {
 		super("ping", "Ping", "Latência com o servidor", true, 4, 22);

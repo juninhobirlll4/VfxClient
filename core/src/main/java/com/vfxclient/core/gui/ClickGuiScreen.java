@@ -30,16 +30,19 @@ import org.lwjgl.input.Mouse;
 /**
  * Menu principal do VfxClient, aberto com Right Shift (configurável em Geral > Menu).
  *
- * <p>Barra lateral com as categorias; à direita, cartões de módulos (clique liga/desliga,
- * botão direito ou "Opções" abre as configurações). Nas configurações há sliders (clique no
+ * <p>Barra lateral com as categorias; à direita, cartões de módulos com contorno (contorno
+ * branco = ligado; clique liga/desliga, engrenagem ou botão direito abre as configurações).
+ * Digitar com o menu aberto busca módulos em todas as categorias. Nas configurações há sliders (clique no
  * valor para digitar), escolhas (esquerdo avança, direito volta), teclas, textos, botões e
  * seletor de cor (RGB, alfa, HEX e paleta). Módulos de HUD mostram uma prévia ao vivo.</p>
  */
 public class ClickGuiScreen extends Screen {
 
 	private static final int SIDEBAR_W = 92;
-	private static final int CARD_MIN_W = 112;
-	private static final int CARD_H = 42;
+	private static final int CARD_MIN_W = 118;
+	private static final int CARD_H = 26;
+	private static final int ICON_W = 22;
+	private static final int GEAR_W = 16;
 	private static final int GAP = 6;
 	private static final int ROW_H = 20;
 	private static final int SLIDER_W = 80;
@@ -65,6 +68,7 @@ public class ClickGuiScreen extends Screen {
 	private float scrollTarget;
 	private float settingsScrollTarget;
 	private int lastMouseX;
+	private String search = "";
 
 	// Edição em andamento (só uma por vez).
 	private NumberSetting draggingSlider;
@@ -91,6 +95,20 @@ public class ClickGuiScreen extends Screen {
 	private int contentW;
 	private int contentH;
 	private int listW;
+
+	/**
+	 * Abre direto nas opções de um módulo (usado pelo modo de teste {@code -Dvfx.openMenu=<id>}).
+	 *
+	 * @param module módulo
+	 * @return esta tela
+	 */
+	public ClickGuiScreen withSettings(Module module) {
+		if (module != null) {
+			category = module.getCategory();
+			openSettings(module);
+		}
+		return this;
+	}
 
 	@Override
 	public void init() {
@@ -145,8 +163,8 @@ public class ClickGuiScreen extends Screen {
 	}
 
 	private void layout() {
-		panelW = Math.min(width - 20, 420);
-		panelH = Math.min(height - 20, 250);
+		panelW = Math.min(width - 20, 500);
+		panelH = Math.min(height - 20, 290);
 		px = (width - panelW) / 2;
 		py = (height - panelH) / 2;
 		contentX = px + SIDEBAR_W + 12;
@@ -169,7 +187,7 @@ public class ClickGuiScreen extends Screen {
 			float hover = hover(c, hovered);
 			boolean selected = c == category;
 			if (selected) {
-				Render2D.roundedRect(px + 6, y, SIDEBAR_W - 12, 16, 4, Theme.withAlpha(Theme.PRIMARY, 0.35F));
+				Render2D.roundedRect(px + 6, y, SIDEBAR_W - 12, 16, 3, Theme.CARD_HOVER);
 				DrawableHelper.fill(px + 6, y + 3, px + 8, y + 13, Theme.PRIMARY_LIGHT);
 			} else if (hover > 0.01F) {
 				Render2D.roundedRect(px + 6, y, SIDEBAR_W - 12, 16, 4, Theme.withAlpha(Theme.CARD_HOVER, hover));
@@ -180,7 +198,7 @@ public class ClickGuiScreen extends Screen {
 
 		int by = py + panelH - 24;
 		boolean hovered = picker == null && inside(mouseX, mouseY, px + 6, by, SIDEBAR_W - 12, 16);
-		Render2D.roundedRect(px + 6, by, SIDEBAR_W - 12, 16, 4, Theme.lerp(Theme.TRACK_OFF, Theme.PRIMARY, hover("hud-editor", hovered)));
+		Render2D.outlinedRect(px + 6, by, SIDEBAR_W - 12, 16, 3, Theme.lerp(Theme.OUTLINE_OFF, Theme.OUTLINE_ON, hover("hud-editor", hovered)), Theme.SIDEBAR);
 		textCentered("Editar HUD", px + SIDEBAR_W / 2, by + 4, Theme.WHITE);
 		text("v" + VfxCore.get().getVersion(), px + 10, by - 12, Theme.TEXT_MUTED);
 	}
@@ -191,19 +209,23 @@ public class ClickGuiScreen extends Screen {
 		DrawableHelper.fill(contentX, py + 34, contentX + contentW, py + 35, Theme.DIVIDER);
 	}
 
+	/** @return módulos da categoria, ou o resultado da busca (todas as categorias) */
+	private List<Module> visibleModules() {
+		if (search.isEmpty()) {
+			return VfxCore.get().getModules().byCategory(category);
+		}
+		String q = search.toLowerCase();
+		List<Module> result = new ArrayList<Module>();
+		for (Module module : VfxCore.get().getModules().all()) {
+			if (module.getName().toLowerCase().contains(q) || module.getDescription().toLowerCase().contains(q)) {
+				result.add(module);
+			}
+		}
+		return result;
+	}
+
 	private void drawModules(int mouseX, int mouseY) {
-		String subtitle = category.getDescription();
-		if (category == Category.PERFORMANCE) {
-			subtitle += "  -  agora: " + MinecraftClient.getCurrentFps() + " FPS";
-		}
-		drawHeader(category.getDisplayName(), subtitle);
-		List<Module> modules = VfxCore.get().getModules().byCategory(category);
-
-		if (modules.isEmpty()) {
-			textCentered("Nada aqui ainda - chega numa próxima versão.", contentX + contentW / 2, contentY + contentH / 2 - 4, Theme.TEXT_MUTED);
-			return;
-		}
-
+		List<Module> modules = visibleModules();
 		int cols = Math.max(1, (contentW + GAP) / (CARD_MIN_W + GAP));
 		int cardW = (contentW - GAP * (cols - 1)) / cols;
 		int rows = (modules.size() + cols - 1) / cols;
@@ -212,32 +234,88 @@ public class ClickGuiScreen extends Screen {
 		int scroll = Math.round(scrollAnim.update(scrollTarget, 16F));
 
 		boolean mouseInContent = inside(mouseX, mouseY, contentX, contentY, contentW, contentH);
+		Module hoveredModule = null;
 		Render2D.scissor(contentX, contentY, contentW, contentH);
 		for (int i = 0; i < modules.size(); i++) {
 			Module module = modules.get(i);
 			int x = contentX + (i % cols) * (cardW + GAP);
 			int y = contentY + (i / cols) * (CARD_H + GAP) - scroll;
 			boolean hovered = mouseInContent && inside(mouseX, mouseY, x, y, cardW, CARD_H);
+			if (hovered) {
+				hoveredModule = module;
+			}
 			drawCard(module, x, y, cardW, hovered, mouseX, mouseY);
 		}
 		Render2D.endScissor();
+
+		String title = search.isEmpty() ? category.getDisplayName() : "Busca";
+		String subtitle;
+		if (hoveredModule != null) {
+			subtitle = hoveredModule.getDescription();
+		} else if (!search.isEmpty()) {
+			subtitle = modules.size() + " módulo(s) para \"" + search + "\"";
+		} else {
+			subtitle = category.getDescription();
+			if (category == Category.PERFORMANCE) {
+				subtitle += "  -  agora: " + MinecraftClient.getCurrentFps() + " FPS";
+			}
+		}
+		drawHeader(title, textRenderer.trimToWidth(subtitle, contentW - 112));
+		drawSearchBox();
+		if (modules.isEmpty()) {
+			textCentered(search.isEmpty() ? "Nada aqui ainda - chega numa próxima versão." : "Nenhum módulo encontrado.",
+					contentX + contentW / 2, contentY + contentH / 2 - 4, Theme.TEXT_MUTED);
+		}
+	}
+
+	/** Caixa de busca no canto do cabeçalho: é só digitar com o menu aberto. */
+	private void drawSearchBox() {
+		int w = 104;
+		int x = contentX + contentW - w;
+		int y = py + 9;
+		boolean active = !search.isEmpty();
+		Render2D.outlinedRect(x, y, w, 15, 3, active ? Theme.OUTLINE_ON : Theme.OUTLINE_OFF, Theme.SIDEBAR);
+		Render2D.ring(x + 8, y + 7, 3F, 1F, Theme.TEXT_MUTED);
+		DrawableHelper.fill(x + 10, y + 9, x + 12, y + 11, Theme.TEXT_MUTED);
+		boolean caret = active && (System.currentTimeMillis() / 500) % 2 == 0;
+		String shown = active ? textRenderer.trimToWidth(search, w - 26, true) + (caret ? "_" : "") : "Buscar...";
+		text(shown, x + 16, y + 4, active ? Theme.TEXT : Theme.TEXT_MUTED);
+	}
+
+	/** Duas letras que identificam o módulo no cartão (no lugar de um ícone). */
+	private static String initials(Module module) {
+		String[] words = module.getName().replaceAll("[^\\p{L}\\p{N} ]", " ").trim().split("\\s+");
+		if (words.length >= 2 && !words[1].isEmpty()) {
+			return (words[0].substring(0, 1) + words[1].substring(0, 1)).toUpperCase();
+		}
+		String word = words[0];
+		return word.length() <= 3 ? word.toUpperCase() : word.substring(0, 2).toUpperCase();
 	}
 
 	private void drawCard(Module module, int x, int y, int w, boolean hovered, int mouseX, int mouseY) {
 		float hover = hover(module, hovered);
-		float on = toggle(module, module.isEnabled());
-		int base = Theme.lerp(Theme.CARD, Theme.CARD_ENABLED, module.isAlwaysOn() ? 0F : on);
-		Render2D.roundedRect(x, y, w, CARD_H, 5, Theme.lerp(base, Theme.CARD_HOVER, hover * 0.6F));
+		float on = toggle(module, module.isEnabled() || module.isAlwaysOn());
+		int border = Theme.lerp(Theme.OUTLINE_OFF, Theme.OUTLINE_ON, Math.max(on, hover * 0.5F));
+		int fill = Theme.lerp(Theme.CARD, Theme.CARD_HOVER, hover);
+		Render2D.outlinedRect(x, y, w, CARD_H, 4, border, fill);
 
-		text(module.getName(), x + 8, y + 7, Theme.TEXT);
-		text(textRenderer.trimToWidth(module.getDescription(), w - 16), x + 8, y + 18, Theme.TEXT_MUTED);
+		int textColor = Theme.lerp(Theme.TEXT_MUTED, Theme.TEXT, Math.max(on, hover));
+		String icon = initials(module);
+		text(icon, x + 1 + (ICON_W - textRenderer.getStringWidth(icon)) / 2, y + (CARD_H - 8) / 2, textColor);
+		DrawableHelper.fill(x + ICON_W + 1, y + 6, x + ICON_W + 2, y + CARD_H - 6, Theme.withAlpha(border, 0.7F));
 
-		if (!module.getSettings().isEmpty()) {
-			boolean linkHovered = hovered && inside(mouseX, mouseY, x + 6, y + CARD_H - 13, 40, 11);
-			text("Opções", x + 8, y + CARD_H - 11, linkHovered ? Theme.PRIMARY_LIGHT : Theme.withAlpha(Theme.TEXT_MUTED, 0.8F));
+		int nameX = x + ICON_W + 7;
+		boolean hasSettings = !module.getSettings().isEmpty();
+		int nameW = w - ICON_W - 10 - (hasSettings ? GEAR_W : 0);
+		text(textRenderer.trimToWidth(module.getName(), nameW), nameX, y + (CARD_H - 8) / 2, textColor);
+
+		if (hasSettings) {
+			boolean gearHovered = hovered && inside(mouseX, mouseY, x + w - GEAR_W - 2, y, GEAR_W + 2, CARD_H);
+			Render2D.gear(x + w - GEAR_W / 2F - 3, y + CARD_H / 2F, 3.5F, gearHovered ? Theme.PRIMARY_LIGHT : Theme.withAlpha(textColor, 0.8F));
 		}
-		if (!module.isAlwaysOn()) {
-			drawSwitch(x + w - 26, y + CARD_H - 14, on);
+		if (module.isEnabled() && !module.isAlwaysOn()) {
+			// Pontinho de "ligado" na cor de destaque.
+			Render2D.circle(x + w - 4, y + 4, 1.5F, Theme.PRIMARY_LIGHT);
 		}
 	}
 
@@ -671,6 +749,7 @@ public class ClickGuiScreen extends Screen {
 		for (Category c : Category.values()) {
 			if (button == 0 && inside(mouseX, mouseY, px + 6, y, SIDEBAR_W - 12, 16)) {
 				category = c;
+				search = "";
 				closeSettings();
 				scrollTarget = 0;
 				return;
@@ -693,7 +772,7 @@ public class ClickGuiScreen extends Screen {
 		if (!inside(mouseX, mouseY, contentX, contentY, contentW, contentH)) {
 			return;
 		}
-		List<Module> modules = VfxCore.get().getModules().byCategory(category);
+		List<Module> modules = visibleModules();
 		int cols = Math.max(1, (contentW + GAP) / (CARD_MIN_W + GAP));
 		int cardW = (contentW - GAP * (cols - 1)) / cols;
 		int scroll = Math.round(scrollAnim.get());
@@ -705,7 +784,7 @@ public class ClickGuiScreen extends Screen {
 				continue;
 			}
 			boolean hasSettings = !module.getSettings().isEmpty();
-			boolean onOptions = inside(mouseX, mouseY, x + 6, y + CARD_H - 13, 40, 11);
+			boolean onOptions = inside(mouseX, mouseY, x + cardW - GEAR_W - 2, y, GEAR_W + 2, CARD_H);
 			if (hasSettings && (button == 1 || (button == 0 && (onOptions || module.isAlwaysOn())))) {
 				openSettings(module);
 			} else if (button == 0) {
@@ -890,6 +969,22 @@ public class ClickGuiScreen extends Screen {
 				editingText.set(editingText.get() + character);
 			}
 			return;
+		}
+		if (settingsModule == null) {
+			if (keyCode == Keyboard.KEY_BACK && !search.isEmpty()) {
+				search = search.substring(0, search.length() - 1);
+				scrollTarget = 0;
+				return;
+			}
+			if (keyCode == Keyboard.KEY_ESCAPE && !search.isEmpty()) {
+				search = "";
+				return;
+			}
+			if ((Character.isLetterOrDigit(character) || (character == ' ' && !search.isEmpty())) && search.length() < 24) {
+				search += character;
+				scrollTarget = 0;
+				return;
+			}
 		}
 		if (keyCode == Keyboard.KEY_ESCAPE) {
 			if (settingsModule != null) {

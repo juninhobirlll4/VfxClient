@@ -12,7 +12,7 @@ public class FpsModule extends TextHudModule {
 
 	private static final long WINDOW_MS = 5000L;
 
-	private final BooleanSetting rangeColor = add(new BooleanSetting("rangeColor", "Cor por faixa (verde/amarelo/vermelho)", true));
+	private final BooleanSetting rangeColor = add(new BooleanSetting("rangeColor", "Cor por faixa (verde/amarelo/vermelho)", false));
 
 	private int minFps = Integer.MAX_VALUE;
 	private long windowStart;

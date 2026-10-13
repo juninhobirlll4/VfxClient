@@ -38,16 +38,16 @@ public class KeystrokesModule extends HudModule {
 	private static final int ALIGN_CENTER = 1;
 	private static final int ALIGN_RIGHT = 2;
 
-	private final ChoiceSetting style = add(new ChoiceSetting("style", "Estilo", ROUNDED, "Minimalista", "Com borda", "Arredondado", "Transparente"));
+	private final ChoiceSetting style = add(new ChoiceSetting("style", "Estilo", MINIMAL, "Minimalista", "Com borda", "Arredondado", "Transparente"));
 	private final ChoiceSetting align = addAdvanced(new ChoiceSetting("align", "Alinhamento das linhas", ALIGN_CENTER, "Esquerda", "Centro", "Direita"));
 	private final NumberSetting keySize = add(new NumberSetting("keySize", "Tamanho da tecla", 22, 14, 32, 1, " px"));
 	private final NumberSetting gap = addAdvanced(new NumberSetting("gap", "Espaço entre teclas", 2, 0, 6, 1, " px"));
 
-	private final ColorSetting backgroundColor = add(new ColorSetting("bgColor", "Cor de fundo", 0x660E0A16));
-	private final ColorSetting textColorSetting = add(new ColorSetting("textColor", "Cor do texto", 0xFFF2F2F2));
-	private final ColorSetting borderColor = addAdvanced(new ColorSetting("borderColor", "Cor da borda", 0xFFB48CFF));
-	private final ColorSetting pressedColor = add(new ColorSetting("pressedColor", "Fundo ao pressionar", 0xE6FFFFFF));
-	private final ColorSetting pressedTextColor = addAdvanced(new ColorSetting("pressedTextColor", "Texto ao pressionar", 0xFF5B16D0));
+	private final ColorSetting backgroundColor = add(new ColorSetting("bgColor", "Cor de fundo", 0x59000000));
+	private final ColorSetting textColorSetting = add(new ColorSetting("textColor", "Cor do texto", 0xFFFFFFFF));
+	private final ColorSetting borderColor = addAdvanced(new ColorSetting("borderColor", "Cor da borda", 0x99FFFFFF));
+	private final ColorSetting pressedColor = add(new ColorSetting("pressedColor", "Fundo ao pressionar", 0xB3FFFFFF));
+	private final ColorSetting pressedTextColor = addAdvanced(new ColorSetting("pressedTextColor", "Texto ao pressionar", 0xFF101010));
 
 	private final BooleanSetting showW = add(new BooleanSetting("showW", "Tecla W", true));
 	private final BooleanSetting showA = add(new BooleanSetting("showA", "Tecla A", true));
@@ -168,7 +168,7 @@ public class KeystrokesModule extends HudModule {
 		}
 
 		int color = Theme.lerp(textColorSetting.argb(), pressedTextColor.argb(), pressed);
-		boolean textShadow = shadow.get() && pressed < 0.5F;
+		boolean textShadow = (shadow.get() || (style() != null && style().shadow())) && pressed < 0.5F;
 		String label = labelFor(key);
 		if (key.binding.getCode() == client.options.jumpKey.getCode() && key.height < 12) {
 			// Barra de espaço baixa: só um traço no meio.

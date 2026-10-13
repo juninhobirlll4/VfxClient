@@ -54,6 +54,40 @@ public final class Render2D {
 	 * @param radius raio
 	 * @param color  cor ARGB
 	 */
+	/**
+	 * Contorno arredondado de 1 pixel com o miolo preenchido (cartões do menu).
+	 *
+	 * @param x      esquerda
+	 * @param y      topo
+	 * @param w      largura
+	 * @param h      altura
+	 * @param radius raio dos cantos
+	 * @param border cor do contorno
+	 * @param fill   cor do miolo (opaca, para o contorno não aparecer por baixo)
+	 */
+	public static void outlinedRect(float x, float y, float w, float h, float radius, int border, int fill) {
+		roundedRect(x, y, w, h, radius, border);
+		roundedRect(x + 1, y + 1, w - 2, h - 2, Math.max(0F, radius - 1), fill);
+	}
+
+	/**
+	 * Engrenagem pequena (ícone de opções) desenhada com formas simples.
+	 *
+	 * @param cx    centro X
+	 * @param cy    centro Y
+	 * @param r     raio
+	 * @param color cor
+	 */
+	public static void gear(float cx, float cy, float r, int color) {
+		for (int i = 0; i < 8; i++) {
+			double a = Math.PI / 4 * i;
+			float tx = cx + (float) Math.cos(a) * r;
+			float ty = cy + (float) Math.sin(a) * r;
+			rawRect(tx - 1F, ty - 1F, 2F, 2F, color);
+		}
+		ring(cx, cy, r - 0.5F, 1.5F, color);
+	}
+
 	public static void circle(float cx, float cy, float radius, int color) {
 		roundedRect(cx - radius, cy - radius, radius * 2F, radius * 2F, radius, color);
 	}

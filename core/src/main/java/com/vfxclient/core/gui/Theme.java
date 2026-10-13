@@ -12,19 +12,22 @@ public final class Theme {
 	public static final int PRIMARY_LIGHT = 0xFFB48CFF;
 	public static final int WHITE = 0xFFFFFFFF;
 
-	public static final int BACKDROP = 0x88000000;
-	public static final int PANEL = 0xF20D0A14;
-	public static final int SIDEBAR = 0xFF151021;
-	public static final int CARD = 0xFF1B1529;
-	public static final int CARD_HOVER = 0xFF251C3A;
-	public static final int CARD_ENABLED = 0xFF27194A;
-	public static final int TRACK_OFF = 0xFF332A48;
-	public static final int DIVIDER = 0x18FFFFFF;
+	// Visual plano e escuro (v0.7): cinzas neutros, contornos finos e o roxo só como destaque.
+	public static final int BACKDROP = 0xA0000000;
+	public static final int PANEL = 0xE6111115;
+	public static final int SIDEBAR = 0xFF0C0C0F;
+	public static final int CARD = 0xFF18181D;
+	public static final int CARD_HOVER = 0xFF222229;
+	public static final int CARD_ENABLED = 0xFF1E1D26;
+	public static final int TRACK_OFF = 0xFF34343D;
+	public static final int DIVIDER = 0x22FFFFFF;
+	public static final int OUTLINE_OFF = 0x55FFFFFF;
+	public static final int OUTLINE_ON = 0xF0FFFFFF;
 
-	public static final int TEXT = 0xFFF4EFFF;
-	public static final int TEXT_MUTED = 0xFFA99CC4;
+	public static final int TEXT = 0xFFF2F2F5;
+	public static final int TEXT_MUTED = 0xFF9A9AA6;
 
-	public static final int HUD_BACKGROUND = 0x590E0A16;
+	public static final int HUD_BACKGROUND = 0x59000000;
 
 	private Theme() {
 	}
