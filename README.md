@@ -92,9 +92,10 @@ Tags com sufixo (`v0.2.0-beta`) saem como *pre-release*.
 
 - [x] **v0.5 – Launcher completo + personalização:** launcher jogável (versões oficiais e perfil VfxClient com Legacy Fabric, download de versão/bibliotecas/assets/Java 8 da Mojang, barra de progresso, status do jogo), login Microsoft por código, conta offline, skin (upload oficial ou local) e capa, RAM por perfil com recomendação, diagnóstico do PC, limpeza de cache, atualização pelo GitHub, instalador .exe; no mod: seletor de cor RGB/HEX/alfa, teclas totalmente configuráveis, HUD compacta/avançada, perfis de configuração, presets Baixo/Equilibrado/Alto com otimização automática, skin local
 - [x] **v0.5.1 – Loaders no launcher:** botões VfxClient / OptiFine / Forge para o 1.8.9 (OptiFine escolhido pelo jogador por causa da licença; Forge baixado sozinho; Forge + OptiFine como mod)
+- [x] **v0.6 – HUD nova + loaders prontos:** Forge embutido no launcher e OptiFine encontrado sozinho no PC; HUD com âncoras, cor principal/secundária, valores destacados, cantos 0–10 px, cores por módulo e layouts prontos (Minimal, PvP, Survival, Content Creator, Competitivo); FPS e ping coloridos por faixa, CPS com média de 5 s, bioma e Nether/Overworld, barra de durabilidade, efeitos com ícone e cor, relógio com segundos, Servidor e Tempo de jogo; ping em número na Tab, chat com até 1000 linhas, Auto GG, print copiado; freelook, motion blur, saturação; Discord Rich Presence; cache da HUD, FPS reduzido parado (AFK); exportar/importar config em JSON
 
 ### Próximas partes
-- [ ] **v0.5 – Social:** waypoints (criar, cor, distância, compartilhar no chat)
+- [ ] **v0.7 – Social:** waypoints (criar, cor, distância, compartilhar no chat)
 - [ ] **v0.8 – Contas e skins VfxClient:** cadastro próprio; skin enviada pelo client e vista por todos que usam o VfxClient (ver abaixo)
 - [ ] **v0.9 – Perfis de mods e auto-update** via GitHub Releases
 - [ ] **v1.0 – Polimento:** arte final, Javadoc completo, testes com o grupo
@@ -114,7 +115,7 @@ Implementações **nossas** das técnicas conhecidas para ganhar FPS na 1.8.9. C
 | Gráficos rápidos, VBO, sem sombras, sem vsync, distância menor | Perfil de FPS | Alto, varia por placa de vídeo |
 | FPS baixo com a janela sem foco | FPS sem foco | Libera o PC fora do jogo |
 
-Próximas ideias: HUD em cache (redesenhada só quando muda) e culling de baús atrás de blocos.
+HUD em cache: desde a v0.6 o texto da HUD é recalculado no máximo 20 vezes por segundo. Próxima ideia: culling de baús atrás de blocos.
 ### Contas e skins (v0.8)
 
 - **Conta VfxClient:** e-mail + senha, com nick único reservado. Entra em servidores **não-premium**

@@ -56,6 +56,8 @@ Na pasta do repositório (cmd):
 Modo linha de comando do launcher (útil para testar):
 
   gradlew :launcher:run --args="--cli launch --offline SeuNick --wait"
+  gradlew :launcher:run --args="--cli launch --offline SeuNick --join localhost:25565"
+  gradlew :launcher:run --args="--cli launch --profile forge-1.8.9 --offline SeuNick"
   gradlew :launcher:run --args="--cli diagnose"
   gradlew :launcher:run --args="--cli clean-cache"
   gradlew :launcher:run --args="--cli versions"
@@ -134,11 +136,15 @@ Loaders do 1.8.9 (VfxClient / OptiFine / Forge)
 - Na tela Início, os botões "Loader" trocam entre:
   VfxClient = Legacy Fabric + todos os recursos do VfxClient (menu, HUD, otimizações);
   OptiFine  = Minecraft + OptiFine, sem os recursos do VfxClient;
-  Forge     = Forge 1.8.9 (baixado sozinho) para os seus mods, sem os recursos do VfxClient.
+  Forge     = Forge 1.8.9 (já vem dentro do launcher) para os seus mods, sem os recursos do VfxClient.
   Cada loader tem a própria pasta de jogo (mods separados).
-- OptiFine: a licença não permite que ele venha no instalador. Clique em "Baixar no site oficial",
-  baixe o OptiFine 1.8.9 (ex.: OptiFine_1.8.9_HD_U_M5.jar) e use "Selecionar OptiFine...".
-  Pelo terminal: VfxClient.exe --cli import-optifine C:\caminho\OptiFine_1.8.9_HD_U_M5.jar
+- Forge: o instalador oficial do Forge 1.8.9 vem dentro do launcher e é instalado sozinho
+  (em segundo plano) quando o launcher abre. Funciona sem internet depois do primeiro jogo.
+- OptiFine: a licença não permite que ele venha no instalador. O launcher procura sozinho um
+  OptiFine 1.8.9 na Área de Trabalho, em Downloads e no .minecraft e importa. Se não achar:
+  "Baixar no site oficial", salve o arquivo na Área de Trabalho ou em Downloads (ou use
+  "Selecionar OptiFine..."). Pelo terminal:
+  VfxClient.exe --cli import-optifine C:\caminho\OptiFine_1.8.9_HD_U_M5.jar
 - Forge + OptiFine: no loader Forge, marque "Usar o OptiFine junto com o Forge" (ele vai como mod).
 - "Abrir pasta de mods" (loader Forge) abre a pasta onde você coloca os seus mods do Forge.
 
@@ -150,7 +156,27 @@ Conta e skin
 
 No jogo (Right Shift)
 - Geral > Menu: "Opções no menu" Simples/Completo (mostra as opções avançadas).
-- Geral > Estilo da HUD: modo Compacto/Avançado, cores, cantos, espaçamento.
+- Geral > Estilo da HUD: modo Compacto/Avançado, cor do texto, cor principal (valores em
+  destaque), cor secundária mais escura (relógio, servidor, tempo de jogo), fundo (padrão preto
+  45%), cantos 0-10 px, espaço interno, atualização do texto (cache).
+- Geral > Layouts da HUD: Minimal, PvP, Survival, Content Creator, Competitivo > Aplicar.
+  Instalação nova já começa no PvP. Depois ajuste no editor de HUD (/vfx hud): cada elemento
+  gruda no canto/borda mais próximo e fica no lugar ao mudar o tamanho da janela.
+- Cada elemento da HUD: opção avançada "Cores próprias" (texto e fundo só dele).
+- HUD: FPS verde/amarelo/vermelho (>=120, 60-119, <60); ping colorido pela conexão; CPS
+  esquerdo, direito, os dois ou soma, último segundo ou média de 5 s; coordenadas com bioma e
+  conversão Nether/Overworld; armadura com barra e cor; efeitos com ícone e cor do efeito;
+  relógio com segundos; Servidor; Tempo de jogo (sessão, hoje, total).
+- Utilidades: ping em número na Tab; chat guarda até 1000 linhas; Auto GG (desligado,
+  configure as frases e a mensagem); Prints: F2 também copia a imagem (cole com Ctrl+V).
+- Visual: Freelook (desligado; Alt esquerdo; ALGUNS SERVIDORES PROÍBEM, veja as regras),
+  Motion blur e Saturação de cor (desligados; usam efeitos do próprio Minecraft e precisam de
+  "Usar FBOs" ligado nas opções de vídeo).
+- Social > Discord: status no Discord. Precisa de um Application ID: crie um aplicativo em
+  https://discord.com/developers/applications (nome "VfxClient"), copie o Application ID e
+  cole no módulo. Com o Discord aberto no PC, o status aparece em alguns segundos.
+- Desempenho > FPS dinâmico: limita o FPS sem foco e depois de alguns minutos parado (AFK).
+- Geral > Perfis de config: "Copiar" exporta todas as opções em JSON; "Colar" importa.
 - Geral > Perfis de config: crie "PvP", troque, apague. Cada perfil guarda tudo.
 - Cores: qualquer opção de cor abre o seletor (sliders R/G/B/A, HEX, paleta, prévia).
 - Valores: clique no número de um slider (ou botão direito) para digitar.

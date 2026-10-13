@@ -78,10 +78,25 @@ Tudo é nosso: nome, logo, cores (roxo → branco), código e assets.
   inclui jdk.crypto.ec (HTTPS). O app-image não tem `java.exe` solto; teste com `VfxClient.exe --cli ...` e o código de saída.
 - Login Microsoft precisa de Client ID do Azure (settings.json) e aprovação da Mojang; sem isso, conta offline.
 - Loaders (v0.5.1): `Profile.Kind` VFX / OPTIFINE / FORGE / VANILLA; perfis fixos `vfxclient-1.8.9`, `optifine-1.8.9`, `forge-1.8.9`.
-  `Forge` lê `install_profile.json` do instalador oficial (pula libs com clientreq=false). `OptiFine` nunca é distribuído:
-  o jogador importa o jar (`launcher/optifine/`); a versão usa LaunchWrapper + `optifine.OptiFineTweaker` (Patcher do OptiFine
-  se existir, senão copia o jar). Forge testado abrindo via CLI; OptiFine ainda sem teste real (precisa do jar do usuário).
+  `Forge` lê `install_profile.json` do instalador oficial (pula libs com clientreq=false); o instalador vem embutido em
+  `launcher/src/main/resources/com/vfxclient/launcher/loaders/` (LGPL), conferido por SHA-1, com fallback no Maven.
+  `OptiFine` nunca é distribuído (licença; `.gitignore` bloqueia o jar): `OptiFine.autoDetect()` procura em Desktop,
+  Downloads e .minecraft e importa para `launcher/optifine/`; a versão usa LaunchWrapper + `optifine.OptiFineTweaker`
+  (Patcher do OptiFine). Loaders pré-instalados em segundo plano ao abrir o launcher. Forge, OptiFine e Forge+OptiFine
+  testados abrindo via CLI (v0.6). CLI `--join host:porta` entra direto num servidor (`-Dvfx.join`).
   OptiFine/Forge rodam SEM os recursos do VfxClient (decisão do usuário: opção 1; port para Forge fica para depois).
+
+## HUD (v0.6)
+- `HudModule`: 9 âncoras (`anchor` no JSON; sem âncora = canto superior esquerdo, configs antigas), `screenX/screenY`,
+  `moveTo` (editor escolhe a âncora pelo terço da tela), `place` (layouts). Marcadores `VALUE`/`TEXT` no texto pintam valores
+  com a cor principal (`HudStyleModule.accentColor`) ou secundária (`isSecondary()` → `secondaryColor`). Cores próprias por módulo.
+- `TextHudModule` faz cache das linhas (`HudStyleModule.cacheMillis`, padrão 50 ms) fora do editor.
+- `HudLayoutModule`: layouts prontos; instalação nova aplica o PvP no primeiro tick (`ConfigManager` sem arquivo).
+- Novos: `ServerIpModule`, `PlaytimeModule`, `TabListModule` (+`PlayerListHudMixin`), `AutoGgModule` (via `ChatHudMixin`),
+  `ScreenshotModule` (AWT clipboard), `FreelookModule` (redirect de `increaseTransforms` + troca de yaw/pitch em `transformCamera`),
+  `MotionBlurModule`/`SaturationModule` (`render/PostEffect` com shaders vanilla phosphor/color_convolve + `ShaderEffectAccessor`),
+  `DiscordModule` (pipe `discord-ipc-N`, precisa de Application ID), `FpsLimiterModule` com AFK.
+- Teste em mundo: servidor oficial 1.8.9 offline local + `--cli launch --join localhost:25565`; prints da janela via .NET.
 
 ## Estado atual (v0.5.0)
 - Build ok; launcher baixa e abre o 1.8.9 + Legacy Fabric + VfxClient (testado via CLI, conta offline).
@@ -92,7 +107,7 @@ Tudo é nosso: nome, logo, cores (roxo → branco), código e assets.
 - Falta teste do usuário dentro do jogo para os módulos novos e para o login Microsoft (depende do Client ID dele).
 
 ## Próximos passos
-1. v0.6: Social → waypoints.
+1. v0.7: Social → waypoints (e minimapa opcional, desligado em PvP).
 2. v0.8: servidor de contas/skins VfxClient (backend: usuário avaliando VPS; Hetzner CX23 recomendado, ou Supabase).
 ## Decisões pendentes (perguntar ao usuário)
 - Backend de contas/skins (v0.8): usuário não quer Firebase; opções apresentadas: Supabase, Cloudflare (Workers + D1 + R2) ou VPS própria.
