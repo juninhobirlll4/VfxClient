@@ -187,6 +187,13 @@ public final class HomeView extends BorderPane {
 	/** Mostra os botões de loader e o painel do OptiFine/Forge conforme o perfil escolhido. */
 	private void refreshLoaders() {
 		Profile profile = ctx.profiles().selected();
+		if (profile.kind == Profile.Kind.OPTIFINE || profile.kind == Profile.Kind.FORGE) {
+			ctx.runAsync(() -> {
+				if (OptiFine.installedJar() == null && OptiFine.autoDetect() != null) {
+					LauncherContext.ui(this::refreshLoaders);
+				}
+			});
+		}
 		boolean legacy = "1.8.9".equals(profile.minecraftVersion) && profile.kind != Profile.Kind.VANILLA;
 		loaderRow.setVisible(legacy);
 		loaderRow.setManaged(legacy);
@@ -211,8 +218,9 @@ public final class HomeView extends BorderPane {
 		Path jar = OptiFine.installedJar();
 		optifineStatus.setText(jar != null
 				? "OptiFine pronto: " + jar.getFileName()
-				: "OptiFine ainda não selecionado. A licença do OptiFine não permite que ele venha junto com o VfxClient: "
-				+ "baixe o arquivo para 1.8.9 (ex.: OptiFine_1.8.9_HD_U_M5.jar) no site oficial e selecione aqui.");
+				: "OptiFine não encontrado no computador. A licença do OptiFine não permite que ele venha junto com o VfxClient: "
+				+ "baixe o OptiFine 1.8.9 no site oficial e deixe na Área de Trabalho ou em Downloads, que o launcher encontra sozinho "
+				+ "(ou use Selecionar OptiFine).");
 		optifineStatus.getStyleClass().setAll(jar != null ? "accent" : "warning");
 	}
 

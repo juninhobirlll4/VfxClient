@@ -131,6 +131,7 @@ public final class GameLauncher {
 
 	/** O OptiFine precisa do jar do 1.8.9 e do Java 8 prontos antes de montar a própria versão. */
 	private static String prepareOptiFine(Profile profile, Progress progress) throws IOException {
+		OptiFine.autoDetect();
 		VersionResolver.Resolved vanilla = VersionResolver.resolve(profile.minecraftVersion, progress);
 		JsonObject client = Json.object(Json.object(vanilla.json(), "downloads"), "client");
 		Path clientJar = LauncherPaths.versions().resolve(vanilla.jarId()).resolve(vanilla.jarId() + ".jar");

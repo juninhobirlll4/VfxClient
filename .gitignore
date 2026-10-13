@@ -28,3 +28,7 @@ Thumbs.db
 
 # Site: a CI copia a marca para cá antes de publicar
 site/assets/
+
+# OptiFine: a licença não permite redistribuir. Nunca versionar o jar.
+*OptiFine*.jar
+*optifine*.jar

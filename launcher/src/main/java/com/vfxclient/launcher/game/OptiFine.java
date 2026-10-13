@@ -5,6 +5,8 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipFile;
 
@@ -53,6 +55,56 @@ public final class OptiFine {
 	}
 
 	/**
+	 * Procura um OptiFine 1.8.9 que o jogador já tenha no computador e o importa sozinho:
+	 * Área de Trabalho, Downloads e as pastas do launcher oficial (.minecraft). Assim ninguém
+	 * precisa selecionar o arquivo à mão; o launcher nunca baixa nem distribui o OptiFine.
+	 *
+	 * @return o jar importado (ou o que já estava), ou {@code null} se não achou nenhum
+	 */
+	public static Path autoDetect() {
+		Path current = installedJar();
+		if (current != null) {
+			return current;
+		}
+		String home = System.getProperty("user.home");
+		String appData = System.getenv("APPDATA");
+		List<Path> places = new ArrayList<>();
+		places.add(Path.of(home, "Desktop"));
+		places.add(Path.of(home, "OneDrive", "Desktop"));
+		places.add(Path.of(home, "OneDrive", "Área de Trabalho"));
+		places.add(Path.of(home, "Downloads"));
+		if (appData != null) {
+			places.add(Path.of(appData, ".minecraft", "mods"));
+			places.add(Path.of(appData, ".minecraft", "libraries", "optifine", "OptiFine"));
+		}
+		for (Path place : places) {
+			Path found = findIn(place, 2);
+			if (found != null) {
+				try {
+					return importJar(found);
+				} catch (IOException ignored) {
+					// Arquivo inválido: continua procurando.
+				}
+			}
+		}
+		return null;
+	}
+
+	private static Path findIn(Path dir, int depth) {
+		if (!Files.isDirectory(dir)) {
+			return null;
+		}
+		try (var walk = Files.walk(dir, depth)) {
+			return walk.filter(p -> {
+				String n = p.getFileName().toString();
+				return n.matches("(?i)OptiFine[_-]1\\.8\\.9.*\\.jar") && Files.isRegularFile(p);
+			}).findFirst().orElse(null);
+		} catch (IOException | java.io.UncheckedIOException e) {
+			return null;
+		}
+	}
+
+	/**
 	 * Confere e guarda o jar baixado pelo jogador (substitui o anterior).
 	 *
 	 * @param jar arquivo escolhido
@@ -94,7 +146,7 @@ public final class OptiFine {
 		if (jar == null) {
 			throw new IOException("Baixe o OptiFine 1.8.9 em optifine.net e escolha o arquivo no launcher (botão \"Selecionar OptiFine\").");
 		}
-		String edition = jar.getFileName().toString().replaceFirst("(?i)^OptiFine_", "").replaceFirst("(?i)\\.jar$", "");
+		String edition = jar.getFileName().toString().replaceFirst("(?i)^OptiFine[_-]", "").replaceFirst("(?i)\\.jar$", "");
 		String libraryName = "optifine:OptiFine:" + edition;
 		Path library = LauncherPaths.libraries().resolve(LibraryInstaller.mavenPath(libraryName, null));
 		String id = "1.8.9-OptiFine_" + edition.replaceFirst("^1\\.8\\.9_", "");

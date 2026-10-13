@@ -69,6 +69,7 @@ public final class VfxLauncherApp extends Application {
 
 		ctx.onAccountChanged(this::refreshAccountChip);
 		refreshAccountChip();
+		preinstallLoaders();
 
 		Scene scene = new Scene(root, 1040, 640);
 		scene.getStylesheets().add(VfxLauncherApp.class.getResource(RESOURCE_BASE + "launcher.css").toExternalForm());
@@ -117,6 +118,22 @@ public final class VfxLauncherApp extends Application {
 			javafx.application.Platform.exit();
 		});
 		wait.play();
+	}
+
+	/**
+	 * Deixa os loaders prontos assim que o launcher abre: o Forge vem embutido e o OptiFine
+	 * é procurado no computador (o launcher não pode distribuí-lo). Roda em segundo plano.
+	 */
+	private void preinstallLoaders() {
+		ctx.runAsync(() -> {
+			com.vfxclient.launcher.game.OptiFine.autoDetect();
+			try {
+				com.vfxclient.launcher.game.Forge.install("1.8.9", com.vfxclient.launcher.game.Progress.NONE);
+			} catch (java.io.IOException e) {
+				System.err.println("Forge não pré-instalado: " + e.getMessage());
+			}
+			LauncherContext.ui(home::reloadProfiles);
+		});
 	}
 
 	private VBox sidebar() {

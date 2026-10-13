@@ -26,6 +26,10 @@ public final class Forge {
 	public static final String VERSION_1_8_9 = "1.8.9-11.15.1.2318-1.8.9";
 
 	private static final String MAVEN = "https://maven.minecraftforge.net/net/minecraftforge/forge/";
+	/** SHA-1 oficial do instalador (maven.minecraftforge.net), usado para conferir a cópia embutida e o download. */
+	private static final String INSTALLER_SHA1 = "ec0293ff0776b8831f2ed90511bab76e635dda0c";
+	/** O instalador do Forge vem dentro do launcher (licença LGPL permite), então funciona sem internet. */
+	private static final String BUNDLED = "/com/vfxclient/launcher/loaders/forge-" + VERSION_1_8_9 + "-installer.jar";
 
 	private Forge() {
 	}
@@ -47,10 +51,19 @@ public final class Forge {
 			return id;
 		}
 
-		progress.update("Baixando o Forge " + forge, -1, null);
 		Path installer = LauncherPaths.cache().resolve("forge-" + forge + "-installer.jar");
-		String url = MAVEN + forge + "/forge-" + forge + "-installer.jar";
-		Downloader.run("Instalador do Forge", List.of(new Downloader.Task(url, installer, null, 0)), progress);
+		Files.createDirectories(installer.getParent());
+		try (InputStream bundled = Forge.class.getResourceAsStream(BUNDLED)) {
+			if (bundled != null) {
+				progress.update("Instalando o Forge embutido", -1, forge);
+				Files.copy(bundled, installer, StandardCopyOption.REPLACE_EXISTING);
+			}
+		}
+		if (!com.vfxclient.launcher.util.Hashing.matches(installer, INSTALLER_SHA1, 0)) {
+			progress.update("Baixando o Forge " + forge, -1, null);
+			String url = MAVEN + forge + "/forge-" + forge + "-installer.jar";
+			Downloader.run("Instalador do Forge", List.of(new Downloader.Task(url, installer, INSTALLER_SHA1, 0)), progress);
+		}
 
 		progress.update("Instalando o Forge", -1, null);
 		try (ZipFile zip = new ZipFile(installer.toFile())) {
