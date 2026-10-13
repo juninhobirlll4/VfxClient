@@ -94,8 +94,10 @@ Tags com sufixo (`v0.2.0-beta`) saem como *pre-release*.
 - [x] **v0.5.1 – Loaders no launcher:** botões VfxClient / OptiFine / Forge para o 1.8.9 (OptiFine escolhido pelo jogador por causa da licença; Forge baixado sozinho; Forge + OptiFine como mod)
 - [x] **v0.6 – HUD nova + loaders prontos:** Forge embutido no launcher e OptiFine encontrado sozinho no PC; HUD com âncoras, cor principal/secundária, valores destacados, cantos 0–10 px, cores por módulo e layouts prontos (Minimal, PvP, Survival, Content Creator, Competitivo); FPS e ping coloridos por faixa, CPS com média de 5 s, bioma e Nether/Overworld, barra de durabilidade, efeitos com ícone e cor, relógio com segundos, Servidor e Tempo de jogo; ping em número na Tab, chat com até 1000 linhas, Auto GG, print copiado; freelook, motion blur, saturação; cache da HUD, FPS reduzido parado (AFK); exportar/importar config em JSON
 
+- [x] **v0.7 – VfxClient + OptiFine e visual novo:** perfil VfxClient com OptiFine junto (Legacy OptiFabric), HUD plana (cantos retos, fundo 35%), menu com cartões de contorno, busca e engrenagem, prévia ao vivo da mira
+
 ### Próximas partes
-- [ ] **v0.7 – Social:** waypoints (criar, cor, distância, compartilhar no chat)
+- [ ] **v0.8 – Social:** waypoints (criar, cor, distância, compartilhar no chat)
 - [ ] **v0.8 – Contas e skins VfxClient:** cadastro próprio; skin enviada pelo client e vista por todos que usam o VfxClient (ver abaixo)
 - [ ] **v0.9 – Perfis de mods e auto-update** via GitHub Releases
 - [ ] **v1.0 – Polimento:** arte final, Javadoc completo, testes com o grupo
@@ -129,3 +131,8 @@ HUD em cache: desde a v0.6 o texto da HUD é recalculado no máximo 20 vezes por
 - [ ] Backend de contas/skins: Firebase (sem servidor para manter) ou servidor próprio
 - [ ] authlib-injector: com o modelo de skins acima ele deixa de ser necessário; proposta é removê-lo da stack
 - [ ] Contas Microsoft também podem usar skin VfxClient?
+
+## Terceiros
+- [Legacy OptiFabric](https://github.com/tildejustin/optifabric) (MPL-2.0): embutido sem modificação no launcher para carregar o OptiFine junto com o VfxClient.
+- Forge 1.8.9 (LGPL): instalador oficial embutido.
+- OptiFine: não vai para o GitHub; só no instalador gerado no PC para o grupo.

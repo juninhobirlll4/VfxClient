@@ -88,6 +88,16 @@ Tudo é nosso: nome, logo, cores (roxo → branco), código e assets.
   testados abrindo via CLI (v0.6). CLI `--join host:porta` entra direto num servidor (`-Dvfx.join`).
   OptiFine/Forge rodam SEM os recursos do VfxClient (decisão do usuário: opção 1; port para Forge fica para depois).
 
+## v0.7
+- Perfil VFX carrega o OptiFine junto: `OptiFine.syncFabricMods` põe o jar do OptiFine + Legacy OptiFabric (embutido em
+  `resources/.../loaders/optifabric-legacy.jar`, MPL-2.0) em `mods/` (`Profile.optifineWithVfx`, padrão true). Testado: abre e entra
+  no mundo sem erro de mixin. `ZoomModule` desliga o `of.key.zoom` se usar a mesma tecla.
+- Visual plano (`Theme` neutro, `OUTLINE_ON/OFF`, `Render2D.outlinedRect/gear`); `HudStyleModule.styleVersion=2` migra configs
+  antigas uma vez (`applyFlatLook`). Menu: cartões com contorno, iniciais, engrenagem, busca (`search`). Mira com prévia.
+- Teste visual SEM teclado/mouse: `-Dvfx.openMenu=<id|qualquer>` (extraJvmArgs do perfil) abre o menu e salva
+  `screenshots/vfx-teste.png`. NÃO automatizar teclado/mouse nem trazer a janela para frente: o jogo de teste rouba o foco
+  e recebe o que o usuário digita.
+
 ## HUD (v0.6)
 - `HudModule`: 9 âncoras (`anchor` no JSON; sem âncora = canto superior esquerdo, configs antigas), `screenX/screenY`,
   `moveTo` (editor escolhe a âncora pelo terço da tela), `place` (layouts). Marcadores `VALUE`/`TEXT` no texto pintam valores

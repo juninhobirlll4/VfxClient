@@ -138,7 +138,11 @@ Launcher
 
 Loaders do 1.8.9 (VfxClient / OptiFine / Forge)
 - Na tela Início, os botões "Loader" trocam entre:
-  VfxClient = Legacy Fabric + todos os recursos do VfxClient (menu, HUD, otimizações);
+  VfxClient = Legacy Fabric + todos os recursos do VfxClient (menu, HUD, otimizações) + OptiFine
+              no mesmo jogo (via Legacy OptiFabric, que vem no launcher). Para desligar o
+              OptiFine: desmarque "OptiFine junto com o VfxClient" na tela Início.
+              Sem o arquivo do OptiFine no PC, abre só com o VfxClient.
+              Com o OptiFine junto, a tecla de zoom dele (C) é desligada: vale o zoom do VfxClient.
   OptiFine  = Minecraft + OptiFine, sem os recursos do VfxClient;
   Forge     = Forge 1.8.9 (já vem dentro do launcher) para os seus mods, sem os recursos do VfxClient.
   Cada loader tem a própria pasta de jogo (mods separados).
@@ -164,6 +168,9 @@ Conta e skin
 
 No jogo (Right Shift)
 - Geral > Menu: "Opções no menu" Simples/Completo (mostra as opções avançadas).
+- Menu: cartões com contorno (contorno branco = ligado). Clique liga/desliga; a engrenagem
+  (ou botão direito) abre as opções. Digite com o menu aberto para buscar um módulo.
+- Utilidades > Mira: prévia ao vivo nas opções (sobre céu e fundo escuro, 2x e tamanho real).
 - Geral > Estilo da HUD: modo Compacto/Avançado, cor do texto, cor principal (valores em
   destaque), cor secundária mais escura (relógio, servidor, tempo de jogo), fundo (padrão preto
   45%), cantos 0-10 px, espaço interno, atualização do texto (cache).
