@@ -2,8 +2,12 @@ package com.vfxclient.core.hud;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.Iterator;
 
-/** Conta cliques do mouse no último segundo (CPS). Usado pela HUD de CPS e pelas teclas. */
+/**
+ * Conta cliques do mouse (CPS). Guarda os últimos 5 segundos para dar o valor do último
+ * segundo e a média de 5 segundos. Usado pela HUD de CPS e pelas teclas.
+ */
 public final class ClickTracker {
 
 	/** Código do Minecraft para o botão esquerdo do mouse. */
@@ -11,7 +15,7 @@ public final class ClickTracker {
 	/** Código do Minecraft para o botão direito do mouse. */
 	public static final int RIGHT = -99;
 
-	private static final long WINDOW_MS = 1000L;
+	private static final long KEEP_MS = 5000L;
 	private static final Deque<Long> LEFT_CLICKS = new ArrayDeque<Long>();
 	private static final Deque<Long> RIGHT_CLICKS = new ArrayDeque<Long>();
 
@@ -33,19 +37,36 @@ public final class ClickTracker {
 
 	/** @return cliques do botão esquerdo no último segundo */
 	public static int leftCps() {
-		return count(LEFT_CLICKS);
+		return count(LEFT_CLICKS, 1000L);
 	}
 
 	/** @return cliques do botão direito no último segundo */
 	public static int rightCps() {
-		return count(RIGHT_CLICKS);
+		return count(RIGHT_CLICKS, 1000L);
 	}
 
-	private static int count(Deque<Long> clicks) {
-		long limit = System.currentTimeMillis() - WINDOW_MS;
-		while (!clicks.isEmpty() && clicks.peekFirst() < limit) {
+	/**
+	 * @param left {@code true} para o botão esquerdo
+	 * @return média de cliques por segundo nos últimos 5 segundos
+	 */
+	public static double average5s(boolean left) {
+		return count(left ? LEFT_CLICKS : RIGHT_CLICKS, KEEP_MS) / 5.0;
+	}
+
+	private static int count(Deque<Long> clicks, long windowMs) {
+		long now = System.currentTimeMillis();
+		while (!clicks.isEmpty() && clicks.peekFirst() < now - KEEP_MS) {
 			clicks.pollFirst();
 		}
-		return clicks.size();
+		if (windowMs >= KEEP_MS) {
+			return clicks.size();
+		}
+		int total = 0;
+		long limit = now - windowMs;
+		Iterator<Long> it = clicks.descendingIterator();
+		while (it.hasNext() && it.next() >= limit) {
+			total++;
+		}
+		return total;
 	}
 }

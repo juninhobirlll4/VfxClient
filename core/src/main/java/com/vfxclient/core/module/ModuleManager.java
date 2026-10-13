@@ -19,7 +19,9 @@ import com.vfxclient.core.module.hud.CustomTextModule;
 import com.vfxclient.core.module.hud.FpsModule;
 import com.vfxclient.core.module.hud.KeystrokesModule;
 import com.vfxclient.core.module.hud.PingModule;
+import com.vfxclient.core.module.hud.PlaytimeModule;
 import com.vfxclient.core.module.hud.PotionEffectsModule;
+import com.vfxclient.core.module.hud.ServerIpModule;
 import com.vfxclient.core.module.performance.BlockEntityDistanceModule;
 import com.vfxclient.core.module.performance.EntityCullingModule;
 import com.vfxclient.core.module.performance.EntityDistanceModule;
@@ -63,6 +65,8 @@ public final class ModuleManager {
 		register(new PingModule());
 		register(new CoordinatesModule());
 		register(new ClockModule());
+		register(new ServerIpModule());
+		register(new PlaytimeModule());
 		register(new CpsModule());
 		register(new KeystrokesModule());
 		register(new ArmorModule());
