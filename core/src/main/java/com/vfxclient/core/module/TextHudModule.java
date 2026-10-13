@@ -15,6 +15,9 @@ public abstract class TextHudModule extends HudModule {
 
 	private static final int LINE_HEIGHT = 10;
 
+	private List<String> cached = Collections.<String>emptyList();
+	private long cachedAt;
+
 	/**
 	 * @param id               chave do JSON
 	 * @param name             nome exibido
@@ -70,15 +73,33 @@ public abstract class TextHudModule extends HudModule {
 		return text == null || text.isEmpty() ? Collections.<String>emptyList() : Collections.singletonList(text);
 	}
 
+	/**
+	 * Linhas com cache (HUD caching): fora do editor, o texto é recalculado no máximo na
+	 * frequência escolhida em Estilo da HUD, em vez de várias vezes por quadro.
+	 */
+	private List<String> lines(MinecraftClient client, boolean preview) {
+		if (preview) {
+			return getLines(client, true);
+		}
+		com.vfxclient.core.module.general.HudStyleModule style = style();
+		long interval = style == null ? 0 : style.cacheMillis();
+		long now = System.currentTimeMillis();
+		if (interval <= 0 || now - cachedAt >= interval || now < cachedAt) {
+			cached = getLines(client, false);
+			cachedAt = now;
+		}
+		return cached;
+	}
+
 	@Override
 	public boolean isVisible(MinecraftClient client, boolean preview) {
-		return !getLines(client, preview).isEmpty();
+		return !lines(client, preview).isEmpty();
 	}
 
 	@Override
 	protected int contentWidth(MinecraftClient client, boolean preview) {
 		int width = 0;
-		for (String line : getLines(client, preview)) {
+		for (String line : lines(client, preview)) {
 			width = Math.max(width, client.textRenderer.getStringWidth(strip(line)));
 		}
 		return width;
@@ -86,14 +107,14 @@ public abstract class TextHudModule extends HudModule {
 
 	@Override
 	protected int contentHeight(MinecraftClient client, boolean preview) {
-		int lines = getLines(client, preview).size();
+		int lines = lines(client, preview).size();
 		return lines == 0 ? 0 : lines * LINE_HEIGHT - 2;
 	}
 
 	@Override
 	protected void renderContent(MinecraftClient client, boolean preview) {
 		int y = 0;
-		for (String line : getLines(client, preview)) {
+		for (String line : lines(client, preview)) {
 			drawText(client, line, 0, y);
 			y += LINE_HEIGHT;
 		}

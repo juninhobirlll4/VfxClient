@@ -30,6 +30,8 @@ public class HudStyleModule extends Module {
 	private final NumberSetting radius = add(new NumberSetting("radius", "Arredondamento dos cantos", 6, 0, 10, 1, " px"));
 	private final NumberSetting padding = addAdvanced(new NumberSetting("padding", "Espaço interno", 4, 1, 8, 1, " px"));
 	private final BooleanSetting shadow = addAdvanced(new BooleanSetting("shadow", "Sombra no texto", false));
+	private final ChoiceSetting refresh = addAdvanced(new ChoiceSetting("refresh", "Atualização do texto (cache)", 1,
+			"Todo quadro", "20 vezes por segundo", "10 vezes por segundo"));
 
 	public HudStyleModule() {
 		super("hudStyle", "Estilo da HUD", "Compacto ou avançado, cores e cantos", Category.GENERAL, true);
@@ -83,6 +85,11 @@ public class HudStyleModule extends Module {
 	/** @return espaço interno entre o texto e a borda do fundo */
 	public int padding() {
 		return padding.getInt();
+	}
+
+	/** @return intervalo do cache do texto da HUD, em milissegundos (0 = sem cache) */
+	public long cacheMillis() {
+		return refresh.get() == 0 ? 0L : refresh.get() == 1 ? 50L : 100L;
 	}
 
 	/** @return se o texto da HUD usa sombra */

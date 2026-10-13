@@ -94,6 +94,7 @@ public final class VfxCore implements ClientModInitializer {
 	 */
 	public void onKeyPressed(int keyCode) {
 		ClickTracker.onPress(keyCode);
+		com.vfxclient.core.module.performance.FpsLimiterModule.markInput();
 		modules.get(ToggleSprintModule.class).onKeyPressed(keyCode);
 		MinecraftClient client = MinecraftClient.getInstance();
 		if (client.currentScreen == null && keyCode == modules.get(MenuModule.class).getKey()) {
