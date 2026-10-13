@@ -97,6 +97,15 @@ public final class GameLauncher {
 			ModInstaller.install(gameDir);
 			Path skin = account.type == Account.Type.OFFLINE ? localSkin(account) : null;
 			ModInstaller.installLocalSkin(gameDir, skin);
+			if (profile.kind == Profile.Kind.VFX) {
+				if (profile.optifineWithVfx) {
+					OptiFine.autoDetect();
+				}
+				boolean withOptifine = OptiFine.syncFabricMods(gameDir, profile.optifineWithVfx);
+				if (profile.optifineWithVfx && !withOptifine) {
+					progress.update("OptiFine não encontrado", -1, "o VfxClient vai abrir sem o OptiFine");
+				}
+			}
 		}
 
 		if (profile.kind == Profile.Kind.FORGE) {

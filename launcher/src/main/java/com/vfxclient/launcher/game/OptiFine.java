@@ -252,6 +252,51 @@ public final class OptiFine {
 		Files.copy(jar, mods.resolve(jar.getFileName()), StandardCopyOption.REPLACE_EXISTING);
 	}
 
+	/** Legacy OptiFabric (MPL-2.0, github.com/tildejustin/optifabric): carrega o OptiFine dentro do Legacy Fabric. */
+	private static final String OPTIFABRIC = "/com/vfxclient/launcher/loaders/optifabric-legacy.jar";
+	/** Versão do Legacy OptiFabric embutido. */
+	public static final String OPTIFABRIC_VERSION = "2.3.6+1.3.1-1.13.2";
+
+	/**
+	 * Perfil VfxClient: coloca (ou tira) o OptiFine e o Legacy OptiFabric na pasta de mods, para
+	 * o VfxClient e o OptiFine rodarem juntos no mesmo jogo.
+	 *
+	 * @param gameDir pasta do jogo do perfil
+	 * @param enabled se o OptiFine deve ir junto
+	 * @return {@code true} se o OptiFine ficou instalado (precisa do jar do OptiFine importado)
+	 * @throws IOException em erro de disco
+	 */
+	public static boolean syncFabricMods(Path gameDir, boolean enabled) throws IOException {
+		Path mods = gameDir.resolve("mods");
+		Files.createDirectories(mods);
+		Path jar = enabled ? installedJar() : null;
+		Path optifabric = mods.resolve("optifabric-" + OPTIFABRIC_VERSION + ".jar");
+		try (DirectoryStream<Path> old = Files.newDirectoryStream(mods, "{OptiFine,optifabric}*.jar")) {
+			for (Path file : old) {
+				boolean keep = jar != null && (file.equals(optifabric) || file.getFileName().equals(jar.getFileName()));
+				if (!keep) {
+					Files.deleteIfExists(file);
+				}
+			}
+		}
+		if (jar == null) {
+			return false;
+		}
+		Path target = mods.resolve(jar.getFileName());
+		if (!Files.exists(target) || Files.size(target) != Files.size(jar)) {
+			Files.copy(jar, target, StandardCopyOption.REPLACE_EXISTING);
+		}
+		if (!Files.exists(optifabric)) {
+			try (java.io.InputStream in = OptiFine.class.getResourceAsStream(OPTIFABRIC)) {
+				if (in == null) {
+					throw new IOException("O launcher foi gerado sem o Legacy OptiFabric embutido.");
+				}
+				Files.copy(in, optifabric, StandardCopyOption.REPLACE_EXISTING);
+			}
+		}
+		return true;
+	}
+
 	private static JsonObject library(String name) {
 		JsonObject library = new JsonObject();
 		library.addProperty("name", name);

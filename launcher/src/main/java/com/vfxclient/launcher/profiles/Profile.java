@@ -42,6 +42,8 @@ public final class Profile {
 	public String extraJvmArgs = "";
 	/** Diminuir sozinho recursos pesados em PC fraco. */
 	public boolean autoOptimize = true;
+	/** Perfil VfxClient: carregar o OptiFine junto (via Legacy OptiFabric). Ligado por padrão. */
+	public boolean optifineWithVfx = true;
 	/** Perfil Forge: colocar o OptiFine na pasta de mods (OptiFine 1.8.9 funciona como mod do Forge). */
 	public boolean optifineWithForge;
 
@@ -58,7 +60,7 @@ public final class Profile {
 	@Override
 	public String toString() {
 		String loader = switch (kind) {
-			case VFX -> " (VfxClient)";
+			case VFX -> optifineWithVfx ? " (VfxClient + OptiFine)" : " (VfxClient)";
 			case OPTIFINE -> " (OptiFine)";
 			case FORGE -> optifineWithForge ? " (Forge + OptiFine)" : " (Forge)";
 			default -> "";

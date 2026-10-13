@@ -22,8 +22,31 @@ public class ZoomModule extends Module {
 		super("zoom", "Zoom", "Segure a tecla para aproximar", Category.VISUAL, true);
 	}
 
+	private boolean checkedOptiFine;
+
+	/**
+	 * Com o OptiFine junto, o zoom dele usa a mesma tecla (C) e os dois somariam. Fica valendo o
+	 * nosso (suave e configurável): a tecla de zoom do OptiFine é desligada se for igual à nossa.
+	 */
+	private void resolveOptiFineConflict(MinecraftClient client) {
+		checkedOptiFine = true;
+		if (!net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("optifabric") || client.options == null) {
+			return;
+		}
+		for (net.minecraft.client.option.KeyBinding binding : client.options.allKeys) {
+			if ("of.key.zoom".equals(binding.getTranslationKey()) && binding.getCode() == key.get()) {
+				binding.setCode(0);
+				net.minecraft.client.option.KeyBinding.updateKeysByCode();
+				com.vfxclient.core.VfxCore.LOGGER.info("Zoom do OptiFine desligado (mesma tecla do zoom do VfxClient).");
+			}
+		}
+	}
+
 	@Override
 	public void onTick(MinecraftClient client) {
+		if (!checkedOptiFine) {
+			resolveOptiFineConflict(client);
+		}
 		boolean active = client.currentScreen == null && key.isDown();
 		if (active == zooming) {
 			return;

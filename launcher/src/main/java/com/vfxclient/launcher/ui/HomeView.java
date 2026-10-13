@@ -57,6 +57,7 @@ public final class HomeView extends BorderPane {
 	private final VBox optifineBox = new VBox(10);
 	private final Label optifineStatus = new Label();
 	private final CheckBox forgeWithOptifine = new CheckBox("Usar o OptiFine junto com o Forge (como mod)");
+	private final CheckBox vfxWithOptifine = new CheckBox("OptiFine junto com o VfxClient (recomendado)");
 	private final HBox forgeTools = new HBox(12);
 	private HBox loaderRow;
 	private Path lastLog;
@@ -173,13 +174,18 @@ public final class HomeView extends BorderPane {
 			profile.optifineWithForge = forgeWithOptifine.isSelected();
 			ctx.profilesChanged();
 		});
+		vfxWithOptifine.setOnAction(e -> {
+			Profile profile = ctx.profiles().selected();
+			profile.optifineWithVfx = vfxWithOptifine.isSelected();
+			ctx.profilesChanged();
+		});
 		Button mods = new Button("Abrir pasta de mods");
 		mods.getStyleClass().add("ghost-button");
 		mods.setOnAction(e -> openMods());
 		forgeTools.getChildren().setAll(forgeWithOptifine, mods);
 		forgeTools.setAlignment(Pos.CENTER_LEFT);
 		HBox optifineButtons = new HBox(10, download, select);
-		optifineBox.getChildren().setAll(optifineStatus, optifineButtons, forgeTools);
+		optifineBox.getChildren().setAll(vfxWithOptifine, optifineStatus, optifineButtons, forgeTools);
 		optifineBox.getStyleClass().add("loader-panel");
 		return row;
 	}
@@ -187,7 +193,7 @@ public final class HomeView extends BorderPane {
 	/** Mostra os botões de loader e o painel do OptiFine/Forge conforme o perfil escolhido. */
 	private void refreshLoaders() {
 		Profile profile = ctx.profiles().selected();
-		if (profile.kind == Profile.Kind.OPTIFINE || profile.kind == Profile.Kind.FORGE) {
+		if (profile.kind != Profile.Kind.VANILLA) {
 			ctx.runAsync(() -> {
 				if (OptiFine.installedJar() == null && OptiFine.autoDetect() != null) {
 					LauncherContext.ui(this::refreshLoaders);
@@ -209,7 +215,11 @@ public final class HomeView extends BorderPane {
 		});
 
 		boolean forge = profile.kind == Profile.Kind.FORGE;
-		boolean showOptifine = profile.kind == Profile.Kind.OPTIFINE || forge;
+		boolean vfx = profile.kind == Profile.Kind.VFX;
+		boolean showOptifine = profile.kind == Profile.Kind.OPTIFINE || forge || vfx;
+		vfxWithOptifine.setVisible(vfx);
+		vfxWithOptifine.setManaged(vfx);
+		vfxWithOptifine.setSelected(profile.optifineWithVfx);
 		optifineBox.setVisible(showOptifine);
 		optifineBox.setManaged(showOptifine);
 		forgeTools.setVisible(forge);
@@ -218,9 +228,8 @@ public final class HomeView extends BorderPane {
 		Path jar = OptiFine.installedJar();
 		optifineStatus.setText(jar != null
 				? "OptiFine pronto: " + jar.getFileName()
-				: "OptiFine não encontrado no computador. A licença do OptiFine não permite que ele venha junto com o VfxClient: "
-				+ "baixe o OptiFine 1.8.9 no site oficial e deixe na Área de Trabalho ou em Downloads, que o launcher encontra sozinho "
-				+ "(ou use Selecionar OptiFine).");
+				: "OptiFine não encontrado. Baixe o OptiFine 1.8.9 no site oficial e deixe na Área de Trabalho ou em Downloads, "
+				+ "que o launcher encontra sozinho (ou use Selecionar OptiFine). Sem ele, o jogo abre só com o VfxClient.");
 		optifineStatus.getStyleClass().setAll(jar != null ? "accent" : "warning");
 	}
 
