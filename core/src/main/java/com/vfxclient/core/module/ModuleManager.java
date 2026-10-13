@@ -32,6 +32,7 @@ import com.vfxclient.core.module.performance.FpsLimiterModule;
 import com.vfxclient.core.module.performance.NoCloudsModule;
 import com.vfxclient.core.module.performance.ParticleLimitModule;
 import com.vfxclient.core.module.performance.VanillaOptionsModule;
+import com.vfxclient.core.module.social.DiscordModule;
 import com.vfxclient.core.module.util.AutoGgModule;
 import com.vfxclient.core.module.util.BlockOutlineModule;
 import com.vfxclient.core.module.util.ChatModule;
@@ -101,6 +102,8 @@ public final class ModuleManager {
 		register(new FreelookModule());
 		register(new MotionBlurModule());
 		register(new SaturationModule());
+		// Social
+		register(new DiscordModule());
 		// Desempenho
 		register(new PerformanceProfileModule());
 		register(new VanillaOptionsModule());
