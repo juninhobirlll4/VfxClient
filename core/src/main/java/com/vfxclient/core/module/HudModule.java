@@ -353,6 +353,21 @@ public abstract class HudModule extends Module {
 		this.anchor = anchor;
 	}
 
+	/** @return tamanho (escala) do elemento */
+	public double getScale() {
+		return scale.get();
+	}
+
+	/**
+	 * Muda o tamanho (escala) do elemento, respeitando os limites da opção "Tamanho".
+	 *
+	 * @param value nova escala
+	 */
+	public void setScale(double value) {
+		scale.set(value);
+		markDirty();
+	}
+
 	/** Volta só a posição ao padrão. */
 	public void resetPosition() {
 		place(defaultAnchor, defaultX, defaultY);
