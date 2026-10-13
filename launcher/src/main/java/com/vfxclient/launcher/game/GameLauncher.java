@@ -60,11 +60,13 @@ public final class GameLauncher {
 		Path gameDir = profile.gameDir();
 		Files.createDirectories(gameDir);
 
-		// 1. Versão (com Legacy Fabric no perfil do VfxClient).
-		String versionId = profile.minecraftVersion;
-		if (profile.isVfx()) {
-			versionId = LegacyFabric.install(profile.minecraftVersion, progress);
-		}
+		// 1. Versão: Legacy Fabric (VfxClient), Forge, OptiFine ou o Minecraft oficial.
+		String versionId = switch (profile.kind) {
+			case VFX -> LegacyFabric.install(profile.minecraftVersion, progress);
+			case FORGE -> Forge.install(profile.minecraftVersion, progress);
+			case OPTIFINE -> prepareOptiFine(profile, progress);
+			default -> profile.minecraftVersion;
+		};
 		progress.update("Lendo a versão " + versionId, -1, null);
 		VersionResolver.Resolved version = VersionResolver.resolve(versionId, progress);
 
@@ -97,6 +99,10 @@ public final class GameLauncher {
 			ModInstaller.installLocalSkin(gameDir, skin);
 		}
 
+		if (profile.kind == Profile.Kind.FORGE) {
+			OptiFine.syncForgeMod(gameDir, profile.optifineWithForge);
+		}
+
 		// 6. Login Microsoft em dia.
 		if (account.type == Account.Type.MICROSOFT && !account.tokenValid()) {
 			progress.update("Renovando o login da Microsoft", -1, null);
@@ -121,6 +127,17 @@ public final class GameLauncher {
 		Process process = builder.start();
 		progress.update("Jogo aberto", 1, profile.name);
 		return new Session(process, log);
+	}
+
+	/** O OptiFine precisa do jar do 1.8.9 e do Java 8 prontos antes de montar a própria versão. */
+	private static String prepareOptiFine(Profile profile, Progress progress) throws IOException {
+		VersionResolver.Resolved vanilla = VersionResolver.resolve(profile.minecraftVersion, progress);
+		JsonObject client = Json.object(Json.object(vanilla.json(), "downloads"), "client");
+		Path clientJar = LauncherPaths.versions().resolve(vanilla.jarId()).resolve(vanilla.jarId() + ".jar");
+		Downloader.run("Minecraft " + vanilla.id(), List.of(new Downloader.Task(Json.string(client, "url"), clientJar,
+				Json.string(client, "sha1"), client.get("size").getAsLong())), progress);
+		Path java = JavaRuntimeInstaller.install(vanilla, progress);
+		return OptiFine.install(vanilla, java, progress);
 	}
 
 	/**

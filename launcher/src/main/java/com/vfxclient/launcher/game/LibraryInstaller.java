@@ -61,6 +61,10 @@ public final class LibraryInstaller {
 			if (!Rules.allows(library.getAsJsonArray("rules"))) {
 				continue;
 			}
+			// Formato antigo do Forge: bibliotecas só do servidor vêm marcadas com clientreq=false.
+			if (library.has("clientreq") && !library.get("clientreq").getAsBoolean()) {
+				continue;
+			}
 			String name = Json.string(library, "name");
 			JsonObject downloadsJson = Json.object(library, "downloads");
 			JsonObject nativesMap = Json.object(library, "natives");

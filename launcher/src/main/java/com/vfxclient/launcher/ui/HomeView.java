@@ -17,6 +17,11 @@ import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
+import javafx.stage.FileChooser;
+import com.vfxclient.launcher.game.OptiFine;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -46,6 +51,14 @@ public final class HomeView extends BorderPane {
 	private final Button play = new Button("INICIAR");
 	private final Button openLog = new Button("Ver log do jogo");
 	private final HBox updateBanner = new HBox(12);
+	private final ToggleGroup loaderGroup = new ToggleGroup();
+	private final HBox loaderButtons = new HBox(6);
+	private final Label loaderHint = new Label();
+	private final VBox optifineBox = new VBox(10);
+	private final Label optifineStatus = new Label();
+	private final CheckBox forgeWithOptifine = new CheckBox("Usar o OptiFine junto com o Forge (como mod)");
+	private final HBox forgeTools = new HBox(12);
+	private HBox loaderRow;
 	private Path lastLog;
 	private Process running;
 
@@ -80,7 +93,7 @@ public final class HomeView extends BorderPane {
 		HBox.setHgrow(profileBox, Priority.ALWAYS);
 		profileRow.setAlignment(Pos.CENTER_LEFT);
 
-		VBox profileCard = card("Perfil e versão", profileRow, profileInfo);
+		VBox profileCard = card("Perfil e versão", profileRow, buildLoaderRow(), profileInfo, optifineBox);
 		VBox diagnosticsCard = card("Diagnóstico do computador", diagnosticSummary, diagnosticPreset, warnings);
 
 		updateBanner.getStyleClass().add("update-banner");
@@ -117,6 +130,121 @@ public final class HomeView extends BorderPane {
 		checkUpdates();
 	}
 
+	// ------------------------------------------------------------------
+	// Loaders do 1.8.9 (VfxClient / OptiFine / Forge)
+	// ------------------------------------------------------------------
+
+	private HBox buildLoaderRow() {
+		String[] names = {"VfxClient", "OptiFine", "Forge"};
+		Profile.Kind[] kinds = {Profile.Kind.VFX, Profile.Kind.OPTIFINE, Profile.Kind.FORGE};
+		for (int i = 0; i < names.length; i++) {
+			Profile.Kind kind = kinds[i];
+			ToggleButton button = new ToggleButton(names[i]);
+			button.setToggleGroup(loaderGroup);
+			button.setUserData(kind);
+			button.getStyleClass().add("loader-button");
+			button.setOnAction(e -> {
+				Profile target = ctx.profiles().loaderProfile(kind);
+				if (target != null) {
+					ctx.profiles().select(target);
+					ctx.profilesChanged();
+					runDiagnostics();
+				}
+			});
+			loaderButtons.getChildren().add(button);
+		}
+		Label label = new Label("Loader");
+		label.getStyleClass().add("field-label");
+		label.setMinWidth(60);
+		loaderHint.getStyleClass().add("muted");
+		HBox row = new HBox(10, label, loaderButtons, loaderHint);
+		row.setAlignment(Pos.CENTER_LEFT);
+		loaderRow = row;
+
+		optifineStatus.setWrapText(true);
+		Button download = new Button("Baixar no site oficial");
+		download.getStyleClass().add("ghost-button");
+		download.setOnAction(e -> ctx.host().showDocument(OptiFine.DOWNLOADS_PAGE));
+		Button select = new Button("Selecionar OptiFine...");
+		select.getStyleClass().add("primary-button");
+		select.setOnAction(e -> selectOptiFine());
+		forgeWithOptifine.setOnAction(e -> {
+			Profile profile = ctx.profiles().selected();
+			profile.optifineWithForge = forgeWithOptifine.isSelected();
+			ctx.profilesChanged();
+		});
+		Button mods = new Button("Abrir pasta de mods");
+		mods.getStyleClass().add("ghost-button");
+		mods.setOnAction(e -> openMods());
+		forgeTools.getChildren().setAll(forgeWithOptifine, mods);
+		forgeTools.setAlignment(Pos.CENTER_LEFT);
+		HBox optifineButtons = new HBox(10, download, select);
+		optifineBox.getChildren().setAll(optifineStatus, optifineButtons, forgeTools);
+		optifineBox.getStyleClass().add("loader-panel");
+		return row;
+	}
+
+	/** Mostra os botões de loader e o painel do OptiFine/Forge conforme o perfil escolhido. */
+	private void refreshLoaders() {
+		Profile profile = ctx.profiles().selected();
+		boolean legacy = "1.8.9".equals(profile.minecraftVersion) && profile.kind != Profile.Kind.VANILLA;
+		loaderRow.setVisible(legacy);
+		loaderRow.setManaged(legacy);
+		for (javafx.scene.Node node : loaderButtons.getChildren()) {
+			ToggleButton button = (ToggleButton) node;
+			button.setSelected(button.getUserData() == profile.kind);
+		}
+		loaderHint.setText(switch (profile.kind) {
+			case VFX -> "Menu, HUD e otimizações do VfxClient";
+			case OPTIFINE -> "Minecraft + OptiFine, sem os recursos do VfxClient";
+			case FORGE -> "Forge para seus mods, sem os recursos do VfxClient";
+			default -> "";
+		});
+
+		boolean forge = profile.kind == Profile.Kind.FORGE;
+		boolean showOptifine = profile.kind == Profile.Kind.OPTIFINE || forge;
+		optifineBox.setVisible(showOptifine);
+		optifineBox.setManaged(showOptifine);
+		forgeTools.setVisible(forge);
+		forgeTools.setManaged(forge);
+		forgeWithOptifine.setSelected(profile.optifineWithForge);
+		Path jar = OptiFine.installedJar();
+		optifineStatus.setText(jar != null
+				? "OptiFine pronto: " + jar.getFileName()
+				: "OptiFine ainda não selecionado. A licença do OptiFine não permite que ele venha junto com o VfxClient: "
+				+ "baixe o arquivo para 1.8.9 (ex.: OptiFine_1.8.9_HD_U_M5.jar) no site oficial e selecione aqui.");
+		optifineStatus.getStyleClass().setAll(jar != null ? "accent" : "warning");
+	}
+
+	private void selectOptiFine() {
+		FileChooser chooser = new FileChooser();
+		chooser.setTitle("Selecionar o OptiFine 1.8.9");
+		chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("OptiFine (.jar)", "*.jar"));
+		java.io.File file = chooser.showOpenDialog(ctx.stage());
+		if (file == null) {
+			return;
+		}
+		try {
+			OptiFine.importJar(file.toPath());
+			status.setText("OptiFine selecionado.");
+			detail.setText(file.getName());
+		} catch (IOException ex) {
+			status.setText("Arquivo recusado");
+			detail.setText(ex.getMessage());
+		}
+		refreshLoaders();
+	}
+
+	private void openMods() {
+		try {
+			Path mods = ctx.profiles().selected().gameDir().resolve("mods");
+			Files.createDirectories(mods);
+			ctx.host().showDocument(mods.toUri().toString());
+		} catch (IOException ex) {
+			detail.setText(ex.getMessage());
+		}
+	}
+
 	private static VBox card(String heading, javafx.scene.Node... children) {
 		Label label = new Label(heading);
 		label.getStyleClass().add("card-title");
@@ -132,6 +260,7 @@ public final class HomeView extends BorderPane {
 		profileBox.setItems(FXCollections.observableArrayList(ctx.profiles().all()));
 		profileBox.setValue(ctx.profiles().selected());
 		refreshProfileInfo();
+		refreshLoaders();
 	}
 
 	private void refreshProfileInfo() {

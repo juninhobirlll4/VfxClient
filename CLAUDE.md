@@ -77,6 +77,11 @@ Tudo é nosso: nome, logo, cores (roxo → branco), código e assets.
 - Instalador: `installer\build-installer.ps1` (jpackage app-image + Inno Setup instalado via winget). `jpackage --add-modules`
   inclui jdk.crypto.ec (HTTPS). O app-image não tem `java.exe` solto; teste com `VfxClient.exe --cli ...` e o código de saída.
 - Login Microsoft precisa de Client ID do Azure (settings.json) e aprovação da Mojang; sem isso, conta offline.
+- Loaders (v0.5.1): `Profile.Kind` VFX / OPTIFINE / FORGE / VANILLA; perfis fixos `vfxclient-1.8.9`, `optifine-1.8.9`, `forge-1.8.9`.
+  `Forge` lê `install_profile.json` do instalador oficial (pula libs com clientreq=false). `OptiFine` nunca é distribuído:
+  o jogador importa o jar (`launcher/optifine/`); a versão usa LaunchWrapper + `optifine.OptiFineTweaker` (Patcher do OptiFine
+  se existir, senão copia o jar). Forge testado abrindo via CLI; OptiFine ainda sem teste real (precisa do jar do usuário).
+  OptiFine/Forge rodam SEM os recursos do VfxClient (decisão do usuário: opção 1; port para Forge fica para depois).
 
 ## Estado atual (v0.5.0)
 - Build ok; launcher baixa e abre o 1.8.9 + Legacy Fabric + VfxClient (testado via CLI, conta offline).

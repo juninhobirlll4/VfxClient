@@ -130,6 +130,18 @@ Launcher
 - Cache: Configurações > Limpar cache (mostra quantos MB liberou).
 - Atualização: com uma release mais nova no GitHub, aparece a faixa "Nova versão".
 
+Loaders do 1.8.9 (VfxClient / OptiFine / Forge)
+- Na tela Início, os botões "Loader" trocam entre:
+  VfxClient = Legacy Fabric + todos os recursos do VfxClient (menu, HUD, otimizações);
+  OptiFine  = Minecraft + OptiFine, sem os recursos do VfxClient;
+  Forge     = Forge 1.8.9 (baixado sozinho) para os seus mods, sem os recursos do VfxClient.
+  Cada loader tem a própria pasta de jogo (mods separados).
+- OptiFine: a licença não permite que ele venha no instalador. Clique em "Baixar no site oficial",
+  baixe o OptiFine 1.8.9 (ex.: OptiFine_1.8.9_HD_U_M5.jar) e use "Selecionar OptiFine...".
+  Pelo terminal: VfxClient.exe --cli import-optifine C:\caminho\OptiFine_1.8.9_HD_U_M5.jar
+- Forge + OptiFine: no loader Forge, marque "Usar o OptiFine junto com o Forge" (ele vai como mod).
+- "Abrir pasta de mods" (loader Forge) abre a pasta onde você coloca os seus mods do Forge.
+
 Conta e skin
 - Offline: Conta > digite o nick > Adicionar.
 - Skin offline: escolha o PNG (64x64). Inicie o jogo e aperte F5: a skin aparece em você.
@@ -181,5 +193,6 @@ não aprovam, use contas offline (servidores não-premium).
   no perfil 1.8.9.
 - Sem internet: se tudo já foi baixado uma vez, o launcher abre o jogo com os arquivos
   salvos (lista de versões, Legacy Fabric e Java ficam em cache).
-- OptiFine: não roda no Legacy Fabric e a licença não permite distribuí-lo; as
-  otimizações do VfxClient são implementações nossas.
+- OptiFine: não roda junto com o VfxClient (Legacy Fabric) e a licença não permite
+  distribuí-lo. Por isso ele é um loader separado no launcher, com o arquivo baixado pelo
+  próprio jogador. As otimizações do loader VfxClient são implementações nossas.

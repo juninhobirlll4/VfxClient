@@ -232,3 +232,31 @@
 .slider .thumb {
     -fx-background-color: -vfx-primary-light;
 }
+
+/* Loaders (VfxClient / OptiFine / Forge) ----------------------------- */
+.loader-button {
+    -fx-background-color: -vfx-surface-2;
+    -fx-text-fill: -vfx-muted;
+    -fx-font-weight: bold;
+    -fx-padding: 7 16 7 16;
+    -fx-background-radius: 8;
+    -fx-border-color: -vfx-border;
+    -fx-border-radius: 8;
+    -fx-cursor: hand;
+}
+
+.loader-button:hover {
+    -fx-text-fill: -vfx-text;
+}
+
+.loader-button:selected {
+    -fx-background-color: rgba(123, 47, 247, 0.30);
+    -fx-border-color: -vfx-primary-light;
+    -fx-text-fill: -vfx-white;
+}
+
+.loader-panel {
+    -fx-background-color: -vfx-surface-2;
+    -fx-background-radius: 10;
+    -fx-padding: 12 14 12 14;
+}

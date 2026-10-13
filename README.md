@@ -91,6 +91,7 @@ Tags com sufixo (`v0.2.0-beta`) saem como *pre-release*.
 - [x] **v0.4 – Utilidades + opções estilo OptiFine:** sprint automático e agachar alternado, mira (5 formatos), contorno de bloco, cor do hit, chat com horário e mensagens agrupadas, placar sem números, hora e clima locais, nome próprio no F5; opções gráficas do Minecraft dentro do menu (distância, FPS, vsync, VBO, mipmap, luz...), sem névoa, sem vinheta, animação por tipo, partículas por tipo; site de download
 
 - [x] **v0.5 – Launcher completo + personalização:** launcher jogável (versões oficiais e perfil VfxClient com Legacy Fabric, download de versão/bibliotecas/assets/Java 8 da Mojang, barra de progresso, status do jogo), login Microsoft por código, conta offline, skin (upload oficial ou local) e capa, RAM por perfil com recomendação, diagnóstico do PC, limpeza de cache, atualização pelo GitHub, instalador .exe; no mod: seletor de cor RGB/HEX/alfa, teclas totalmente configuráveis, HUD compacta/avançada, perfis de configuração, presets Baixo/Equilibrado/Alto com otimização automática, skin local
+- [x] **v0.5.1 – Loaders no launcher:** botões VfxClient / OptiFine / Forge para o 1.8.9 (OptiFine escolhido pelo jogador por causa da licença; Forge baixado sozinho; Forge + OptiFine como mod)
 
 ### Próximas partes
 - [ ] **v0.5 – Social:** waypoints (criar, cor, distância, compartilhar no chat)

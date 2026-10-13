@@ -17,7 +17,11 @@ public final class Profile {
 		/** Minecraft 1.8.9 + Legacy Fabric + VfxClient. */
 		VFX,
 		/** Minecraft oficial, sem mods. */
-		VANILLA
+		VANILLA,
+		/** Minecraft 1.8.9 + OptiFine (sem os recursos do VfxClient). */
+		OPTIFINE,
+		/** Minecraft 1.8.9 + Forge, para mods próprios (sem os recursos do VfxClient). */
+		FORGE
 	}
 
 	/** Identificador (também nome da pasta da instância). */
@@ -38,6 +42,8 @@ public final class Profile {
 	public String extraJvmArgs = "";
 	/** Diminuir sozinho recursos pesados em PC fraco. */
 	public boolean autoOptimize = true;
+	/** Perfil Forge: colocar o OptiFine na pasta de mods (OptiFine 1.8.9 funciona como mod do Forge). */
+	public boolean optifineWithForge;
 
 	/** @return pasta do jogo deste perfil */
 	public Path gameDir() {
@@ -51,6 +57,12 @@ public final class Profile {
 
 	@Override
 	public String toString() {
-		return name + "  ·  " + minecraftVersion + (isVfx() ? " (VfxClient)" : "");
+		String loader = switch (kind) {
+			case VFX -> " (VfxClient)";
+			case OPTIFINE -> " (OptiFine)";
+			case FORGE -> optifineWithForge ? " (Forge + OptiFine)" : " (Forge)";
+			default -> "";
+		};
+		return name + "  ·  " + minecraftVersion + loader;
 	}
 }

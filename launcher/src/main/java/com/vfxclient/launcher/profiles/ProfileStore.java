@@ -15,6 +15,10 @@ public final class ProfileStore {
 
 	/** Id do perfil padrão do VfxClient. */
 	public static final String DEFAULT_ID = "vfxclient-1.8.9";
+	/** Id do perfil OptiFine 1.8.9. */
+	public static final String OPTIFINE_ID = "optifine-1.8.9";
+	/** Id do perfil Forge 1.8.9. */
+	public static final String FORGE_ID = "forge-1.8.9";
 
 	private static final Path FILE = LauncherPaths.launcher().resolve("profiles.json");
 
@@ -45,6 +49,37 @@ public final class ProfileStore {
 			profile.ramMb = SystemInfo.recommendedRamMb();
 			data.profiles.add(0, profile);
 		}
+		ensureLoaderProfile(OPTIFINE_ID, "OptiFine", Profile.Kind.OPTIFINE);
+		ensureLoaderProfile(FORGE_ID, "Forge", Profile.Kind.FORGE);
+	}
+
+	/** Cria os perfis fixos dos loaders do 1.8.9 (OptiFine e Forge), se ainda não existirem. */
+	private void ensureLoaderProfile(String id, String name, Profile.Kind kind) {
+		if (find(id) != null) {
+			return;
+		}
+		Profile profile = new Profile();
+		profile.id = id;
+		profile.name = name;
+		profile.kind = kind;
+		profile.minecraftVersion = "1.8.9";
+		profile.ramMb = SystemInfo.recommendedRamMb();
+		profile.preset = "custom";
+		data.profiles.add(profile);
+	}
+
+	/**
+	 * Perfil do 1.8.9 para um loader (o que os botões VfxClient/OptiFine/Forge da tela inicial escolhem).
+	 *
+	 * @param kind loader
+	 * @return o perfil
+	 */
+	public Profile loaderProfile(Profile.Kind kind) {
+		return switch (kind) {
+			case OPTIFINE -> find(OPTIFINE_ID);
+			case FORGE -> find(FORGE_ID);
+			default -> find(DEFAULT_ID);
+		};
 	}
 
 	/**
@@ -113,7 +148,7 @@ public final class ProfileStore {
 	 * @return {@code true} se removeu
 	 */
 	public boolean remove(Profile profile) {
-		if (profile.id.equals(DEFAULT_ID)) {
+		if (profile.id.equals(DEFAULT_ID) || profile.id.equals(OPTIFINE_ID) || profile.id.equals(FORGE_ID)) {
 			return false;
 		}
 		boolean removed = data.profiles.remove(profile);

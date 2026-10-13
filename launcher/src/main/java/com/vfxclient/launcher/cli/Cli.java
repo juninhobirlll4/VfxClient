@@ -23,6 +23,7 @@ import com.vfxclient.launcher.settings.LauncherSettings;
  * VfxClient.exe --cli diagnose
  * VfxClient.exe --cli clean-cache
  * VfxClient.exe --cli versions
+ * VfxClient.exe --cli import-optifine CAMINHO\OptiFine_1.8.9_HD_U_M5.jar
  * </pre>
  */
 public final class Cli {
@@ -50,6 +51,9 @@ public final class Cli {
 					return 0;
 				case "clean-cache":
 					System.out.println("Limpeza: " + CacheCleaner.clean().describe());
+					return 0;
+				case "import-optifine":
+					System.out.println("OptiFine guardado em " + com.vfxclient.launcher.game.OptiFine.importJar(java.nio.file.Path.of(list.get(1))));
 					return 0;
 				case "versions":
 					VersionManifest.releases().stream().limit(20).forEach(System.out::println);
