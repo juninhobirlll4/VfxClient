@@ -30,6 +30,9 @@ Dados do client no jogador: `.minecraft/vfxclient/` (config em `.minecraft/vfxcl
 
 ## Como rodar
 
+Guia completo (build, instalador, pastas, testes, login Microsoft): **[INSTRUCOES.txt](INSTRUCOES.txt)**.
+
+
 Requisitos: **JDK 21** (roda o Gradle e o launcher) e **JDK 8** (roda o Minecraft de desenvolvimento).
 
 ```bat
@@ -87,10 +90,10 @@ Tags com sufixo (`v0.2.0-beta`) saem como *pre-release*.
 
 - [x] **v0.4 – Utilidades + opções estilo OptiFine:** sprint automático e agachar alternado, mira (5 formatos), contorno de bloco, cor do hit, chat com horário e mensagens agrupadas, placar sem números, hora e clima locais, nome próprio no F5; opções gráficas do Minecraft dentro do menu (distância, FPS, vsync, VBO, mipmap, luz...), sem névoa, sem vinheta, animação por tipo, partículas por tipo; site de download
 
+- [x] **v0.5 – Launcher completo + personalização:** launcher jogável (versões oficiais e perfil VfxClient com Legacy Fabric, download de versão/bibliotecas/assets/Java 8 da Mojang, barra de progresso, status do jogo), login Microsoft por código, conta offline, skin (upload oficial ou local) e capa, RAM por perfil com recomendação, diagnóstico do PC, limpeza de cache, atualização pelo GitHub, instalador .exe; no mod: seletor de cor RGB/HEX/alfa, teclas totalmente configuráveis, HUD compacta/avançada, perfis de configuração, presets Baixo/Equilibrado/Alto com otimização automática, skin local
+
 ### Próximas partes
 - [ ] **v0.5 – Social:** waypoints (criar, cor, distância, compartilhar no chat)
-- [ ] **v0.6 – Launcher jogável (offline):** baixa o Minecraft 1.8.9 dos servidores da Mojang, o Legacy Fabric, um runtime Java 8 e o `vfxcore`; botão Jogar e status de download
-- [ ] **v0.7 – Login Microsoft:** contas premium
 - [ ] **v0.8 – Contas e skins VfxClient:** cadastro próprio; skin enviada pelo client e vista por todos que usam o VfxClient (ver abaixo)
 - [ ] **v0.9 – Perfis de mods e auto-update** via GitHub Releases
 - [ ] **v1.0 – Polimento:** arte final, Javadoc completo, testes com o grupo

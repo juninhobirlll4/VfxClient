@@ -1,32 +1,49 @@
 package com.vfxclient.launcher;
 
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
+import com.vfxclient.launcher.auth.Account;
+import com.vfxclient.launcher.game.GameLauncher;
+import com.vfxclient.launcher.ui.AccountView;
+import com.vfxclient.launcher.ui.HomeView;
+import com.vfxclient.launcher.ui.LauncherContext;
+import com.vfxclient.launcher.ui.SettingsView;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.PixelReader;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 /**
- * Janela principal do launcher.
- *
- * <p>No M0 é só o esqueleto visual: logo, versões e o botão Jogar (desativado).
- * Login, perfis de mods, download e auto-update entram nas próximas versões
- * (ver roadmap no README).</p>
+ * Janela principal do launcher: barra lateral (Início, Conta, Configurações) e a tela atual.
  */
 public final class VfxLauncherApp extends Application {
 
 	private static final String RESOURCE_BASE = "/com/vfxclient/launcher/";
+
+	private LauncherContext ctx;
+	private final StackPane content = new StackPane();
+	private final VBox nav = new VBox(6);
+	private final Label accountName = new Label();
+	private final ImageView accountHead = new ImageView();
+	private HomeView home;
+	private AccountView account;
+	private SettingsView settings;
 
 	/**
 	 * Sobe o runtime do JavaFX e abre a janela.
@@ -39,92 +56,161 @@ public final class VfxLauncherApp extends Application {
 
 	@Override
 	public void start(Stage stage) {
-		BuildInfo info = BuildInfo.load();
+		ctx = new LauncherContext(stage, getHostServices());
+		home = new HomeView(ctx);
+		account = new AccountView(ctx);
+		settings = new SettingsView(ctx);
 
 		BorderPane root = new BorderPane();
 		root.getStyleClass().add("root-pane");
-		root.setTop(buildHeader());
-		root.setCenter(buildCenter());
-		root.setBottom(buildFooter(info));
+		root.setLeft(sidebar());
+		root.setCenter(content);
+		show(home, 0);
 
-		Scene scene = new Scene(root, 960, 600);
-		scene.getStylesheets().add(
-				VfxLauncherApp.class.getResource(RESOURCE_BASE + "launcher.css").toExternalForm());
+		ctx.onAccountChanged(this::refreshAccountChip);
+		refreshAccountChip();
 
+		Scene scene = new Scene(root, 1040, 640);
+		scene.getStylesheets().add(VfxLauncherApp.class.getResource(RESOURCE_BASE + "launcher.css").toExternalForm());
 		stage.setTitle("VfxClient");
 		Image icon = loadImage("logo-256.png");
 		if (icon != null) {
 			stage.getIcons().add(icon);
 		}
-		stage.setMinWidth(800);
-		stage.setMinHeight(500);
+		stage.setMinWidth(900);
+		stage.setMinHeight(580);
 		stage.setScene(scene);
+		stage.setOnCloseRequest(e -> ctx.saveAll());
 		stage.show();
+
+		String snapshotDir = System.getProperty("vfx.snapshot");
+		if (snapshotDir != null) {
+			snapshots(scene, Path.of(snapshotDir));
+		}
 	}
 
-	/** Faixa superior com o degradê roxo → branco e o nome do client. */
-	private HBox buildHeader() {
-		Label title = new Label("VfxClient");
-		title.getStyleClass().add("brand-title");
+	/** Modo de desenvolvimento: salva um PNG de cada tela e fecha (usado para revisar o visual). */
+	private void snapshots(Scene scene, Path dir) {
+		javafx.animation.PauseTransition wait = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(4));
+		wait.setOnFinished(e -> {
+			Node[] views = {home, account, settings};
+			String[] names = {"inicio", "conta", "configuracoes"};
+			try {
+				Files.createDirectories(dir);
+				for (int i = 0; i < views.length; i++) {
+					show(views[i], i);
+					scene.getRoot().applyCss();
+					scene.getRoot().layout();
+					WritableImage image = scene.snapshot(null);
+					java.awt.image.BufferedImage out = new java.awt.image.BufferedImage((int) image.getWidth(), (int) image.getHeight(),
+							java.awt.image.BufferedImage.TYPE_INT_ARGB);
+					for (int x = 0; x < out.getWidth(); x++) {
+						for (int y = 0; y < out.getHeight(); y++) {
+							out.setRGB(x, y, image.getPixelReader().getArgb(x, y));
+						}
+					}
+					javax.imageio.ImageIO.write(out, "png", dir.resolve(names[i] + ".png").toFile());
+				}
+			} catch (java.io.IOException ex) {
+				System.err.println("Snapshot falhou: " + ex.getMessage());
+			}
+			javafx.application.Platform.exit();
+		});
+		wait.play();
+	}
 
-		HBox header = new HBox(12, title);
-		header.getStyleClass().add("header");
+	private VBox sidebar() {
+		ImageView logo = new ImageView(loadImage("logo-256.png"));
+		logo.setFitWidth(34);
+		logo.setPreserveRatio(true);
+		Label brand = new Label("VfxClient");
+		brand.getStyleClass().add("brand");
+		HBox header = new HBox(10, logo, brand);
 		header.setAlignment(Pos.CENTER_LEFT);
-		header.setPadding(new Insets(16, 24, 16, 24));
-		return header;
-	}
+		header.setPadding(new Insets(0, 0, 18, 4));
 
-	/** Área central com a logo. */
-	private VBox buildCenter() {
-		VBox center = new VBox(16);
-		center.setAlignment(Pos.CENTER);
-
-		Image logo = loadImage("logo-256.png");
-		if (logo != null) {
-			ImageView view = new ImageView(logo);
-			view.setFitWidth(160);
-			view.setPreserveRatio(true);
-			view.setSmooth(true);
-			center.getChildren().add(view);
+		String[] labels = {"Início", "Conta", "Configurações"};
+		for (int i = 0; i < labels.length; i++) {
+			int index = i;
+			Button button = new Button(labels[i]);
+			button.getStyleClass().add("nav-button");
+			button.setMaxWidth(Double.MAX_VALUE);
+			button.setOnAction(e -> show(index == 0 ? home : index == 1 ? account : settings, index));
+			nav.getChildren().add(button);
 		}
 
-		Label tagline = new Label("Feito por nós, para nós.");
-		tagline.getStyleClass().add("tagline");
-		center.getChildren().add(tagline);
-		return center;
-	}
+		accountHead.setFitWidth(28);
+		accountHead.setFitHeight(28);
+		accountName.getStyleClass().add("account-chip-name");
+		HBox chip = new HBox(10, accountHead, accountName);
+		chip.setAlignment(Pos.CENTER_LEFT);
+		chip.getStyleClass().add("account-chip");
+		chip.setOnMouseClicked(e -> show(account, 1));
 
-	/** Rodapé com versões, status de download e o botão Jogar. */
-	private HBox buildFooter(BuildInfo info) {
-		Label versions = new Label("Client " + info.clientVersion() + "  ·  Minecraft " + info.minecraftVersion());
-		versions.getStyleClass().add("muted");
-
-		Label status = new Label("Pronto");
-		status.getStyleClass().add("status");
-
-		VBox left = new VBox(4, versions, status);
+		Label version = new Label("Launcher " + BuildInfo.load().clientVersion() + " · MC " + BuildInfo.load().minecraftVersion());
+		version.getStyleClass().add("muted");
 
 		Region spacer = new Region();
-		HBox.setHgrow(spacer, Priority.ALWAYS);
-
-		Button play = new Button("JOGAR");
-		play.getStyleClass().add("play-button");
-		// Download e inicialização do jogo chegam na v0.4.
-		play.setDisable(true);
-
-		HBox footer = new HBox(16, left, spacer, play);
-		footer.getStyleClass().add("footer");
-		footer.setAlignment(Pos.CENTER_LEFT);
-		footer.setPadding(new Insets(16, 24, 16, 24));
-		return footer;
+		VBox.setVgrow(spacer, Priority.ALWAYS);
+		VBox sidebar = new VBox(header, nav, spacer, chip, version);
+		sidebar.setSpacing(8);
+		sidebar.getStyleClass().add("sidebar");
+		sidebar.setPadding(new Insets(22, 16, 18, 16));
+		sidebar.setPrefWidth(210);
+		return sidebar;
 	}
 
-	/**
-	 * Carrega uma imagem dos recursos do launcher.
-	 *
-	 * @param name nome do arquivo dentro de {@code com/vfxclient/launcher/}
-	 * @return a imagem, ou {@code null} se o arquivo não existir
-	 */
+	private void show(Node view, int navIndex) {
+		content.getChildren().setAll(view);
+		for (int i = 0; i < nav.getChildren().size(); i++) {
+			nav.getChildren().get(i).getStyleClass().remove("nav-selected");
+			if (i == navIndex) {
+				nav.getChildren().get(i).getStyleClass().add("nav-selected");
+			}
+		}
+	}
+
+	/** Mostra a conta escolhida (rosto da skin + nick) no rodapé da barra lateral. */
+	private void refreshAccountChip() {
+		Account selected = ctx.accounts().selected();
+		accountName.setText(selected == null ? "Sem conta" : selected.username);
+		Image face = null;
+		if (selected != null) {
+			Path skin = selected.type == Account.Type.OFFLINE
+					? GameLauncher.localSkin(selected)
+					: LauncherPaths.launcher().resolve("skins").resolve(selected.uuid + "-oficial.png");
+			if (Files.exists(skin)) {
+				face = face(new Image(skin.toUri().toString()));
+			}
+		}
+		accountHead.setImage(face != null ? face : loadImage("logo-256.png"));
+	}
+
+	/** Recorta o rosto (8x8 + camada do chapéu) da skin e amplia sem suavizar. */
+	private static Image face(Image skin) {
+		if (skin.isError() || skin.getWidth() < 64) {
+			return null;
+		}
+		int scale = 4;
+		WritableImage out = new WritableImage(8 * scale, 8 * scale);
+		PixelReader px = skin.getPixelReader();
+		for (int x = 0; x < 8; x++) {
+			for (int y = 0; y < 8; y++) {
+				int argb = px.getArgb(8 + x, 8 + y);
+				int hat = px.getArgb(40 + x, 8 + y);
+				if ((hat >>> 24) > 10) {
+					argb = hat;
+				}
+				for (int dx = 0; dx < scale; dx++) {
+					for (int dy = 0; dy < scale; dy++) {
+						out.getPixelWriter().setArgb(x * scale + dx, y * scale + dy, argb | 0xFF000000);
+					}
+				}
+			}
+		}
+		return out;
+	}
+
 	private static Image loadImage(String name) {
 		InputStream in = VfxLauncherApp.class.getResourceAsStream(RESOURCE_BASE + name);
 		return in == null ? null : new Image(in);

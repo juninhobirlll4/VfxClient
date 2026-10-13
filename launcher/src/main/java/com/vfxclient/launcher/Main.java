@@ -18,6 +18,10 @@ public final class Main {
 	 * @param args argumentos de linha de comando, repassados ao JavaFX
 	 */
 	public static void main(String[] args) {
+		if (args.length > 0 && args[0].equals("--cli")) {
+			System.exit(com.vfxclient.launcher.cli.Cli.run(java.util.Arrays.copyOfRange(args, 1, args.length)));
+			return;
+		}
 		VfxLauncherApp.launchApp(args);
 	}
 }

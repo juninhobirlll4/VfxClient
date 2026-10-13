@@ -64,20 +64,31 @@ Tudo é nosso: nome, logo, cores (roxo → branco), código e assets.
   `ItemEntityRenderer` (`method_10222` = cópias do modelo do item), `BlockEntityRenderDispatcher` (distância de baús).
 - **Não** coloque classes comuns dentro de `com.vfxclient.core.mixin`: o Mixin proíbe carregar classes do pacote de mixins.
 
-## Estado atual (v0.4.0)
-- Build ok. `runClient` sobe sem erro (todos os Mixins de inicialização aplicam). O de `ClientPlayerEntity` só carrega ao entrar num mundo.
-- Click GUI, HUD e editor confirmados pelo usuário na v0.1. Módulos da v0.2 a v0.4 sobem sem erro, mas precisam de teste dele dentro de um mundo.
-- Para testar inicialização sozinho: rodar `runClient` em background, esperar ~45 s sem `core/run/crash-reports` e matar o processo java do jogo.
-- O log do jogo em dev quase não aparece: o log4j antigo do 1.8.9 não entende a config que o Loom gera. Para depurar, use `System.out`
-  temporariamente ou procure crash reports em `core/run/crash-reports`.
+## Launcher (v0.5)
+- Pacotes em `launcher/src/main/java/com/vfxclient/launcher/`: `auth` (Microsoft device code → XBL → XSTS → MC; offline; `MinecraftServices`
+  skin/capa), `profiles`, `settings` (`SystemInfo` RAM), `mods` (`ModInstaller`: vfxcore embutido em resources/mods/vfxcore.jar pelo
+  processResources), `game` (`Downloader` paralelo com SHA-1, `VersionManifest`, `VersionResolver` com inheritsFrom, `LibraryInstaller`
+  + nativos, `AssetInstaller`, `JavaRuntimeInstaller` = runtimes oficiais Mojang, `LegacyFabric` meta API, `GameLauncher`),
+  `optimization` (`Diagnostics`, `CacheCleaner`, `JvmFlags`), `updater`, `ui` (Home/Account/Settings + `SkinPreview`), `cli`.
+- Dados em `%APPDATA%\.vfxclient` (`-Dvfx.home=` muda). Mod recebe `-Dvfx.profile` e `-Dvfx.preset=low|balanced|high`.
+- LWJGL do Legacy Fabric: lib Maven com `natives` e sem `downloads` (só existe o jar `natives-windows`).
+- Testes sem GUI: `gradlew :launcher:run --args="--cli launch --offline Nick --wait"` (baixa e abre o jogo de verdade);
+  `-Dvfx.snapshot=<pasta>` no gradlew salva PNG de cada tela e fecha (revisão visual).
+- Instalador: `installer\build-installer.ps1` (jpackage app-image + Inno Setup instalado via winget). `jpackage --add-modules`
+  inclui jdk.crypto.ec (HTTPS). O app-image não tem `java.exe` solto; teste com `VfxClient.exe --cli ...` e o código de saída.
+- Login Microsoft precisa de Client ID do Azure (settings.json) e aprovação da Mojang; sem isso, conta offline.
 
-## Próximos passos (ver roadmap no README)
-O usuário quer, por partes, as mesmas funcionalidades de clients populares (estilo Lunar + contas/skins estilo CMClient),
-com código e identidade próprios, e muita personalização de FPS. Ordem combinada:
-1. v0.5: Social → waypoints.
-2. Site de download em `site/` (GitHub Pages via `pages.yml`); repo precisa ser público.
-3. v0.6: launcher jogável offline. 4. v0.7: login Microsoft. 5. v0.8: contas e skins (backend pendente).
+## Estado atual (v0.5.0)
+- Build ok; launcher baixa e abre o 1.8.9 + Legacy Fabric + VfxClient (testado via CLI, conta offline).
+- Mod: seletor de cor (`ColorSetting` ARGB, JSON `#AARRGGBB`, migra índices antigos), `ButtonSetting`, `ChoiceSetting` dinâmica,
+  opções avançadas (`addAdvanced`, modo Simples/Completo em Geral > Menu), prévia ao vivo de `HudModule` no menu,
+  `HudStyleModule` (compacto/avançado), perfis de config (`config/profiles/*.json`), presets Baixo/Equilibrado/Alto/Personalizado
+  com otimização automática e `SystemSpecs`, `LocalSkinModule` + `SkinMixin`.
+- Falta teste do usuário dentro do jogo para os módulos novos e para o login Microsoft (depende do Client ID dele).
 
+## Próximos passos
+1. v0.6: Social → waypoints.
+2. v0.8: servidor de contas/skins VfxClient (backend: usuário avaliando VPS; Hetzner CX23 recomendado, ou Supabase).
 ## Decisões pendentes (perguntar ao usuário)
 - Backend de contas/skins (v0.8): usuário não quer Firebase; opções apresentadas: Supabase, Cloudflare (Workers + D1 + R2) ou VPS própria.
 - Remover authlib-injector da stack (proposto; o modelo de skins via API própria não precisa dele).

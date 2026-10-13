@@ -23,6 +23,8 @@ dependencies {
 	["base", "graphics", "controls"].each { module ->
 		implementation "org.openjfx:javafx-${module}:${project.javafx_version}:${fxClassifier}"
 	}
+	// JSON (versões do Minecraft, contas, perfis e configurações).
+	implementation "com.google.code.gson:gson:2.11.0"
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -36,7 +38,15 @@ application {
 	applicationName = "VfxClient"
 }
 
+// O mod (vfxcore) vai dentro do launcher: assim ele instala a versão certa mesmo sem internet.
+evaluationDependsOn(":core")
+def coreJar = project(":core").tasks.named("remapJar")
+
 processResources {
+	from(coreJar) {
+		into "com/vfxclient/launcher/mods"
+		rename { "vfxcore.jar" }
+	}
 	def props = [
 			clientVersion   : project.version,
 			minecraftVersion: project.minecraft_version
@@ -84,11 +94,18 @@ tasks.register("jpackageImage", Exec) {
 				"--main-jar", mainJarName.get(),
 				"--main-class", "com.vfxclient.launcher.Main",
 				"--dest", jpackageOut.get().asFile.absolutePath,
-				"--java-options", "-Dfile.encoding=UTF-8"
+				"--java-options", "-Dfile.encoding=UTF-8",
+				// Módulos do Java que o launcher usa (HTTPS com certificados EC, gerenciamento, etc.).
+				"--add-modules", "java.base,java.desktop,java.logging,java.management,java.naming,java.net.http,java.prefs,java.scripting,java.sql,java.xml,jdk.charsets,jdk.crypto.ec,jdk.crypto.cryptoki,jdk.localedata,jdk.management,jdk.net,jdk.unsupported,jdk.zipfs"
 		]
 		if (iconFile.exists()) {
 			args += ["--icon", iconFile.absolutePath]
 		}
 		commandLine args
 	}
+}
+
+// Repassa propriedades "vfx.*" (ex.: -Dvfx.snapshot=pasta, -Dvfx.home=pasta) para o "gradlew :launcher:run".
+tasks.named("run") {
+	systemProperties System.getProperties().findAll { it.key.toString().startsWith("vfx.") }
 }
