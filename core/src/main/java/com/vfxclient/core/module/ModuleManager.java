@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.vfxclient.core.module.general.ConfigProfilesModule;
+import com.vfxclient.core.module.general.HudLayoutModule;
 import com.vfxclient.core.module.general.HudStyleModule;
 import com.vfxclient.core.module.general.LocalSkinModule;
 import com.vfxclient.core.module.general.MenuModule;
@@ -58,6 +59,7 @@ public final class ModuleManager {
 		register(new MenuModule());
 		register(new TitleScreenModule());
 		register(new HudStyleModule());
+		register(new HudLayoutModule());
 		register(new ConfigProfilesModule());
 		register(new LocalSkinModule());
 		// HUD
