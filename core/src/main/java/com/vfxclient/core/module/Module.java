@@ -26,6 +26,7 @@ public abstract class Module {
 	private final boolean enabledByDefault;
 	private final List<Setting<?>> settings = new ArrayList<Setting<?>>();
 	private boolean enabled;
+	private com.vfxclient.core.module.setting.KeySetting toggleKey;
 
 	/**
 	 * @param id               chave do JSON (minúsculas, sem espaços)
@@ -65,6 +66,22 @@ public abstract class Module {
 	protected <S extends Setting<?>> S addAdvanced(S setting) {
 		setting.markAdvanced();
 		return add(setting);
+	}
+
+	/**
+	 * Acrescenta a opção "Tecla para ligar/desligar" (feito pelo {@link ModuleManager} para todo
+	 * módulo que pode ser desligado). Fica no fim das opções.
+	 */
+	void enableToggleKey() {
+		if (toggleKey == null) {
+			toggleKey = add(new com.vfxclient.core.module.setting.KeySetting("toggleKey", "Tecla para ligar/desligar",
+					com.vfxclient.core.module.setting.KeySetting.NONE));
+		}
+	}
+
+	/** @return tecla que liga/desliga este módulo, ou {@code KeySetting.NONE} */
+	public int toggleKey() {
+		return toggleKey == null ? com.vfxclient.core.module.setting.KeySetting.NONE : toggleKey.get();
 	}
 
 	/** Chamado quando o módulo é ligado. */

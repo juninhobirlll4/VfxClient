@@ -101,6 +101,7 @@ public final class VfxCore implements ClientModInitializer {
 			net.minecraft.client.util.ScreenshotUtils.saveScreenshot(client.runDirectory, "vfx-teste.png",
 					client.getFramebuffer().viewportWidth, client.getFramebuffer().viewportHeight, client.getFramebuffer());
 			LOGGER.info("Print de teste salvo: screenshots/vfx-teste.png");
+			client.scheduleStop();
 		}
 		VfxCommands.tick(client);
 		modules.tick(client);
@@ -121,6 +122,15 @@ public final class VfxCore implements ClientModInitializer {
 		com.vfxclient.core.module.performance.FpsLimiterModule.markInput();
 		modules.get(ToggleSprintModule.class).onKeyPressed(keyCode);
 		modules.get(com.vfxclient.core.module.util.AutoTextModule.class).onKeyPressed(keyCode);
+		if (keyCode != 0 && MinecraftClient.getInstance().currentScreen == null) {
+			// Teclas de atalho dos módulos: liga/desliga e mostra o aviso na tela.
+			for (Module module : modules.all()) {
+				if (module.toggleKey() == keyCode) {
+					module.toggle();
+					modules.get(com.vfxclient.core.module.general.ToggleNotificationModule.class).notify(module);
+				}
+			}
+		}
 		MinecraftClient client = MinecraftClient.getInstance();
 		if (client.currentScreen == null && keyCode == modules.get(MenuModule.class).getKey()) {
 			openClickGuiPending = true;
