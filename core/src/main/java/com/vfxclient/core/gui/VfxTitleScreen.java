@@ -95,9 +95,25 @@ public class VfxTitleScreen extends TitleScreen {
 			if (y < 0) {
 				y += 1F;
 			}
+
+			float x = starX[i] * canvas.width();
+			y *= canvas.height();
+			if (behindCard(x, y)) {
+				continue;
+			}
+
 			float alpha = 0.25F + 0.5F * (float) Math.abs(Math.sin(time * 0.8 + i));
-			Render2D.rawRect(starX[i] * canvas.width(), y * canvas.height(), 3, 3, Theme.withAlpha(0xFFE6DAFF, alpha));
+			Render2D.rawRect(x, y, 3, 3, Theme.withAlpha(0xFFE6DAFF, alpha));
 		}
+	}
+
+	/** O cartão é translúcido: estrelas atrás dele apareceriam por dentro. */
+	private boolean behindCard(float x, float y) {
+		float margin = 4;
+		float left = canvas.centerX() - CARD_W / 2F - margin;
+		float top = canvas.centerY() - CARD_H / 2F - margin;
+		// A altura conta os 24 da animação de entrada, em que o cartão começa mais para baixo.
+		return Ui.inside(x, y, left, top, CARD_W + margin * 2, CARD_H + 24 + margin * 2);
 	}
 
 	private void drawTopBar(float mx, float my) {
