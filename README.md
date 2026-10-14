@@ -203,6 +203,7 @@ Tags com sufixo (`v0.8.0-beta`) saem como *pre-release*. O launcher instalado av
 
 | Versão | Principais mudanças |
 |---|---|
+| 0.13.1 | Launcher com as fontes do jogo, slider e caixas de texto no visual novo |
 | **0.13** | Tela inicial, menu de pausa (com desfoque), multijogador e Opções no visual novo; fontes Montserrat e Inter |
 | 0.12 | Contorno verde/vermelho no menu, tecla de atalho em todo módulo, Hitbox, FOV, cor das partículas, launcher na bandeja |
 | 0.11 | Atualização dentro do launcher (Atualizar agora / Mais tarde) |

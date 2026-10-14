@@ -1,3 +1,8 @@
+# v0.13.1
+Launcher com as mesmas letras do jogo
+Slider das opções com a barra embaixo do texto
+Caixas de texto do jogo no visual novo
+Estrelas não aparecem mais dentro do cartão da tela inicial
 # v0.13
 Menu de pausa novo, com o jogo desfocado atrás
 Tela de servidores nova: ping colorido, favoritos e busca
