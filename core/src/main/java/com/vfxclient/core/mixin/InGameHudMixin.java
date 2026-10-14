@@ -22,10 +22,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(InGameHud.class)
 public abstract class InGameHudMixin {
 
-	/** Atrás das telas desfocadas do VfxClient (menu de pausa) a HUD some, como nas imagens. */
+	/**
+	 * Atrás das telas desfocadas do VfxClient (menu de pausa) a HUD some, como nas imagens.
+	 *
+	 * <p>É a HUD que prepara a projeção 2D usada pela tela aberta; por isso ela é preparada
+	 * aqui antes de cancelar, senão o menu seria desenhado com a matriz do desfoque.</p>
+	 */
 	@Inject(method = "render(F)V", at = @At("HEAD"), cancellable = true)
 	private void vfx$hideUnderMenus(float tickDelta, CallbackInfo ci) {
-		if (MinecraftClient.getInstance().currentScreen instanceof BlurredScreen) {
+		MinecraftClient client = MinecraftClient.getInstance();
+		if (client.currentScreen instanceof BlurredScreen) {
+			client.gameRenderer.setupHudMatrixMode();
 			ci.cancel();
 		}
 	}
