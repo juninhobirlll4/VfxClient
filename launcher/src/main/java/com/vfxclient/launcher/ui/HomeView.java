@@ -13,7 +13,6 @@ import com.vfxclient.launcher.game.OptiFine;
 import com.vfxclient.launcher.game.VersionManifest;
 import com.vfxclient.launcher.optimization.Diagnostics;
 import com.vfxclient.launcher.profiles.Profile;
-import com.vfxclient.launcher.updater.Updater;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
@@ -361,47 +360,29 @@ public final class HomeView extends BorderPane {
 		});
 	}
 
+	/**
+	 * Avisos de versão nova: janela com "Atualizar agora / Mais tarde" ao abrir e a cada 30 minutos.
+	 * Escolhendo "Mais tarde", fica uma faixa discreta aqui para atualizar quando quiser.
+	 */
 	private void checkUpdates() {
-		if (!ctx.settings().checkUpdates) {
-			return;
-		}
-		ctx.runAsync(() -> {
-			try {
-				Updater.Update update = Updater.check();
-				if (update == null) {
-					return;
-				}
-				LauncherContext.ui(() -> {
-					Label text = new Label("Nova versão disponível: " + update.version());
-					Button install = new Button("Atualizar agora");
-					install.getStyleClass().add("primary-button");
-					install.setOnAction(e -> {
-						install.setDisable(true);
-						install.setText("Baixando...");
-						ctx.runAsync(() -> {
-							try {
-								Updater.downloadAndRun(update);
-								LauncherContext.ui(() -> ((Stage) getScene().getWindow()).close());
-							} catch (IOException ex) {
-								LauncherContext.ui(() -> {
-									install.setText("Falhou: " + ex.getMessage());
-									install.setDisable(false);
-								});
-							}
-						});
-					});
-					Region spacer = new Region();
-					HBox.setHgrow(spacer, Priority.ALWAYS);
-					updateBanner.getChildren().setAll(text, spacer, install);
-					updateBanner.setVisible(true);
-					updateBanner.setManaged(true);
-				});
-			} catch (IOException ignored) {
-				// Sem internet ou repositório privado: segue sem aviso.
-			}
+		UpdateNotifier notifier = new UpdateNotifier(ctx, update -> {
+			Label text = new Label("Versão " + update.version() + " disponível");
+			Button install = new Button("Atualizar");
+			install.getStyleClass().add("primary-button");
+			Region spacer = new Region();
+			HBox.setHgrow(spacer, Priority.ALWAYS);
+			updateBanner.getChildren().setAll(text, spacer, install);
+			updateBanner.setVisible(true);
+			updateBanner.setManaged(true);
+			Motion.enter(updateBanner, 0);
+			install.setOnAction(e -> {
+				updateBanner.setVisible(false);
+				updateBanner.setManaged(false);
+				new UpdateNotifier(ctx, u -> { }).show(update);
+			});
 		});
+		notifier.start();
 	}
-
 	private void createVanillaProfile() {
 		ctx.runAsync(() -> {
 			List<String> versions = new ArrayList<>(VersionManifest.releases());

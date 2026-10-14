@@ -26,6 +26,8 @@ UninstallDisplayIcon={app}\{#AppExe}
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
+; Fecha o launcher aberto antes de atualizar os arquivos.
+CloseApplications=force
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 
@@ -46,3 +48,5 @@ Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#AppExe}"; Tasks: desktopico
 
 [Run]
 Filename: "{app}\{#AppExe}"; Description: "{cm:LaunchProgram,{#AppName}}"; Flags: nowait postinstall skipifsilent
+; Atualização automática (o launcher roda o instalador em modo silencioso): reabre o launcher no fim.
+Filename: "{app}\{#AppExe}"; Flags: nowait; Check: WizardSilent

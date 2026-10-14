@@ -429,3 +429,12 @@
     -fx-border-color: transparent;
     -fx-background-radius: 0 0 12 12;
 }
+/* Aviso de atualização ---------------------------------------------- */
+.update-dialog {
+    -fx-background-color: linear-gradient(to bottom, #1A1230, #110C1D);
+    -fx-background-radius: 16;
+    -fx-border-color: rgba(180, 140, 255, 0.45);
+    -fx-border-radius: 16;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 24, 0.2, 0, 6);
+}

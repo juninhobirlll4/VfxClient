@@ -66,10 +66,33 @@ public final class Updater {
 	 * @throws IOException se o download falhar
 	 */
 	public static void downloadAndRun(Update update) throws IOException {
+		run(download(update, com.vfxclient.launcher.game.Progress.NONE));
+	}
+
+	/**
+	 * Baixa o instalador da versão nova, com andamento.
+	 *
+	 * @param update   atualização
+	 * @param progress andamento (0 a 1)
+	 * @return o instalador baixado
+	 * @throws IOException se o download falhar
+	 */
+	public static Path download(Update update, com.vfxclient.launcher.game.Progress progress) throws IOException {
 		Path file = LauncherPaths.cache().resolve("VfxClient-Setup-" + update.version() + ".exe");
 		Files.createDirectories(file.getParent());
-		Http.download(update.installerUrl(), file);
-		new ProcessBuilder(file.toString(), "/SILENT").start();
+		com.vfxclient.launcher.game.Downloader.run("Baixando a versão " + update.version(),
+				java.util.List.of(new com.vfxclient.launcher.game.Downloader.Task(update.installerUrl(), file, null, update.size())), progress);
+		return file;
+	}
+
+	/**
+	 * Roda o instalador em modo silencioso; ele fecha o launcher, atualiza e abre de novo sozinho.
+	 *
+	 * @param installer instalador baixado
+	 * @throws IOException se não der para iniciar o instalador
+	 */
+	public static void run(Path installer) throws IOException {
+		new ProcessBuilder(installer.toString(), "/SILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/CLOSEAPPLICATIONS").start();
 	}
 
 	/**
