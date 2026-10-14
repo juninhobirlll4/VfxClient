@@ -55,6 +55,12 @@ public final class Ui {
 	 * @param hover    mouse em cima
 	 */
 	public static void button(String label, float x, float y, float w, float h, float textSize, Style style, boolean hover) {
+		buttonFrame(x, y, w, h, style, hover);
+		buttonLabel(label, x, y, w, h, textSize, style);
+	}
+
+	/** Só o fundo e o contorno de um {@link #button}. */
+	public static void buttonFrame(float x, float y, float w, float h, Style style, boolean hover) {
 		switch (style) {
 			case PRIMARY:
 				drawPrimaryFill(x, y, w, h, hover);
@@ -69,7 +75,10 @@ public final class Ui {
 				Render2D.outlinedRect(x, y, w, h, 8, hover ? 0xFFFFFFFF : 0x8CFFFFFF, hover ? BUTTON_FILL_HOVER : BUTTON_FILL);
 				break;
 		}
+	}
 
+	/** Só o texto de um {@link #button}, centralizado. */
+	public static void buttonLabel(String label, float x, float y, float w, float h, float textSize, Style style) {
 		int textColor;
 		if (style == Style.DANGER) {
 			textColor = 0xFFFFB3B5;

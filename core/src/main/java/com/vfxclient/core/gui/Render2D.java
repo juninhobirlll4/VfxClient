@@ -229,6 +229,25 @@ public final class Render2D {
 	 * @param right cor ARGB da direita
 	 */
 	public static void gradientH(float x, float y, float w, float h, int left, int right) {
+		gradient(x, y, w, h, left, right, right, left);
+	}
+
+	/**
+	 * Retângulo com degradê vertical (cima → baixo).
+	 *
+	 * @param x      esquerda
+	 * @param y      topo
+	 * @param w      largura
+	 * @param h      altura
+	 * @param top    cor ARGB de cima
+	 * @param bottom cor ARGB de baixo
+	 */
+	public static void gradientV(float x, float y, float w, float h, int top, int bottom) {
+		gradient(x, y, w, h, bottom, bottom, top, top);
+	}
+
+	/** Cores dos cantos na ordem: baixo-esquerda, baixo-direita, cima-direita, cima-esquerda. */
+	private static void gradient(float x, float y, float w, float h, int bottomLeft, int bottomRight, int topRight, int topLeft) {
 		GlStateManager.enableBlend();
 		GlStateManager.disableTexture();
 		GlStateManager.disableAlphaTest();
@@ -236,10 +255,10 @@ public final class Render2D {
 		GlStateManager.shadeModel(GL11.GL_SMOOTH);
 		BufferBuilder buffer = Tessellator.getInstance().getBuffer();
 		buffer.begin(GL11.GL_QUADS, VertexFormats.POSITION_COLOR);
-		vertex(buffer, x, y + h, left);
-		vertex(buffer, x + w, y + h, right);
-		vertex(buffer, x + w, y, right);
-		vertex(buffer, x, y, left);
+		vertex(buffer, x, y + h, bottomLeft);
+		vertex(buffer, x + w, y + h, bottomRight);
+		vertex(buffer, x + w, y, topRight);
+		vertex(buffer, x, y, topLeft);
 		Tessellator.getInstance().draw();
 		GlStateManager.shadeModel(GL11.GL_FLAT);
 		GlStateManager.enableAlphaTest();
