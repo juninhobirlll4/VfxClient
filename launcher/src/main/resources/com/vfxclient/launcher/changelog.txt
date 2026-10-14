@@ -1,3 +1,6 @@
+# v0.11
+Aviso de versão nova: Atualizar agora ou Mais tarde
+Atualiza sozinho e reabre o launcher
 # v0.10
 Launcher mais simples e com animações
 Arraste a skin para trocar

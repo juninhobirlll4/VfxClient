@@ -85,9 +85,12 @@ Gera em dist\:
 Como funciona: o Gradle compila, o jpackage cria launcher\build\jpackage\VfxClient\
 (VfxClient.exe + Java 21 embutido) e o Inno Setup empacota tudo num instalador.
 
-Pela CI: crie uma tag e envie (git tag v0.5.0 && git push origin v0.5.0). O GitHub
-Actions gera os mesmos arquivos e publica no GitHub Releases. O launcher instalado
-avisa sozinho quando sai versão nova.
+Versão nova pela CI (jeito fácil): suba client_version em gradle.properties, escreva as
+novidades em launcher\src\main\resources\com\vfxclient\launcher\changelog.txt, faça o commit
+e dê git push. O GitHub Actions gera o instalador e publica a release sozinho (sem tag).
+O launcher de quem já instalou confere o GitHub ao abrir e a cada 30 minutos e mostra
+"Versão X disponível" com "Atualizar agora" (baixa, instala e reabre sozinho) ou "Mais tarde".
+O repositório precisa ser público para essa checagem funcionar.
 
 
 5. INSTALAR E JOGAR (usuário final)

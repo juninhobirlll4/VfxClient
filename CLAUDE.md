@@ -88,6 +88,14 @@ Tudo é nosso: nome, logo, cores (roxo → branco), código e assets.
   testados abrindo via CLI (v0.6). CLI `--join host:porta` entra direto num servidor (`-Dvfx.join`).
   OptiFine/Forge rodam SEM os recursos do VfxClient (decisão do usuário: opção 1; port para Forge fica para depois).
 
+## v0.11
+- Atualização: `ui/UpdateNotifier` (checa ao abrir e a cada 30 min; janela "Atualizar agora / Mais tarde"; notificação do Windows
+  via SystemTray se minimizado; "Mais tarde" deixa faixa na Home). `Updater.download` (Downloader com progresso) + `Updater.run`
+  (`/SILENT /CLOSEAPPLICATIONS`), depois `System.exit(0)`; o .iss reabre o app com `Check: WizardSilent` e usa `CloseApplications=force`.
+- CI `release.yml`: push no main publica se `v<client_version>` ainda não existe (senão SKIP); tag v* continua valendo.
+  Fluxo de versão nova: subir `client_version` + changelog.txt, commit, `git push`. Repositório precisa ser público para a API.
+- Teste: `-Dvfx.fakeUpdate=X` (com `-Dvfx.snapshot` salva `atualizacao.png`).
+
 ## v0.10
 - Launcher simples e animado: `ui/Motion` (enter, hoverGrow, toast, progress; desligado com `-Dvfx.snapshot`), troca de aba com
   fade em `VfxLauncherApp.show`. `AccountView`: linhas de conta (clique escolhe, x remove), nick + Entrar, Microsoft como link,
