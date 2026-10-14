@@ -109,6 +109,7 @@ public final class MicrosoftAuth {
 				throw e;
 			}
 		}
+
 		throw new IOException("O código expirou. Tente de novo.");
 	}
 
@@ -159,6 +160,7 @@ public final class MicrosoftAuth {
 		} catch (Http.HttpStatusException e) {
 			throw new IOException(xstsMessage(e.body()), e);
 		}
+
 		String xstsToken = Json.string(xsts, "Token");
 
 		JsonObject mcBody = new JsonObject();
@@ -173,6 +175,7 @@ public final class MicrosoftAuth {
 			}
 			throw e;
 		}
+
 		String mcToken = Json.string(mc, "access_token");
 		long expires = System.currentTimeMillis() + mc.get("expires_in").getAsLong() * 1000L;
 
@@ -189,6 +192,7 @@ public final class MicrosoftAuth {
 			}
 			throw e;
 		}
+
 		return account;
 	}
 

@@ -77,6 +77,7 @@ public class BlockOutlineModule extends Module {
 				buf.vertex(f[i], f[i + 1], f[i + 2]).next();
 			}
 		}
+
 		tessellator.draw();
 	}
 }

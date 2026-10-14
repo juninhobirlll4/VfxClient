@@ -88,6 +88,7 @@ public final class ScreenshotsView extends BorderPane {
 		if (!Files.isDirectory(instances)) {
 			return result;
 		}
+
 		try (DirectoryStream<Path> profiles = Files.newDirectoryStream(instances)) {
 			for (Path profile : profiles) {
 				Path dir = profile.resolve("screenshots");
@@ -105,6 +106,7 @@ public final class ScreenshotsView extends BorderPane {
 		} catch (IOException ignored) {
 			// Pasta inacessível: mostra o que deu para ler.
 		}
+
 		result.sort((a, b) -> Long.compare(b.toFile().lastModified(), a.toFile().lastModified()));
 		return result.size() > MAX ? result.subList(0, MAX) : result;
 	}

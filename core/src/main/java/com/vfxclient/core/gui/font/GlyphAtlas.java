@@ -1,5 +1,6 @@
 package com.vfxclient.core.gui.font;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
@@ -42,7 +43,7 @@ final class GlyphAtlas {
 		g.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
 		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 		g.setFont(font);
-		g.setColor(java.awt.Color.WHITE);
+		g.setColor(Color.WHITE);
 
 		FontMetrics metrics = g.getFontMetrics();
 		ascent = metrics.getAscent();

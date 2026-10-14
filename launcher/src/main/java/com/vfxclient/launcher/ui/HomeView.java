@@ -1,6 +1,9 @@
 package com.vfxclient.launcher.ui;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -22,7 +25,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -102,7 +108,7 @@ public final class HomeView extends BorderPane {
 	/** Cartão principal: logo, perfil, botão JOGAR com o seletor de versão e o andamento. */
 	private VBox heroCard() {
 		ImageView logo = new ImageView();
-		java.io.InputStream in = HomeView.class.getResourceAsStream("/com/vfxclient/launcher/logo-256.png");
+		InputStream in = HomeView.class.getResourceAsStream("/com/vfxclient/launcher/logo-256.png");
 		if (in != null) {
 			logo.setImage(new Image(in));
 		}
@@ -114,30 +120,49 @@ public final class HomeView extends BorderPane {
 		VBox titles = new VBox(2, profileName, profileSub);
 		titles.setAlignment(Pos.CENTER);
 
+		setupStatusArea();
+		modsFolder.getStyleClass().add("link-button");
+		modsFolder.setOnAction(e -> openMods());
+
+		VBox box = new VBox(14, logo, titles, launchRow(), progressBar, status, detail, openLog, notice, modsFolder);
+		box.setAlignment(Pos.CENTER);
+		box.getStyleClass().add("hero-card");
+		box.setPadding(new Insets(30, 24, 26, 24));
+		return box;
+	}
+
+	/** JOGAR, o seletor de versão e o "+" para criar outra versão. */
+	private HBox launchRow() {
 		play.getStyleClass().add("play-button");
 		play.setOnAction(e -> startGame());
-		Motion.hoverGrow(play, 1.03);
 		play.setMaxWidth(Double.MAX_VALUE);
+		Motion.hoverGrow(play, 1.03);
 
+		setupProfileBox();
+
+		Button newProfile = new Button("+");
+		newProfile.getStyleClass().add("icon-button");
+		newProfile.setOnAction(e -> createVanillaProfile());
+		Tooltip.install(newProfile, new Tooltip("Outra versão do Minecraft"));
+
+		HBox row = new HBox(8, play, profileBox, newProfile);
+		row.setAlignment(Pos.CENTER);
+		HBox.setHgrow(play, Priority.ALWAYS);
+		row.setMaxWidth(460);
+		return row;
+	}
+
+	private void setupProfileBox() {
 		profileBox.getStyleClass().add("version-picker");
 		// No botão aparece só a versão (o nome completo fica na lista aberta).
-		profileBox.setButtonCell(new javafx.scene.control.ListCell<>() {
+		profileBox.setButtonCell(new ListCell<>() {
 			@Override
 			protected void updateItem(Profile item, boolean empty) {
 				super.updateItem(item, empty);
-				if (empty || item == null) {
-					setText(null);
-					return;
-				}
-				String kind = switch (item.kind) {
-					case FORGE -> "  Forge";
-					case OPTIFINE -> "  OptiFine";
-					case VANILLA -> "  oficial";
-					default -> "";
-				};
-				setText(item.minecraftVersion + kind);
+				setText(empty || item == null ? null : item.minecraftVersion + kindSuffix(item));
 			}
 		});
+
 		profileBox.setOnAction(e -> {
 			Profile selected = profileBox.getValue();
 			if (selected != null && selected != ctx.profiles().selected()) {
@@ -147,21 +172,25 @@ public final class HomeView extends BorderPane {
 				runDiagnostics();
 			}
 		});
-		Button newProfile = new Button("+");
-		newProfile.getStyleClass().add("icon-button");
-		newProfile.setOnAction(e -> createVanillaProfile());
-		javafx.scene.control.Tooltip.install(newProfile, new javafx.scene.control.Tooltip("Outra versão do Minecraft"));
+	}
 
-		HBox launchRow = new HBox(8, play, profileBox, newProfile);
-		launchRow.setAlignment(Pos.CENTER);
-		HBox.setHgrow(play, Priority.ALWAYS);
-		launchRow.setMaxWidth(460);
+	private static String kindSuffix(Profile profile) {
+		return switch (profile.kind) {
+			case FORGE -> "  Forge";
+			case OPTIFINE -> "  OptiFine";
+			case VANILLA -> "  oficial";
+			default -> "";
+		};
+	}
 
+	/** Barra de progresso, textos de andamento, link do log e o aviso (começam escondidos). */
+	private void setupStatusArea() {
 		progressBar.setMaxWidth(460);
 		progressBar.getStyleClass().add("launch-progress");
 		progressBar.setVisible(false);
 		status.getStyleClass().add("status");
 		detail.getStyleClass().add("muted");
+
 		openLog.getStyleClass().add("link-button");
 		openLog.setVisible(false);
 		openLog.setManaged(false);
@@ -170,20 +199,12 @@ public final class HomeView extends BorderPane {
 				ctx.host().showDocument(lastLog.toUri().toString());
 			}
 		});
+
 		notice.getStyleClass().add("notice");
 		notice.setAlignment(Pos.CENTER);
 		notice.setMaxWidth(460);
 		notice.setVisible(false);
 		notice.setManaged(false);
-
-		modsFolder.getStyleClass().add("link-button");
-		modsFolder.setOnAction(e -> openMods());
-
-		VBox box = new VBox(14, logo, titles, launchRow, progressBar, status, detail, openLog, notice, modsFolder);
-		box.setAlignment(Pos.CENTER);
-		box.getStyleClass().add("hero-card");
-		box.setPadding(new Insets(30, 24, 26, 24));
-		return box;
 	}
 
 	/** Painel de novidades (lista em resources/changelog.txt). */
@@ -200,7 +221,8 @@ public final class HomeView extends BorderPane {
 			items.getChildren().add(label);
 			Motion.enter(label, 120 + items.getChildren().size() * 35);
 		}
-		javafx.scene.control.ScrollPane scroll = new javafx.scene.control.ScrollPane(items);
+
+		ScrollPane scroll = new ScrollPane(items);
 		scroll.setFitToWidth(true);
 		scroll.getStyleClass().add("news-scroll");
 		VBox.setVgrow(scroll, Priority.ALWAYS);
@@ -213,9 +235,9 @@ public final class HomeView extends BorderPane {
 
 	private static List<String> changelog() {
 		List<String> lines = new ArrayList<>();
-		try (java.io.InputStream in = HomeView.class.getResourceAsStream("/com/vfxclient/launcher/changelog.txt")) {
+		try (InputStream in = HomeView.class.getResourceAsStream("/com/vfxclient/launcher/changelog.txt")) {
 			if (in != null) {
-				for (String line : new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).split("\\R")) {
+				for (String line : new String(in.readAllBytes(), StandardCharsets.UTF_8).split("\\R")) {
 					if (!line.isBlank()) {
 						lines.add(line.trim());
 					}
@@ -253,6 +275,7 @@ public final class HomeView extends BorderPane {
 			status.setText("");
 			detail.setText("");
 		}
+
 		boolean forge = profile.kind == Profile.Kind.FORGE;
 		modsFolder.setVisible(forge);
 		modsFolder.setManaged(forge);
@@ -302,6 +325,7 @@ public final class HomeView extends BorderPane {
 			select.setOnAction(e -> selectOptiFine());
 			notice.getChildren().setAll(text, download, select);
 		}
+
 		notice.setVisible(show);
 		notice.setManaged(show);
 	}
@@ -311,6 +335,7 @@ public final class HomeView extends BorderPane {
 		if (optifineWatch != null) {
 			optifineWatch.stop();
 		}
+
 		text.setText("Clique em Download na página que abriu...");
 		optifineWatch = new Timeline(new KeyFrame(Duration.seconds(2), e -> ctx.runAsync(() -> {
 			Path found = OptiFine.autoDetect();
@@ -331,10 +356,11 @@ public final class HomeView extends BorderPane {
 		FileChooser chooser = new FileChooser();
 		chooser.setTitle("Selecionar o OptiFine 1.8.9");
 		chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("OptiFine (.jar)", "*.jar"));
-		java.io.File file = chooser.showOpenDialog(ctx.stage());
+		File file = chooser.showOpenDialog(ctx.stage());
 		if (file == null) {
 			return;
 		}
+
 		try {
 			OptiFine.importJar(file.toPath());
 			showNotice(false);
@@ -412,6 +438,7 @@ public final class HomeView extends BorderPane {
 		if (running != null && running.isAlive()) {
 			return;
 		}
+
 		Profile profile = ctx.profiles().selected();
 		Account account = ctx.accounts().selected();
 		play.setDisable(true);

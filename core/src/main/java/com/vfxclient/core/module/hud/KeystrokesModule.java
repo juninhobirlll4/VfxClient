@@ -16,6 +16,7 @@ import com.vfxclient.core.module.setting.ChoiceSetting;
 import com.vfxclient.core.module.setting.ColorSetting;
 import com.vfxclient.core.module.setting.KeySetting;
 import com.vfxclient.core.module.setting.NumberSetting;
+import com.vfxclient.core.module.setting.Setting;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.option.GameOptions;
@@ -67,7 +68,7 @@ public class KeystrokesModule extends HudModule {
 	}
 
 	@Override
-	public boolean isSettingVisible(com.vfxclient.core.module.setting.Setting<?> setting) {
+	public boolean isSettingVisible(Setting<?> setting) {
 		// O fundo e a cor do texto daqui têm opções próprias (estilo e cores das teclas).
 		return setting != background && setting != brandColor && super.isSettingVisible(setting);
 	}
@@ -154,6 +155,7 @@ public class KeystrokesModule extends HudModule {
 			anim = new Anim(0F);
 			anims.put(key.binding.getTranslationKey(), anim);
 		}
+
 		float pressed = anim.update(key.binding.isPressed() ? 1F : 0F, 20F);
 		int s = style.get();
 		int idle = s == TRANSPARENT ? 0x00000000 : backgroundColor.argb();
@@ -176,6 +178,7 @@ public class KeystrokesModule extends HudModule {
 			DrawableHelper.fill(x + key.width / 2 - 10, y + key.height / 2, x + key.width / 2 + 10, y + key.height / 2 + 1, color);
 			return;
 		}
+
 		int textW = client.textRenderer.getStringWidth(label);
 		boolean cps = key.mouse && showCps.get() && key.height >= 18;
 		float textY = cps ? y + key.height / 2F - 6 : y + (key.height - 8) / 2F;
@@ -196,16 +199,20 @@ public class KeystrokesModule extends HudModule {
 		if (code == ClickTracker.LEFT) {
 			return english ? "LMB" : "ESQ";
 		}
+
 		if (code == ClickTracker.RIGHT) {
 			return english ? "RMB" : "DIR";
 		}
+
 		String name = KeySetting.describe(code);
 		if (name.equals("SPACE")) {
 			return "Espaço";
 		}
+
 		if (name.equals("LSHIFT") || name.equals("RSHIFT")) {
 			return "Shift";
 		}
+
 		return name.length() > 3 ? name.substring(0, 3) : name;
 	}
 

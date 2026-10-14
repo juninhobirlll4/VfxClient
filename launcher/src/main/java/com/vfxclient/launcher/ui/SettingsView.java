@@ -2,6 +2,7 @@ package com.vfxclient.launcher.ui;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Arrays;
 
 import com.vfxclient.launcher.BuildInfo;
 import com.vfxclient.launcher.LauncherPaths;
@@ -135,7 +136,7 @@ public final class SettingsView extends ScrollPane {
 		Profile profile = profile();
 		ram.setValue(profile.ramMb);
 		ramValue.setText(String.format("%.1f GB", profile.ramMb / 1024.0));
-		int index = java.util.Arrays.asList(PRESET_IDS).indexOf(profile.preset);
+		int index = Arrays.asList(PRESET_IDS).indexOf(profile.preset);
 		preset.getSelectionModel().select(Math.max(0, index));
 		preset.setDisable(!profile.isVfx());
 		loading = false;
@@ -148,7 +149,7 @@ public final class SettingsView extends ScrollPane {
 	private VBox launcherCard() {
 		ComboBox<String> onLaunch = new ComboBox<>(FXCollections.observableArrayList(LAUNCH_NAMES));
 		onLaunch.setMaxWidth(Double.MAX_VALUE);
-		onLaunch.getSelectionModel().select(Math.max(0, java.util.Arrays.asList(LAUNCH_IDS).indexOf(ctx.settings().onLaunch)));
+		onLaunch.getSelectionModel().select(Math.max(0, Arrays.asList(LAUNCH_IDS).indexOf(ctx.settings().onLaunch)));
 		onLaunch.setOnAction(e -> {
 			ctx.settings().onLaunch = LAUNCH_IDS[onLaunch.getSelectionModel().getSelectedIndex()];
 			ctx.saveAll();
@@ -169,44 +170,93 @@ public final class SettingsView extends ScrollPane {
 	// ------------------------------------------------------------------
 
 	private TitledPane advancedPane() {
-		ComboBox<Profile> profileBox = new ComboBox<>(FXCollections.observableArrayList(ctx.profiles().all()));
-		profileBox.setMaxWidth(Double.MAX_VALUE);
-		profileBox.setValue(profile());
-		profileBox.setOnAction(e -> {
-			if (profileBox.getValue() != null && profileBox.getValue() != profile()) {
-				ctx.profiles().select(profileBox.getValue());
-				ctx.profilesChanged();
-			}
-		});
-		ctx.onProfilesChanged(() -> {
-			profileBox.setItems(FXCollections.observableArrayList(ctx.profiles().all()));
-			profileBox.setValue(profile());
-		});
-
-		CheckBox autoOptimize = new CheckBox("Desligar efeitos pesados sozinho em PC fraco");
-		autoOptimize.setSelected(profile().autoOptimize);
-		autoOptimize.setOnAction(e -> {
-			profile().autoOptimize = autoOptimize.isSelected();
-			saved();
-		});
-		TextField jvmArgs = new TextField(profile().extraJvmArgs);
-		jvmArgs.setPromptText("Deixe vazio se não souber");
-		jvmArgs.focusedProperty().addListener((obs, was, focused) -> {
-			if (!focused) {
-				profile().extraJvmArgs = jvmArgs.getText().trim();
-				saved();
-			}
-		});
-		TextField clientId = new TextField(ctx.settings().microsoftClientId);
-		clientId.setPromptText("Client ID do Azure (login Microsoft)");
-		clientId.textProperty().addListener((obs, old, value) -> {
-			ctx.settings().microsoftClientId = value.trim();
-			ctx.saveAll();
-		});
-
 		Label result = new Label();
 		result.getStyleClass().add("muted");
 		result.setWrapText(true);
+
+		HBox tools = new HBox(8,
+				cleanCacheButton(result),
+				ghostButton("Pasta do jogo", () -> openGameFolder(result)),
+				ghostButton("Pasta do launcher", () -> ctx.host().showDocument(LauncherPaths.root().toUri().toString())),
+				ghostButton("Verificar atualização", () -> checkUpdate(result)),
+				ghostButton("Remover este perfil", () -> removeProfile(result)));
+		tools.setAlignment(Pos.CENTER_LEFT);
+
+		VBox box = new VBox(12,
+				field("Perfil", profileChooser()),
+				autoOptimizeBox(),
+				field("Argumentos da JVM", jvmArgsField()),
+				field("Login Microsoft", clientIdField()),
+				tools,
+				result);
+		box.setPadding(new Insets(12, 4, 4, 4));
+
+		TitledPane pane = new TitledPane("Avançado", box);
+		pane.setExpanded(false);
+		pane.setAnimated(true);
+		pane.getStyleClass().add("advanced-pane");
+		return pane;
+	}
+
+	private ComboBox<Profile> profileChooser() {
+		ComboBox<Profile> box = new ComboBox<>(FXCollections.observableArrayList(ctx.profiles().all()));
+		box.setMaxWidth(Double.MAX_VALUE);
+		box.setValue(profile());
+		box.setOnAction(e -> {
+			if (box.getValue() != null && box.getValue() != profile()) {
+				ctx.profiles().select(box.getValue());
+				ctx.profilesChanged();
+			}
+		});
+
+		ctx.onProfilesChanged(() -> {
+			box.setItems(FXCollections.observableArrayList(ctx.profiles().all()));
+			box.setValue(profile());
+		});
+		return box;
+	}
+
+	private CheckBox autoOptimizeBox() {
+		CheckBox box = new CheckBox("Desligar efeitos pesados sozinho em PC fraco");
+		box.setSelected(profile().autoOptimize);
+		box.setOnAction(e -> {
+			profile().autoOptimize = box.isSelected();
+			saved();
+		});
+		return box;
+	}
+
+	/** Argumentos extras da JVM; salva quando o campo perde o foco. */
+	private TextField jvmArgsField() {
+		TextField field = new TextField(profile().extraJvmArgs);
+		field.setPromptText("Deixe vazio se não souber");
+		field.focusedProperty().addListener((obs, was, focused) -> {
+			if (!focused) {
+				profile().extraJvmArgs = field.getText().trim();
+				saved();
+			}
+		});
+		return field;
+	}
+
+	private TextField clientIdField() {
+		TextField field = new TextField(ctx.settings().microsoftClientId);
+		field.setPromptText("Client ID do Azure (login Microsoft)");
+		field.textProperty().addListener((obs, old, value) -> {
+			ctx.settings().microsoftClientId = value.trim();
+			ctx.saveAll();
+		});
+		return field;
+	}
+
+	private static Button ghostButton(String text, Runnable action) {
+		Button button = new Button(text);
+		button.getStyleClass().add("ghost-button");
+		button.setOnAction(e -> action.run());
+		return button;
+	}
+
+	private Button cleanCacheButton(Label result) {
 		Button clean = new Button("Limpar cache");
 		clean.getStyleClass().add("ghost-button");
 		clean.setOnAction(e -> {
@@ -219,57 +269,39 @@ public final class SettingsView extends ScrollPane {
 				});
 			});
 		});
-		Button openGame = new Button("Pasta do jogo");
-		openGame.getStyleClass().add("ghost-button");
-		openGame.setOnAction(e -> {
-			try {
-				Files.createDirectories(profile().gameDir());
-				ctx.host().showDocument(profile().gameDir().toUri().toString());
-			} catch (IOException ex) {
-				result.setText(ex.getMessage());
-			}
-		});
-		Button openData = new Button("Pasta do launcher");
-		openData.getStyleClass().add("ghost-button");
-		openData.setOnAction(e -> ctx.host().showDocument(LauncherPaths.root().toUri().toString()));
-		Button checkUpdate = new Button("Verificar atualização");
-		checkUpdate.getStyleClass().add("ghost-button");
-		checkUpdate.setOnAction(e -> ctx.runAsync(() -> {
+		return clean;
+	}
+
+	private void openGameFolder(Label result) {
+		try {
+			Files.createDirectories(profile().gameDir());
+			ctx.host().showDocument(profile().gameDir().toUri().toString());
+		} catch (IOException ex) {
+			result.setText(ex.getMessage());
+		}
+	}
+
+	private void checkUpdate(Label result) {
+		ctx.runAsync(() -> {
 			try {
 				Updater.Update update = Updater.check();
-				LauncherContext.ui(() -> result.setText(update == null
+				String text = update == null
 						? "Você está na versão mais recente (" + BuildInfo.load().clientVersion() + ")."
-						: "Versão " + update.version() + " disponível: o aviso aparece na tela Início."));
+						: "Versão " + update.version() + " disponível: o aviso aparece na tela Início.";
+				LauncherContext.ui(() -> result.setText(text));
 			} catch (IOException ex) {
 				LauncherContext.ui(() -> result.setText("Não foi possível verificar agora."));
 			}
-		}));
-		Button remove = new Button("Remover este perfil");
-		remove.getStyleClass().add("ghost-button");
-		remove.setOnAction(e -> {
-			if (ctx.profiles().remove(profile())) {
-				ctx.profilesChanged();
-				result.setText("Perfil removido.");
-			} else {
-				result.setText("O perfil principal do VfxClient não pode ser removido.");
-			}
 		});
+	}
 
-		HBox tools = new HBox(8, clean, openGame, openData, checkUpdate, remove);
-		tools.setAlignment(Pos.CENTER_LEFT);
-		VBox box = new VBox(12,
-				field("Perfil", profileBox),
-				autoOptimize,
-				field("Argumentos da JVM", jvmArgs),
-				field("Login Microsoft", clientId),
-				tools,
-				result);
-		box.setPadding(new Insets(12, 4, 4, 4));
-		TitledPane pane = new TitledPane("Avançado", box);
-		pane.setExpanded(false);
-		pane.setAnimated(true);
-		pane.getStyleClass().add("advanced-pane");
-		return pane;
+	private void removeProfile(Label result) {
+		if (ctx.profiles().remove(profile())) {
+			ctx.profilesChanged();
+			result.setText("Perfil removido.");
+		} else {
+			result.setText("O perfil principal do VfxClient não pode ser removido.");
+		}
 	}
 
 	private static HBox field(String text, Node control) {

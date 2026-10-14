@@ -1,6 +1,8 @@
 package com.vfxclient.launcher.ui;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -24,8 +26,8 @@ public final class LauncherContext {
 		return thread;
 	});
 	private LauncherSettings settings;
-	private final java.util.List<Runnable> accountListeners = new java.util.ArrayList<>();
-	private final java.util.List<Runnable> profileListeners = new java.util.ArrayList<>();
+	private final List<Runnable> accountListeners = new ArrayList<>();
+	private final List<Runnable> profileListeners = new ArrayList<>();
 
 	/**
 	 * @param stage        janela principal

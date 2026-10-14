@@ -121,22 +121,28 @@ public class ColorSetting extends Setting<Integer> {
 		if (hex == null) {
 			return null;
 		}
+
 		String h = hex.trim();
 		if (h.startsWith("#")) {
 			h = h.substring(1);
 		}
+
 		if (!h.matches("[0-9a-fA-F]+")) {
 			return null;
 		}
+
 		if (h.length() == 3) {
 			h = "" + h.charAt(0) + h.charAt(0) + h.charAt(1) + h.charAt(1) + h.charAt(2) + h.charAt(2);
 		}
+
 		if (h.length() == 6) {
 			return (defaultAlpha & 0xFF) << 24 | Integer.parseInt(h, 16);
 		}
+
 		if (h.length() == 8) {
 			return (int) Long.parseLong(h, 16);
 		}
+
 		return null;
 	}
 

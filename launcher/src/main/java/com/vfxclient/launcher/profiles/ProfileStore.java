@@ -40,6 +40,7 @@ public final class ProfileStore {
 		} catch (IOException e) {
 			data = new Data();
 		}
+
 		if (find(DEFAULT_ID) == null) {
 			Profile profile = new Profile();
 			profile.id = DEFAULT_ID;
@@ -49,6 +50,7 @@ public final class ProfileStore {
 			profile.ramMb = SystemInfo.recommendedRamMb();
 			data.profiles.add(0, profile);
 		}
+
 		ensureLoaderProfile(OPTIFINE_ID, "OptiFine", Profile.Kind.OPTIFINE);
 		ensureLoaderProfile(FORGE_ID, "Forge", Profile.Kind.FORGE);
 	}

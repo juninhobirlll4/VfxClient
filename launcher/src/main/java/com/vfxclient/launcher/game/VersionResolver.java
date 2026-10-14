@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.google.gson.JsonArray;
@@ -60,7 +61,7 @@ public final class VersionResolver {
 		VersionManifest.Entry entry = VersionManifest.find(id);
 		if (entry != null) {
 			progress.update("Verificando a versão " + id, -1, null);
-			Downloader.run("Versão " + id, java.util.List.of(new Downloader.Task(entry.url(), file, entry.sha1(), 0)), Progress.NONE);
+			Downloader.run("Versão " + id, List.of(new Downloader.Task(entry.url(), file, entry.sha1(), 0)), Progress.NONE);
 		}
 		if (!Files.exists(file)) {
 			throw new IOException("A versão " + id + " não está instalada e não foi possível baixá-la");
@@ -90,6 +91,7 @@ public final class VersionResolver {
 				}
 			}
 		}
+
 		merged.add("libraries", libraries);
 
 		JsonObject childArgs = Json.object(child, "arguments");
@@ -107,6 +109,7 @@ public final class VersionResolver {
 				}
 			}
 		}
+
 		return merged;
 	}
 

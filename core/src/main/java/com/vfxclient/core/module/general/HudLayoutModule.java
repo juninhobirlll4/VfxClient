@@ -109,6 +109,7 @@ public class HudLayoutModule extends Module {
 		for (Module module : VfxCore.get().getModules().byCategory(Category.HUD)) {
 			module.setEnabled(false);
 		}
+
 		stack(topLeft, HudModule.TOP_LEFT, GAP);
 		stack(topRight, HudModule.TOP_RIGHT, GAP);
 		stack(bottomRight, HudModule.BOTTOM_RIGHT, GAP);

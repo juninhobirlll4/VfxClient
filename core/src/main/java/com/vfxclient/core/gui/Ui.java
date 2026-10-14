@@ -156,6 +156,7 @@ public final class Ui {
 			default:
 				break;
 		}
+
 		restore();
 	}
 

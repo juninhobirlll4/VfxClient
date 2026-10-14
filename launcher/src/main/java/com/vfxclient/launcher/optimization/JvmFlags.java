@@ -40,6 +40,7 @@ public final class JvmFlags {
 				args.add(extra);
 			}
 		}
+
 		return args;
 	}
 }

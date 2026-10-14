@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -66,6 +67,7 @@ public final class Downloader {
 				missing.add(task);
 			}
 		}
+
 		if (missing.isEmpty()) {
 			progress.update(stage, 1, "Tudo em dia (" + unique.size() + " arquivos)");
 			return;
@@ -75,6 +77,7 @@ public final class Downloader {
 		for (Task task : missing) {
 			totalBytes += Math.max(0, task.size());
 		}
+
 		AtomicInteger done = new AtomicInteger();
 		AtomicLong bytes = new AtomicLong();
 		long total = totalBytes;
@@ -94,7 +97,7 @@ public final class Downloader {
 			for (Future<?> future : futures) {
 				try {
 					future.get();
-				} catch (java.util.concurrent.ExecutionException e) {
+				} catch (ExecutionException e) {
 					Throwable cause = e.getCause();
 					throw cause instanceof IOException io ? io : new IOException(cause);
 				} catch (InterruptedException e) {

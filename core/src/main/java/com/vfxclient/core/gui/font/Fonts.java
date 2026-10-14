@@ -145,6 +145,7 @@ public final class Fonts {
 				part.append(c);
 			}
 		}
+
 		flush(family, part, cursor, y, size, color);
 	}
 

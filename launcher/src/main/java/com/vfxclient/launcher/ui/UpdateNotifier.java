@@ -1,9 +1,12 @@
 package com.vfxclient.launcher.ui;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Consumer;
+import javax.imageio.ImageIO;
 
 import com.vfxclient.launcher.BuildInfo;
 import com.vfxclient.launcher.updater.Updater;
@@ -19,6 +22,7 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -64,6 +68,7 @@ public final class UpdateNotifier {
 		if (!ctx.settings().checkUpdates) {
 			return;
 		}
+
 		ctx.runAsync(() -> {
 			try {
 				// Modo de teste: -Dvfx.fakeUpdate=9.9.9 simula uma versão nova (sem baixar nada de verdade).
@@ -97,6 +102,47 @@ public final class UpdateNotifier {
 		dialog.initOwner(ctx.stage());
 		dialog.initModality(Modality.WINDOW_MODAL);
 
+		ProgressBar bar = new ProgressBar(0);
+		bar.setMaxWidth(Double.MAX_VALUE);
+		bar.getStyleClass().add("launch-progress");
+		bar.setVisible(false);
+
+		Label status = new Label();
+		status.getStyleClass().add("muted");
+
+		Button later = new Button("Mais tarde");
+		later.getStyleClass().add("ghost-button");
+		later.setOnAction(e -> {
+			dismissed = update.version();
+			showing = false;
+			dialog.close();
+			onLater.accept(update);
+		});
+
+		Button now = new Button("Atualizar agora");
+		now.getStyleClass().add("primary-button");
+		Motion.hoverGrow(now, 1.04);
+		Controls controls = new Controls(now, later, bar, status);
+		now.setOnAction(e -> install(update, controls));
+
+		Region spacer = new Region();
+		HBox.setHgrow(spacer, Priority.ALWAYS);
+		HBox buttons = new HBox(10, spacer, later, now);
+		buttons.setAlignment(Pos.CENTER_RIGHT);
+
+		VBox box = new VBox(14, header(update), notes(update), bar, status, buttons);
+		box.setPadding(new Insets(22));
+		box.setPrefWidth(420);
+		box.getStyleClass().add("update-dialog");
+		present(dialog, box);
+	}
+
+	/** Botões e progresso da janela, que mudam durante o download. */
+	private record Controls(Button now, Button later, ProgressBar bar, Label status) {
+	}
+
+	/** Logo, "Versão X disponível" e a versão atual. */
+	private static HBox header(Updater.Update update) {
 		ImageView logo = new ImageView();
 		InputStream in = UpdateNotifier.class.getResourceAsStream("/com/vfxclient/launcher/logo-256.png");
 		if (in != null) {
@@ -104,89 +150,73 @@ public final class UpdateNotifier {
 		}
 		logo.setFitWidth(52);
 		logo.setPreserveRatio(true);
+
 		Label title = new Label("Versão " + update.version() + " disponível");
 		title.getStyleClass().add("hero-title");
 		title.setStyle("-fx-font-size: 20px;");
 		Label current = new Label("Você está na " + BuildInfo.load().clientVersion());
 		current.getStyleClass().add("muted");
 
+		HBox top = new HBox(14, logo, new VBox(2, title, current));
+		top.setAlignment(Pos.CENTER_LEFT);
+		return top;
+	}
+
+	private static ScrollPane notes(Updater.Update update) {
 		Label notes = new Label(cleanNotes(update.notes()));
 		notes.setWrapText(true);
 		notes.getStyleClass().add("news-item");
-		ScrollPane notesScroll = new ScrollPane(notes);
-		notesScroll.setFitToWidth(true);
-		notesScroll.setPrefHeight(120);
-		notesScroll.getStyleClass().add("news-scroll");
 
-		ProgressBar bar = new ProgressBar(0);
-		bar.setMaxWidth(Double.MAX_VALUE);
-		bar.getStyleClass().add("launch-progress");
-		bar.setVisible(false);
-		Label status = new Label();
-		status.getStyleClass().add("muted");
+		ScrollPane scroll = new ScrollPane(notes);
+		scroll.setFitToWidth(true);
+		scroll.setPrefHeight(120);
+		scroll.getStyleClass().add("news-scroll");
+		return scroll;
+	}
 
-		Button later = new Button("Mais tarde");
-		later.getStyleClass().add("ghost-button");
-		Button now = new Button("Atualizar agora");
-		now.getStyleClass().add("primary-button");
-		Motion.hoverGrow(now, 1.04);
-		Region spacer = new Region();
-		HBox.setHgrow(spacer, Priority.ALWAYS);
-		HBox buttons = new HBox(10, spacer, later, now);
-		buttons.setAlignment(Pos.CENTER_RIGHT);
+	/** Baixa o instalador com progresso, roda em modo silencioso e fecha o launcher. */
+	private void install(Updater.Update update, Controls controls) {
+		controls.now().setDisable(true);
+		controls.later().setDisable(true);
+		controls.bar().setVisible(true);
+		controls.status().setText("Baixando...");
 
-		later.setOnAction(e -> {
-			dismissed = update.version();
-			showing = false;
-			dialog.close();
-			onLater.accept(update);
+		ctx.runAsync(() -> {
+			try {
+				Path installer = Updater.download(update, (stage, fraction, detail) -> LauncherContext.ui(() -> {
+					Motion.progress(controls.bar(), fraction);
+					controls.status().setText(fraction < 0 ? "Baixando..." : "Baixando... " + Math.round(fraction * 100) + "%");
+				}));
+				LauncherContext.ui(() -> controls.status().setText("Instalando... o launcher abre de novo sozinho."));
+				ctx.saveAll();
+				Updater.run(installer);
+				// Fecha de vez (inclusive a bandeja do Windows) para o instalador trocar os arquivos.
+				System.exit(0);
+			} catch (IOException ex) {
+				LauncherContext.ui(() -> {
+					controls.status().setText("Não deu para baixar agora. Tente de novo mais tarde.");
+					controls.now().setDisable(false);
+					controls.later().setDisable(false);
+				});
+			}
 		});
-		now.setOnAction(e -> {
-			now.setDisable(true);
-			later.setDisable(true);
-			bar.setVisible(true);
-			status.setText("Baixando...");
-			ctx.runAsync(() -> {
-				try {
-					Path installer = Updater.download(update, (stage, fraction, detail) -> LauncherContext.ui(() -> {
-						Motion.progress(bar, fraction);
-						status.setText(fraction < 0 ? "Baixando..." : "Baixando... " + Math.round(fraction * 100) + "%");
-					}));
-					LauncherContext.ui(() -> status.setText("Instalando... o launcher abre de novo sozinho."));
-					ctx.saveAll();
-					Updater.run(installer);
-					// Fecha de vez (inclusive a bandeja do Windows) para o instalador trocar os arquivos.
-					System.exit(0);
-				} catch (IOException ex) {
-					LauncherContext.ui(() -> {
-						status.setText("Não deu para baixar agora. Tente de novo mais tarde.");
-						now.setDisable(false);
-						later.setDisable(false);
-					});
-				}
-			});
-		});
+	}
 
-		VBox head = new VBox(2, title, current);
-		HBox top = new HBox(14, logo, head);
-		top.setAlignment(Pos.CENTER_LEFT);
-		VBox box = new VBox(14, top, notesScroll, bar, status, buttons);
-		box.setPadding(new Insets(22));
-		box.setPrefWidth(420);
-		box.getStyleClass().add("update-dialog");
-
+	/** Mostra a janela centralizada no launcher (no modo de prints, só salva a imagem). */
+	private void present(Stage dialog, VBox box) {
 		Scene scene = new Scene(box);
 		scene.setFill(null);
 		scene.getStylesheets().addAll(ctx.stage().getScene().getStylesheets());
 		dialog.setScene(scene);
+
 		String snapshot = System.getProperty("vfx.snapshot");
 		if (snapshot != null) {
-			// Modo de prints: salva a janela sem mostrá-la.
 			box.applyCss();
 			box.layout();
-			saveSnapshot(scene, java.nio.file.Path.of(snapshot, "atualizacao.png"));
+			saveSnapshot(scene, Path.of(snapshot, "atualizacao.png"));
 			return;
 		}
+
 		dialog.setOnShown(e -> {
 			dialog.setX(ctx.stage().getX() + (ctx.stage().getWidth() - dialog.getWidth()) / 2);
 			dialog.setY(ctx.stage().getY() + (ctx.stage().getHeight() - dialog.getHeight()) / 2);
@@ -196,17 +226,17 @@ public final class UpdateNotifier {
 	}
 
 	private static void saveSnapshot(Scene scene, Path file) {
-		javafx.scene.image.WritableImage image = scene.getRoot().snapshot(null, null);
-		java.awt.image.BufferedImage out = new java.awt.image.BufferedImage((int) image.getWidth(), (int) image.getHeight(),
-				java.awt.image.BufferedImage.TYPE_INT_ARGB);
+		WritableImage image = scene.getRoot().snapshot(null, null);
+		BufferedImage out = new BufferedImage((int) image.getWidth(), (int) image.getHeight(),
+				BufferedImage.TYPE_INT_ARGB);
 		for (int x = 0; x < out.getWidth(); x++) {
 			for (int y = 0; y < out.getHeight(); y++) {
 				out.setRGB(x, y, image.getPixelReader().getArgb(x, y));
 			}
 		}
 		try {
-			java.nio.file.Files.createDirectories(file.getParent());
-			javax.imageio.ImageIO.write(out, "png", file.toFile());
+			Files.createDirectories(file.getParent());
+			ImageIO.write(out, "png", file.toFile());
 		} catch (IOException ignored) {
 			// Só para revisão visual.
 		}

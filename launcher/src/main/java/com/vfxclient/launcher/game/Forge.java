@@ -13,6 +13,7 @@ import java.util.zip.ZipFile;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.vfxclient.launcher.LauncherPaths;
+import com.vfxclient.launcher.util.Hashing;
 import com.vfxclient.launcher.util.Json;
 
 /**
@@ -44,6 +45,7 @@ public final class Forge {
 		if (!"1.8.9".equals(minecraftVersion)) {
 			throw new IOException("O launcher instala o Forge só para o 1.8.9.");
 		}
+
 		String forge = VERSION_1_8_9;
 		String id = "1.8.9-forge" + forge;
 		Path universal = LauncherPaths.libraries().resolve(LibraryInstaller.mavenPath("net.minecraftforge:forge:" + forge, null));
@@ -59,7 +61,8 @@ public final class Forge {
 				Files.copy(bundled, installer, StandardCopyOption.REPLACE_EXISTING);
 			}
 		}
-		if (!com.vfxclient.launcher.util.Hashing.matches(installer, INSTALLER_SHA1, 0)) {
+
+		if (!Hashing.matches(installer, INSTALLER_SHA1, 0)) {
 			progress.update("Baixando o Forge " + forge, -1, null);
 			String url = MAVEN + forge + "/forge-" + forge + "-installer.jar";
 			Downloader.run("Instalador do Forge", List.of(new Downloader.Task(url, installer, INSTALLER_SHA1, 0)), progress);

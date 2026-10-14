@@ -3,11 +3,14 @@ package com.vfxclient.launcher.updater;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.vfxclient.launcher.BuildInfo;
 import com.vfxclient.launcher.LauncherPaths;
+import com.vfxclient.launcher.game.Downloader;
+import com.vfxclient.launcher.game.Progress;
 import com.vfxclient.launcher.util.Http;
 import com.vfxclient.launcher.util.Json;
 
@@ -44,10 +47,12 @@ public final class Updater {
 		if (tag == null) {
 			return null;
 		}
+
 		String latest = tag.startsWith("v") ? tag.substring(1) : tag;
 		if (compare(latest, BuildInfo.load().clientVersion()) <= 0) {
 			return null;
 		}
+
 		for (JsonElement element : release.getAsJsonArray("assets")) {
 			JsonObject asset = element.getAsJsonObject();
 			String name = Json.string(asset, "name");
@@ -56,6 +61,7 @@ public final class Updater {
 						Json.string(release, "body"));
 			}
 		}
+
 		return null;
 	}
 
@@ -66,7 +72,7 @@ public final class Updater {
 	 * @throws IOException se o download falhar
 	 */
 	public static void downloadAndRun(Update update) throws IOException {
-		run(download(update, com.vfxclient.launcher.game.Progress.NONE));
+		run(download(update, Progress.NONE));
 	}
 
 	/**
@@ -77,11 +83,11 @@ public final class Updater {
 	 * @return o instalador baixado
 	 * @throws IOException se o download falhar
 	 */
-	public static Path download(Update update, com.vfxclient.launcher.game.Progress progress) throws IOException {
+	public static Path download(Update update, Progress progress) throws IOException {
 		Path file = LauncherPaths.cache().resolve("VfxClient-Setup-" + update.version() + ".exe");
 		Files.createDirectories(file.getParent());
-		com.vfxclient.launcher.game.Downloader.run("Baixando a versão " + update.version(),
-				java.util.List.of(new com.vfxclient.launcher.game.Downloader.Task(update.installerUrl(), file, null, update.size())), progress);
+		Downloader.run("Baixando a versão " + update.version(),
+				List.of(new Downloader.Task(update.installerUrl(), file, null, update.size())), progress);
 		return file;
 	}
 

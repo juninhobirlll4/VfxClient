@@ -63,9 +63,11 @@ public final class LegacyFabric {
 				return version;
 			}
 		}
+
 		if (first == null) {
 			throw new IOException("Nenhum loader disponível para " + minecraftVersion);
 		}
+
 		return first;
 	}
 

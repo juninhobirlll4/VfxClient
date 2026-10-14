@@ -109,6 +109,7 @@ public class ArmorModule extends HudModule {
 			drawText(client, "Armadura", 0, 0);
 			return;
 		}
+
 		int y = 0;
 		for (ItemStack stack : items) {
 			GlStateManager.enableRescaleNormal();

@@ -1,17 +1,32 @@
 package com.vfxclient.launcher;
 
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import javax.imageio.ImageIO;
 
 import com.vfxclient.launcher.auth.Account;
+import com.vfxclient.launcher.game.Forge;
 import com.vfxclient.launcher.game.GameLauncher;
+import com.vfxclient.launcher.game.OptiFine;
+import com.vfxclient.launcher.game.Progress;
 import com.vfxclient.launcher.ui.AccountView;
+import com.vfxclient.launcher.ui.Faces;
 import com.vfxclient.launcher.ui.HomeView;
 import com.vfxclient.launcher.ui.LauncherContext;
+import com.vfxclient.launcher.ui.Motion;
 import com.vfxclient.launcher.ui.ScreenshotsView;
 import com.vfxclient.launcher.ui.SettingsView;
+import com.vfxclient.launcher.ui.TrayManager;
+import javafx.animation.FadeTransition;
+import javafx.animation.Interpolator;
+import javafx.animation.ParallelTransition;
+import javafx.animation.PauseTransition;
+import javafx.animation.TranslateTransition;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -28,6 +43,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 /**
  * Janela principal do launcher: barra lateral (Início, Conta, Configurações) e a tela atual.
@@ -80,13 +96,14 @@ public final class VfxLauncherApp extends Application {
 		if (icon != null) {
 			stage.getIcons().add(icon);
 		}
+
 		stage.setMinWidth(900);
 		stage.setMinHeight(580);
 		stage.setScene(scene);
 		// Fechar a janela fecha o launcher (a bandeja mantém o programa vivo só enquanto o jogo roda).
 		stage.setOnCloseRequest(e -> {
 			ctx.saveAll();
-			javafx.application.Platform.exit();
+			Platform.exit();
 			System.exit(0);
 		});
 
@@ -96,13 +113,14 @@ public final class VfxLauncherApp extends Application {
 			snapshots(scene, Path.of(snapshotDir));
 			return;
 		}
-		com.vfxclient.launcher.ui.TrayManager.install(stage);
+
+		TrayManager.install(stage);
 		stage.show();
 	}
 
 	/** Modo de desenvolvimento: salva um PNG de cada tela e fecha (usado para revisar o visual). */
 	private void snapshots(Scene scene, Path dir) {
-		javafx.animation.PauseTransition wait = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(4));
+		PauseTransition wait = new PauseTransition(Duration.seconds(4));
 		wait.setOnFinished(e -> {
 			Node[] views = {home, account, screenshots, settings};
 			String[] names = {"inicio", "conta", "prints", "configuracoes"};
@@ -113,19 +131,19 @@ public final class VfxLauncherApp extends Application {
 					scene.getRoot().applyCss();
 					scene.getRoot().layout();
 					WritableImage image = scene.snapshot(null);
-					java.awt.image.BufferedImage out = new java.awt.image.BufferedImage((int) image.getWidth(), (int) image.getHeight(),
-							java.awt.image.BufferedImage.TYPE_INT_ARGB);
+					BufferedImage out = new BufferedImage((int) image.getWidth(), (int) image.getHeight(),
+							BufferedImage.TYPE_INT_ARGB);
 					for (int x = 0; x < out.getWidth(); x++) {
 						for (int y = 0; y < out.getHeight(); y++) {
 							out.setRGB(x, y, image.getPixelReader().getArgb(x, y));
 						}
 					}
-					javax.imageio.ImageIO.write(out, "png", dir.resolve(names[i] + ".png").toFile());
+					ImageIO.write(out, "png", dir.resolve(names[i] + ".png").toFile());
 				}
-			} catch (java.io.IOException ex) {
+			} catch (IOException ex) {
 				System.err.println("Snapshot falhou: " + ex.getMessage());
 			}
-			javafx.application.Platform.exit();
+			Platform.exit();
 		});
 		wait.play();
 	}
@@ -136,10 +154,10 @@ public final class VfxLauncherApp extends Application {
 	 */
 	private void preinstallLoaders() {
 		ctx.runAsync(() -> {
-			com.vfxclient.launcher.game.OptiFine.autoDetect();
+			OptiFine.autoDetect();
 			try {
-				com.vfxclient.launcher.game.Forge.install("1.8.9", com.vfxclient.launcher.game.Progress.NONE);
-			} catch (java.io.IOException e) {
+				Forge.install("1.8.9", Progress.NONE);
+			} catch (IOException e) {
 				System.err.println("Forge não pré-instalado: " + e.getMessage());
 			}
 			LauncherContext.ui(home::reloadProfiles);
@@ -191,17 +209,18 @@ public final class VfxLauncherApp extends Application {
 	private void show(Node view, int navIndex) {
 		boolean changed = content.getChildren().isEmpty() || content.getChildren().get(0) != view;
 		content.getChildren().setAll(view);
-		if (changed && com.vfxclient.launcher.ui.Motion.ENABLED) {
+		if (changed && Motion.ENABLED) {
 			// Troca de aba suave: aparece e desliza um pouco para cima.
 			view.setOpacity(0);
 			view.setTranslateY(10);
-			javafx.animation.FadeTransition fade = new javafx.animation.FadeTransition(javafx.util.Duration.millis(220), view);
+			FadeTransition fade = new FadeTransition(Duration.millis(220), view);
 			fade.setToValue(1);
-			javafx.animation.TranslateTransition move = new javafx.animation.TranslateTransition(javafx.util.Duration.millis(220), view);
+			TranslateTransition move = new TranslateTransition(Duration.millis(220), view);
 			move.setToY(0);
-			move.setInterpolator(javafx.animation.Interpolator.SPLINE(0.2, 0.8, 0.2, 1.0));
-			new javafx.animation.ParallelTransition(fade, move).play();
+			move.setInterpolator(Interpolator.SPLINE(0.2, 0.8, 0.2, 1.0));
+			new ParallelTransition(fade, move).play();
 		}
+
 		for (int i = 0; i < nav.getChildren().size(); i++) {
 			nav.getChildren().get(i).getStyleClass().remove("nav-selected");
 			if (i == navIndex) {
@@ -220,7 +239,7 @@ public final class VfxLauncherApp extends Application {
 					? GameLauncher.localSkin(selected)
 					: LauncherPaths.launcher().resolve("skins").resolve(selected.uuid + "-oficial.png");
 			if (Files.exists(skin)) {
-				face = com.vfxclient.launcher.ui.Faces.face(new Image(skin.toUri().toString()), 4);
+				face = Faces.face(new Image(skin.toUri().toString()), 4);
 			}
 		}
 		accountHead.setImage(face != null ? face : loadImage("logo-256.png"));

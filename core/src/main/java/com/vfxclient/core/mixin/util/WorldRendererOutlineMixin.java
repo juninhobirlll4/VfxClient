@@ -26,16 +26,19 @@ public abstract class WorldRendererOutlineMixin {
 		if (module == null || !module.isEnabled()) {
 			return;
 		}
+
 		ci.cancel();
 		ClientWorld world = MinecraftClient.getInstance().world;
 		if (pass != 0 || world == null || hitResult.type != BlockHitResult.Type.BLOCK) {
 			return;
 		}
+
 		BlockPos pos = hitResult.getBlockPos();
 		Block block = world.getBlockState(pos).getBlock();
 		if (block.getMaterial() == Material.AIR || !world.getWorldBorder().contains(pos)) {
 			return;
 		}
+
 		block.setBoundingBox(world, pos);
 		double x = player.prevTickX + (player.x - player.prevTickX) * tickDelta;
 		double y = player.prevTickY + (player.y - player.prevTickY) * tickDelta;

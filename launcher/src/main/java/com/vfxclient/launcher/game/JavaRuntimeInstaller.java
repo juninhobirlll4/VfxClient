@@ -114,6 +114,7 @@ public final class JavaRuntimeInstaller {
 		if (javaHome != null) {
 			roots.add(Paths.get(javaHome));
 		}
+
 		for (String base : new String[]{"C:\\Program Files\\Eclipse Adoptium", "C:\\Program Files\\Java",
 				"C:\\Program Files\\Zulu", "C:\\Program Files\\Microsoft", "C:\\Program Files (x86)\\Java"}) {
 			Path dir = Paths.get(base);
@@ -127,6 +128,7 @@ public final class JavaRuntimeInstaller {
 				}
 			}
 		}
+
 		for (Path root : roots) {
 			String name = root.getFileName() == null ? "" : root.getFileName().toString().toLowerCase(Locale.ROOT);
 			boolean matches = major == 8
@@ -137,6 +139,7 @@ public final class JavaRuntimeInstaller {
 				return exe;
 			}
 		}
+
 		return null;
 	}
 }

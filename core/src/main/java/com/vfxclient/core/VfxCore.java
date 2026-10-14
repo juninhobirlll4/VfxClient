@@ -7,6 +7,9 @@ import com.vfxclient.core.hud.ClickTracker;
 import com.vfxclient.core.module.Module;
 import com.vfxclient.core.module.ModuleManager;
 import com.vfxclient.core.module.general.MenuModule;
+import com.vfxclient.core.module.general.ToggleNotificationModule;
+import com.vfxclient.core.module.performance.FpsLimiterModule;
+import com.vfxclient.core.module.util.AutoTextModule;
 import com.vfxclient.core.module.util.ToggleSprintModule;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
@@ -98,18 +101,19 @@ public final class VfxCore implements ClientModInitializer {
 	 */
 	public void onKeyPressed(int keyCode) {
 		ClickTracker.onPress(keyCode);
-		com.vfxclient.core.module.performance.FpsLimiterModule.markInput();
+		FpsLimiterModule.markInput();
 		modules.get(ToggleSprintModule.class).onKeyPressed(keyCode);
-		modules.get(com.vfxclient.core.module.util.AutoTextModule.class).onKeyPressed(keyCode);
+		modules.get(AutoTextModule.class).onKeyPressed(keyCode);
 		if (keyCode != 0 && MinecraftClient.getInstance().currentScreen == null) {
 			// Teclas de atalho dos módulos: liga/desliga e mostra o aviso na tela.
 			for (Module module : modules.all()) {
 				if (module.toggleKey() == keyCode) {
 					module.toggle();
-					modules.get(com.vfxclient.core.module.general.ToggleNotificationModule.class).notify(module);
+					modules.get(ToggleNotificationModule.class).notify(module);
 				}
 			}
 		}
+
 		MinecraftClient client = MinecraftClient.getInstance();
 		if (client.currentScreen == null && keyCode == modules.get(MenuModule.class).getKey()) {
 			openClickGuiPending = true;

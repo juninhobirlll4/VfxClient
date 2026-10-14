@@ -1,11 +1,13 @@
 package com.vfxclient.core.module.visual;
 
+import com.vfxclient.core.VfxCore;
 import com.vfxclient.core.module.Category;
 import com.vfxclient.core.module.Module;
 import com.vfxclient.core.module.setting.BooleanSetting;
 import com.vfxclient.core.module.setting.KeySetting;
 import com.vfxclient.core.module.setting.NumberSetting;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.option.KeyBinding;
 import org.lwjgl.input.Keyboard;
 
 /** Aproxima a visão enquanto a tecla estiver segurada. */
@@ -33,11 +35,11 @@ public class ZoomModule extends Module {
 		if (!net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("optifabric") || client.options == null) {
 			return;
 		}
-		for (net.minecraft.client.option.KeyBinding binding : client.options.allKeys) {
+		for (KeyBinding binding : client.options.allKeys) {
 			if ("of.key.zoom".equals(binding.getTranslationKey()) && binding.getCode() == key.get()) {
 				binding.setCode(0);
-				net.minecraft.client.option.KeyBinding.updateKeysByCode();
-				com.vfxclient.core.VfxCore.LOGGER.info("Zoom do OptiFine desligado (mesma tecla do zoom do VfxClient).");
+				KeyBinding.updateKeysByCode();
+				VfxCore.LOGGER.info("Zoom do OptiFine desligado (mesma tecla do zoom do VfxClient).");
 			}
 		}
 	}
@@ -47,10 +49,12 @@ public class ZoomModule extends Module {
 		if (!checkedOptiFine) {
 			resolveOptiFineConflict(client);
 		}
+
 		boolean active = client.currentScreen == null && key.isDown();
 		if (active == zooming) {
 			return;
 		}
+
 		zooming = active;
 		if (smooth.get()) {
 			if (active) {

@@ -231,6 +231,7 @@ public abstract class HudModule extends Module {
 			client.textRenderer.draw(strip(text), x, y, textColor(), shadowed);
 			return;
 		}
+
 		boolean highlight = style == null || style.highlightValues();
 		int color = textColor();
 		StringBuilder part = new StringBuilder();

@@ -1,9 +1,12 @@
 package com.vfxclient.launcher.ui;
 
+import java.awt.EventQueue;
+import java.awt.Image;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.TrayIcon;
+import javax.imageio.ImageIO;
 
 import javafx.application.Platform;
 import javafx.stage.Stage;
@@ -33,9 +36,9 @@ public final class TrayManager {
 		}
 		// A janela pode ficar escondida na bandeja sem o programa fechar.
 		Platform.setImplicitExit(false);
-		java.awt.EventQueue.invokeLater(() -> {
+		EventQueue.invokeLater(() -> {
 			try {
-				java.awt.Image image = javax.imageio.ImageIO.read(TrayManager.class.getResource("/com/vfxclient/launcher/logo-256.png"));
+				Image image = ImageIO.read(TrayManager.class.getResource("/com/vfxclient/launcher/logo-256.png"));
 				PopupMenu menu = new PopupMenu();
 				MenuItem open = new MenuItem("Abrir VfxClient");
 				open.addActionListener(e -> restore());
@@ -103,7 +106,7 @@ public final class TrayManager {
 	 * @param text  texto
 	 */
 	public static void message(String title, String text) {
-		java.awt.EventQueue.invokeLater(() -> {
+		EventQueue.invokeLater(() -> {
 			if (icon != null) {
 				icon.displayMessage(title, text, TrayIcon.MessageType.INFO);
 			}

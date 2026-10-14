@@ -2,10 +2,6 @@ package com.vfxclient.core.mixin;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.vfxclient.core.VfxCore;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
 import com.vfxclient.core.module.performance.NoCloudsModule;
 import com.vfxclient.core.module.performance.RenderTweaksModule;
 import com.vfxclient.core.module.visual.BlurModule;
@@ -15,9 +11,14 @@ import com.vfxclient.core.module.visual.MotionBlurModule;
 import com.vfxclient.core.module.visual.NoHurtCamModule;
 import com.vfxclient.core.module.visual.SaturationModule;
 import com.vfxclient.core.module.visual.ZoomModule;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.GameRenderer;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.player.ClientPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -137,10 +138,10 @@ public abstract class GameRendererMixin {
 		}
 	}
 
-	@org.spongepowered.asm.mixin.Shadow
+	@Shadow
 	private float movementFovMultiplier;
 
-	@org.spongepowered.asm.mixin.Shadow
+	@Shadow
 	private float lastMovementFovMultiplier;
 
 	/** FOV fixo: ignora a mudança de FOV ao correr e com efeitos de velocidade/lentidão. */

@@ -20,6 +20,7 @@ import com.google.gson.JsonParser;
 import com.vfxclient.core.VfxCore;
 import com.vfxclient.core.module.Module;
 import com.vfxclient.core.module.ModuleManager;
+import com.vfxclient.core.module.general.HudLayoutModule;
 import com.vfxclient.core.module.general.MenuModule;
 
 /**
@@ -82,10 +83,11 @@ public final class ConfigManager {
 	private void loadFile(Path file) {
 		if (!Files.exists(file)) {
 			// Instalação nova: organiza a HUD com o layout padrão assim que o jogo abrir.
-			modules.get(com.vfxclient.core.module.general.HudLayoutModule.class).requestDefaultLayout();
+			modules.get(HudLayoutModule.class).requestDefaultLayout();
 			save();
 			return;
 		}
+
 		try (Reader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
 			JsonElement root = new JsonParser().parse(reader);
 			if (!root.isJsonObject()) {
@@ -140,7 +142,7 @@ public final class ConfigManager {
 	 */
 	public boolean importJson(String json) {
 		try {
-			com.google.gson.JsonElement parsed = new com.google.gson.JsonParser().parse(json);
+			JsonElement parsed = new JsonParser().parse(json);
 			if (!parsed.isJsonObject() || !parsed.getAsJsonObject().has("modules")) {
 				return false;
 			}
@@ -193,9 +195,11 @@ public final class ConfigManager {
 				VfxCore.LOGGER.warn("Não foi possível listar os perfis", e);
 			}
 		}
+
 		if (!names.contains(activeProfile)) {
 			names.add(activeProfile);
 		}
+
 		Collections.sort(names, String.CASE_INSENSITIVE_ORDER);
 		return names;
 	}

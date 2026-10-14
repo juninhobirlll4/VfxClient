@@ -78,6 +78,7 @@ public class CrosshairModule extends Module {
 			Render2D.ring(cx + (t % 2) / 2F, cy + (t % 2) / 2F, r, t + grow * 2, argb);
 			return;
 		}
+
 		if (shape == CROSS || shape == CROSS_DOT || shape == T_SHAPE) {
 			if (shape != T_SHAPE) {
 				rect(x0 - grow, y0 - g - s - grow, t + grow * 2, s + grow * 2, argb);
@@ -86,6 +87,7 @@ public class CrosshairModule extends Module {
 			rect(x0 - g - s - grow, y0 - grow, s + grow * 2, t + grow * 2, argb);
 			rect(x0 + t + g - grow, y0 - grow, s + grow * 2, t + grow * 2, argb);
 		}
+
 		if (shape == DOT || shape == CROSS_DOT) {
 			rect(x0 - grow, y0 - grow, t + grow * 2, t + grow * 2, argb);
 		}

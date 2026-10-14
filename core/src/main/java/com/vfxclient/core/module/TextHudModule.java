@@ -3,6 +3,7 @@ package com.vfxclient.core.module;
 import java.util.Collections;
 import java.util.List;
 
+import com.vfxclient.core.module.general.HudStyleModule;
 import net.minecraft.client.MinecraftClient;
 
 /**
@@ -81,7 +82,7 @@ public abstract class TextHudModule extends HudModule {
 		if (preview) {
 			return getLines(client, true);
 		}
-		com.vfxclient.core.module.general.HudStyleModule style = style();
+		HudStyleModule style = style();
 		long interval = style == null ? 0 : style.cacheMillis();
 		long now = System.currentTimeMillis();
 		if (interval <= 0 || now - cachedAt >= interval || now < cachedAt) {

@@ -57,21 +57,26 @@ public class EntityCullingModule extends Module {
 		if (!isEnabled()) {
 			return false;
 		}
+
 		MinecraftClient client = MinecraftClient.getInstance();
 		Entity camera = client.getCameraEntity();
 		if (camera == null || client.world == null || entity == camera || entity.rider == camera || camera.vehicle == entity) {
 			return false;
 		}
+
 		if (keepPlayers.get() && entity instanceof PlayerEntity) {
 			return false;
 		}
+
 		if (entity.squaredDistanceTo(camera) < ALWAYS_VISIBLE_SQ) {
 			return false;
 		}
+
 		long[] cached = cache.get(entity.getEntityId());
 		if (cached != null && tick - cached[0] < RECHECK_TICKS) {
 			return cached[1] == 0;
 		}
+
 		boolean visible = isVisible(client.world, camera, entity);
 		cache.put(entity.getEntityId(), new long[]{tick, visible ? 1 : 0});
 		return !visible;
@@ -95,6 +100,7 @@ public class EntityCullingModule extends Module {
 				return true;
 			}
 		}
+
 		return false;
 	}
 }

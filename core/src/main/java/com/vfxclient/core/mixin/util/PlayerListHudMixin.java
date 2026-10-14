@@ -4,11 +4,11 @@ import com.vfxclient.core.VfxCore;
 import com.vfxclient.core.module.util.TabListModule;
 import net.minecraft.client.gui.hud.PlayerListHud;
 import net.minecraft.client.network.PlayerListEntry;
+import net.minecraft.network.ClientConnection;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import net.minecraft.network.ClientConnection;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /** Ping em número e cabeças na lista de jogadores. */

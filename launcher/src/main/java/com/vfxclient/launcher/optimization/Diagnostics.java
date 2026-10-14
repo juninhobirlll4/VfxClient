@@ -76,17 +76,21 @@ public final class Diagnostics {
 			warnings.add("A RAM escolhida (" + profile.ramMb + " MB) deixa pouca memória para o Windows. Recomendado: "
 					+ SystemInfo.recommendedRamMb() + " MB.");
 		}
+
 		if (profile != null && free < profile.ramMb / 2) {
 			warnings.add("Pouca RAM livre agora (" + free + " MB). Feche outros programas para evitar travadas.");
 		}
+
 		if (disk >= 0 && disk < 2048) {
 			warnings.add("Pouco espaço em disco (" + disk + " MB). O primeiro download precisa de uns 500 MB.");
 		}
+
 		boolean integrated = gpus.stream().map(g -> g.toLowerCase(Locale.ROOT))
 				.allMatch(g -> (g.contains("intel") && !g.contains("arc")) || g.contains("basic") || g.contains("vmware"));
 		if (gpus.isEmpty()) {
 			integrated = false;
 		}
+
 		if (integrated) {
 			warnings.add("Vídeo integrado detectado: o preset Equilibrado ou Baixo dá mais FPS.");
 		}
@@ -99,6 +103,7 @@ public final class Diagnostics {
 		} else {
 			preset = "high";
 		}
+
 		return new Report(cores, total, free, gpus, disk, preset, warnings);
 	}
 
@@ -117,6 +122,7 @@ public final class Diagnostics {
 		if (cachedGpus != null) {
 			return cachedGpus;
 		}
+
 		List<String> names = new ArrayList<>();
 		if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("win")) {
 			try {
@@ -140,6 +146,7 @@ public final class Diagnostics {
 				Thread.currentThread().interrupt();
 			}
 		}
+
 		cachedGpus = names;
 		return names;
 	}

@@ -13,6 +13,7 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.util.Window;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -55,7 +56,7 @@ public abstract class InGameHudMixin {
 		return false;
 	}
 
-	@org.spongepowered.asm.mixin.Unique
+	@Unique
 	private boolean vfx$scoreboardScaled;
 
 	@Inject(method = "renderScoreboardObjective", at = @At("HEAD"), cancellable = true)

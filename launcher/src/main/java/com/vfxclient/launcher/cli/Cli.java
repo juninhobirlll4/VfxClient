@@ -1,5 +1,6 @@
 package com.vfxclient.launcher.cli;
 
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 
@@ -8,6 +9,7 @@ import com.vfxclient.launcher.auth.Account;
 import com.vfxclient.launcher.auth.AccountStore;
 import com.vfxclient.launcher.auth.OfflineAuth;
 import com.vfxclient.launcher.game.GameLauncher;
+import com.vfxclient.launcher.game.OptiFine;
 import com.vfxclient.launcher.game.VersionManifest;
 import com.vfxclient.launcher.optimization.CacheCleaner;
 import com.vfxclient.launcher.optimization.Diagnostics;
@@ -53,7 +55,7 @@ public final class Cli {
 					System.out.println("Limpeza: " + CacheCleaner.clean().describe());
 					return 0;
 				case "import-optifine":
-					System.out.println("OptiFine guardado em " + com.vfxclient.launcher.game.OptiFine.importJar(java.nio.file.Path.of(list.get(1))));
+					System.out.println("OptiFine guardado em " + OptiFine.importJar(Path.of(list.get(1))));
 					return 0;
 				case "versions":
 					VersionManifest.releases().stream().limit(20).forEach(System.out::println);
@@ -80,15 +82,18 @@ public final class Cli {
 		if (profile == null) {
 			throw new IllegalArgumentException("Perfil não encontrado");
 		}
+
 		Account account = accounts.selected();
 		String offline = option(args, "--offline", null);
 		if (offline != null) {
 			account = OfflineAuth.create(offline);
 		}
+
 		String join = option(args, "--join", null);
 		if (join != null) {
 			System.setProperty("vfx.join", join);
 		}
+
 		GameLauncher.Session session = GameLauncher.launch(profile, account, accounts, settings,
 				(stage, fraction, detail) -> System.out.println("[" + (fraction < 0 ? "..." : Math.round(fraction * 100) + "%") + "] "
 						+ stage + (detail == null ? "" : " - " + detail)));
@@ -98,6 +103,7 @@ public final class Cli {
 			System.out.println("O jogo fechou com código " + code);
 			return code;
 		}
+
 		return 0;
 	}
 

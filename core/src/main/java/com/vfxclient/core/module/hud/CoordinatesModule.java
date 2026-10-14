@@ -63,15 +63,18 @@ public class CoordinatesModule extends TextHudModule {
 			}
 			lines.add(second);
 		}
+
 		if (showBiome.get() && biome != null) {
 			lines.add("§7Bioma: §r" + biome);
 		}
+
 		if (convert.get() && (dimension == NETHER || dimension == OVERWORLD)) {
 			boolean nether = dimension == NETHER;
 			int cx = nether ? x * 8 : Math.floorDiv(x, 8);
 			int cz = nether ? z * 8 : Math.floorDiv(z, 8);
 			lines.add("§7" + (nether ? "Overworld" : "Nether") + ": §r" + cx + " " + cz);
 		}
+
 		return lines;
 	}
 

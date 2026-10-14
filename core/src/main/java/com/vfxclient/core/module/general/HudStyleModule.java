@@ -1,11 +1,16 @@
 package com.vfxclient.core.module.general;
 
+import com.google.gson.JsonObject;
+import com.vfxclient.core.VfxCore;
 import com.vfxclient.core.module.Category;
 import com.vfxclient.core.module.Module;
+import com.vfxclient.core.module.ModuleManager;
 import com.vfxclient.core.module.setting.BooleanSetting;
 import com.vfxclient.core.module.setting.ChoiceSetting;
 import com.vfxclient.core.module.setting.ColorSetting;
 import com.vfxclient.core.module.setting.NumberSetting;
+import com.vfxclient.core.module.setting.Setting;
+import net.minecraft.client.MinecraftClient;
 
 /**
  * Estilo global da HUD do VfxClient: modo compacto (só o essencial) ou avançado (mais
@@ -47,14 +52,14 @@ public class HudStyleModule extends Module {
 	}
 
 	@Override
-	public com.google.gson.JsonObject toJson() {
-		com.google.gson.JsonObject json = super.toJson();
+	public JsonObject toJson() {
+		JsonObject json = super.toJson();
 		json.addProperty("styleVersion", STYLE_VERSION);
 		return json;
 	}
 
 	@Override
-	public void fromJson(com.google.gson.JsonObject json) {
+	public void fromJson(JsonObject json) {
 		super.fromJson(json);
 		int saved = readInt(json, "styleVersion", 1);
 		if (saved < STYLE_VERSION) {
@@ -63,7 +68,7 @@ public class HudStyleModule extends Module {
 	}
 
 	@Override
-	public void onTick(net.minecraft.client.MinecraftClient client) {
+	public void onTick(MinecraftClient client) {
 		if (migrate) {
 			migrate = false;
 			applyFlatLook();
@@ -76,7 +81,7 @@ public class HudStyleModule extends Module {
 		for (String id : own) {
 			getSetting(id).reset();
 		}
-		com.vfxclient.core.module.ModuleManager modules = com.vfxclient.core.VfxCore.get().getModules();
+		ModuleManager modules = VfxCore.get().getModules();
 		resetSettings(modules.get("keystrokes"), "style", "bgColor", "textColor", "borderColor", "pressedColor", "pressedTextColor", "gap");
 		resetSettings(modules.get("fps"), "rangeColor");
 		resetSettings(modules.get("ping"), "qualityColor");
@@ -88,7 +93,7 @@ public class HudStyleModule extends Module {
 			return;
 		}
 		for (String id : ids) {
-			com.vfxclient.core.module.setting.Setting<?> setting = module.getSetting(id);
+			Setting<?> setting = module.getSetting(id);
 			if (setting != null) {
 				setting.reset();
 			}

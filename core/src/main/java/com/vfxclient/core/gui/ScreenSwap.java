@@ -1,13 +1,13 @@
 package com.vfxclient.core.gui;
 
 import com.vfxclient.core.VfxCore;
+import com.vfxclient.core.mixin.MultiplayerScreenAccessor;
 import com.vfxclient.core.module.general.TitleScreenModule;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.GameMenuScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
-import com.vfxclient.core.mixin.MultiplayerScreenAccessor;
 
 /**
  * Decide quando uma tela do jogo vira a versão do VfxClient. Tudo pode ser desligado no

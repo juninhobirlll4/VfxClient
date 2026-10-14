@@ -7,6 +7,7 @@ import java.util.List;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.vfxclient.core.module.HudModule;
 import com.vfxclient.core.module.setting.BooleanSetting;
+import com.vfxclient.core.module.setting.ChoiceSetting;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.entity.effect.StatusEffect;
@@ -24,7 +25,7 @@ public class PotionEffectsModule extends HudModule {
 	private final BooleanSetting icons = add(new BooleanSetting("icons", "Ícones", true));
 	private final BooleanSetting effectColor = add(new BooleanSetting("effectColor", "Cor por tipo de efeito", true));
 	private final BooleanSetting blink = addAdvanced(new BooleanSetting("blink", "Piscar nos últimos 10 s", true));
-	private final com.vfxclient.core.module.setting.ChoiceSetting look = add(new com.vfxclient.core.module.setting.ChoiceSetting("look", "Estilo", 0, "Lista", "Painel (ícone grande)"));
+	private final ChoiceSetting look = add(new ChoiceSetting("look", "Estilo", 0, "Lista", "Painel (ícone grande)"));
 
 	private static final int PANEL_ROW = 24;
 	private static final int PANEL_ICON = 18;
@@ -58,6 +59,7 @@ public class PotionEffectsModule extends HudModule {
 		if (client.player == null || client.player.getStatusEffectInstances().isEmpty()) {
 			return preview ? Collections.singletonList(new Line("Velocidade II", "§71:30", 0xFF7CAFC6, 0)) : Collections.<Line>emptyList();
 		}
+
 		List<Line> lines = new ArrayList<Line>();
 		for (StatusEffectInstance instance : client.player.getStatusEffectInstances()) {
 			StatusEffect effect = StatusEffect.STATUS_EFFECTS[instance.getEffectId()];
@@ -75,6 +77,7 @@ public class PotionEffectsModule extends HudModule {
 			int icon = effect.hasIcon() ? effect.getIconLevel() : -1;
 			lines.add(new Line(I18n.translate(effect.getTranslationKey()) + level, time, readable(effect.getColor()), icon));
 		}
+
 		return lines;
 	}
 

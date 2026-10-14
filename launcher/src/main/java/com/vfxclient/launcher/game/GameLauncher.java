@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -274,6 +275,7 @@ public final class GameLauncher {
 				out.add(substitute(value.getAsString(), vars));
 			}
 		}
+
 		return out;
 	}
 
@@ -300,7 +302,7 @@ public final class GameLauncher {
 			return;
 		}
 		try (var walk = Files.walk(dir)) {
-			for (Path path : walk.sorted(java.util.Comparator.reverseOrder()).toList()) {
+			for (Path path : walk.sorted(Comparator.reverseOrder()).toList()) {
 				Files.deleteIfExists(path);
 			}
 		}

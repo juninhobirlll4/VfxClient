@@ -1,8 +1,8 @@
 package com.vfxclient.core.mixin.util;
 
-import com.vfxclient.core.VfxCore;
 import java.util.List;
 
+import com.vfxclient.core.VfxCore;
 import com.vfxclient.core.hud.ChatLines;
 import com.vfxclient.core.module.util.AutoGgModule;
 import com.vfxclient.core.module.util.ChatModule;
@@ -10,8 +10,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.client.gui.hud.ChatHudLine;
 import net.minecraft.client.util.Window;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.MathHelper;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -58,6 +58,7 @@ public abstract class ChatHudMixin implements ChatLines {
 		if (!isChatFocused()) {
 			return null;
 		}
+
 		MinecraftClient client = MinecraftClient.getInstance();
 		int factor = new Window(client).getScaleFactor();
 		float scale = getChatScale();
@@ -68,10 +69,12 @@ public abstract class ChatHudMixin implements ChatLines {
 		if (x < 0 || y < 0 || x > MathHelper.floor(getWidth() / scale) || y >= lineHeight * lines + lines) {
 			return null;
 		}
+
 		int index = y / lineHeight + scrolledLines;
 		if (index < 0 || index >= visibleMessages.size()) {
 			return null;
 		}
+
 		ChatHudLine line = visibleMessages.get(index);
 		Text text = line.getText();
 		// Mensagem quebrada em várias linhas: pega a mensagem inteira pelo id e pelo tick.
@@ -83,6 +86,7 @@ public abstract class ChatHudMixin implements ChatLines {
 				}
 			}
 		}
+
 		return text.asUnformattedString().replaceAll("\u00a7.", "").replaceFirst("^\\[\\d\\d:\\d\\d\\] ", "");
 	}
 
@@ -94,14 +98,17 @@ public abstract class ChatHudMixin implements ChatLines {
 		if (messageId != 0) {
 			return;
 		}
+
 		AutoGgModule autoGg = VfxCore.module(AutoGgModule.class);
 		if (autoGg != null) {
 			autoGg.onChat(message);
 		}
+
 		ChatModule module = VfxCore.module(ChatModule.class);
 		if (module == null || !module.isEnabled()) {
 			return;
 		}
+
 		ChatModule.Result result = module.process(message);
 		ci.cancel();
 		if (result != null) {

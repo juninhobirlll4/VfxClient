@@ -40,6 +40,7 @@ public final class ModInstaller {
 				}
 			}
 		}
+
 		try (InputStream in = ModInstaller.class.getResourceAsStream(RESOURCE)) {
 			if (in == null) {
 				throw new IOException("O launcher foi gerado sem o mod embutido (rode o build completo: gradlew build).");
@@ -48,6 +49,7 @@ public final class ModInstaller {
 			Files.copy(in, temp, StandardCopyOption.REPLACE_EXISTING);
 			Files.move(temp, target, StandardCopyOption.REPLACE_EXISTING);
 		}
+
 		return target;
 	}
 

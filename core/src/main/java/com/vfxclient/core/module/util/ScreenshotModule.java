@@ -6,7 +6,6 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
-
 import javax.imageio.ImageIO;
 
 import com.vfxclient.core.VfxCore;

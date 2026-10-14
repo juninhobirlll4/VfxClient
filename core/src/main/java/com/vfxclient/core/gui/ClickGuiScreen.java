@@ -9,7 +9,6 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.vfxclient.core.VfxCore;
 import com.vfxclient.core.module.Category;
 import com.vfxclient.core.module.HudModule;
-import com.vfxclient.core.module.util.CrosshairModule;
 import com.vfxclient.core.module.Module;
 import com.vfxclient.core.module.general.MenuModule;
 import com.vfxclient.core.module.performance.PerformanceProfileModule;
@@ -21,6 +20,7 @@ import com.vfxclient.core.module.setting.KeySetting;
 import com.vfxclient.core.module.setting.NumberSetting;
 import com.vfxclient.core.module.setting.Setting;
 import com.vfxclient.core.module.setting.TextSetting;
+import com.vfxclient.core.module.util.CrosshairModule;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
@@ -164,6 +164,7 @@ public class ClickGuiScreen extends Screen {
 		} else {
 			drawModules(listMouseX, mouseY);
 		}
+
 		if (picker != null) {
 			drawPicker(mouseX, mouseY);
 		}
@@ -259,6 +260,7 @@ public class ClickGuiScreen extends Screen {
 			drawCard(module, x, y, cardW, hovered, mouseX, mouseY);
 			GlStateManager.popMatrix();
 		}
+
 		Render2D.endScissor();
 
 		String title = search.isEmpty() ? category.getDisplayName() : "Busca";
@@ -273,6 +275,7 @@ public class ClickGuiScreen extends Screen {
 				subtitle += "  -  agora: " + MinecraftClient.getCurrentFps() + " FPS";
 			}
 		}
+
 		drawHeader(title, textRenderer.trimToWidth(subtitle, contentW));
 		drawSearchBox();
 		if (modules.isEmpty()) {
@@ -417,11 +420,13 @@ public class ClickGuiScreen extends Screen {
 			textCentered("(desligado)", x + w / 2, y + h / 2 - 4, Theme.TEXT_MUTED);
 			return;
 		}
+
 		int mw = module.getWidth(client, true);
 		int mh = module.getHeight(client, true);
 		if (mw <= 0 || mh <= 0) {
 			return;
 		}
+
 		float fit = Math.min(1F, Math.min((w - 10F) / mw, (h - 22F) / mh));
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x + w / 2F - mw * fit / 2F, y + 14 + (h - 14) / 2F - mh * fit / 2F, 0F);
@@ -465,71 +470,101 @@ public class ClickGuiScreen extends Screen {
 	private void drawRow(int y, int mouseX, int mouseY, Module module, Setting<?> setting) {
 		boolean hovered = inside(mouseX, mouseY, contentX, y, listW, ROW_H - 2);
 		Object key = setting == null ? module : setting;
+		float hoverAmount = hover("row:" + System.identityHashCode(key), hovered);
+		Render2D.roundedRect(contentX, y, listW, ROW_H - 2, 4, Theme.lerp(Theme.CARD, Theme.CARD_HOVER, hoverAmount));
+
 		String label = setting == null ? "Ativado" : setting.getName();
-		Render2D.roundedRect(contentX, y, listW, ROW_H - 2, 4, Theme.lerp(Theme.CARD, Theme.CARD_HOVER, hover("row:" + System.identityHashCode(key), hovered)));
+		text(textRenderer.trimToWidth(label, listW - controlWidth(setting) - 20), contentX + 7, y + 5, Theme.TEXT);
 
 		int right = contentX + listW - 6;
-		int controlW = controlWidth(setting);
-		text(textRenderer.trimToWidth(label, listW - controlW - 20), contentX + 7, y + 5, Theme.TEXT);
-
 		if (setting == null) {
 			drawSwitch(right - 20, y + 4, toggle(module, module.isEnabled()));
 		} else if (setting instanceof BooleanSetting) {
 			drawSwitch(right - 20, y + 4, toggle(setting, ((BooleanSetting) setting).get()));
 		} else if (setting instanceof NumberSetting) {
-			NumberSetting number = (NumberSetting) setting;
-			int sx = right - SLIDER_W;
-			if (number == draggingSlider) {
-				number.setFraction(Math.max(0, Math.min(1, (lastMouseX - sliderX) / (double) SLIDER_W)));
-			}
-			drawSlider(sx, y + 7, number);
-			if (number == editingNumber) {
-				int bw = 44;
-				Render2D.roundedRect(sx - bw - 6, y + 2, bw, 14, 3, Theme.PRIMARY);
-				Render2D.roundedRect(sx - bw - 5, y + 3, bw - 2, 12, 2, Theme.PANEL);
-				text(numberBuffer + caret(), sx - bw - 2, y + 5, Theme.TEXT);
-			} else {
-				String value = number.format();
-				boolean overValue = inside(mouseX, mouseY, sx - textRenderer.getStringWidth(value) - 8, y, textRenderer.getStringWidth(value) + 4, ROW_H);
-				text(value, sx - textRenderer.getStringWidth(value) - 6, y + 5, overValue ? Theme.PRIMARY_LIGHT : Theme.TEXT_MUTED);
-			}
+			drawNumberControl((NumberSetting) setting, right, y, mouseX, mouseY);
 		} else if (setting instanceof ChoiceSetting) {
-			ChoiceSetting choice = (ChoiceSetting) setting;
-			String value = "< " + choice.format() + " >";
-			int bw = Math.max(64, textRenderer.getStringWidth(value) + 12);
-			boolean over = inside(mouseX, mouseY, right - bw, y + 2, bw, 14);
-			Render2D.roundedRect(right - bw, y + 2, bw, 14, 4, Theme.lerp(Theme.TRACK_OFF, Theme.PRIMARY, hover("choice:" + System.identityHashCode(choice), over)));
-			textCentered(value, right - bw / 2, y + 5, Theme.WHITE);
+			drawChoiceControl((ChoiceSetting) setting, right, y, mouseX, mouseY);
 		} else if (setting instanceof ColorSetting) {
-			ColorSetting color = (ColorSetting) setting;
-			int sw = 22;
-			checker(right - sw, y + 3, sw, 12);
-			DrawableHelper.fill(right - sw, y + 3, right, y + 15, color.argb());
-			Render2D.outline(right - sw - 1, y + 2, sw + 2, 14, 0x55FFFFFF);
-			String hex = color.toHex();
-			text(hex, right - sw - 6 - textRenderer.getStringWidth(hex), y + 5, Theme.TEXT_MUTED);
+			drawColorControl((ColorSetting) setting, right, y);
 		} else if (setting instanceof ButtonSetting) {
-			ButtonSetting button = (ButtonSetting) setting;
-			int bw = Math.max(50, textRenderer.getStringWidth(button.getLabel()) + 14);
-			boolean over = inside(mouseX, mouseY, right - bw, y + 2, bw, 14);
-			Render2D.roundedRect(right - bw, y + 2, bw, 14, 4, Theme.lerp(Theme.PRIMARY, Theme.PRIMARY_LIGHT, hover("button:" + System.identityHashCode(button), over)));
-			textCentered(button.getLabel(), right - bw / 2, y + 5, Theme.WHITE);
+			drawButtonControl((ButtonSetting) setting, right, y, mouseX, mouseY);
 		} else if (setting instanceof KeySetting) {
-			KeySetting keySetting = (KeySetting) setting;
-			boolean capturing = keySetting == capturingKey;
-			String value = capturing ? "Aperte uma tecla..." : keySetting.format();
-			int bw = Math.max(50, textRenderer.getStringWidth(value) + 12);
-			Render2D.roundedRect(right - bw, y + 2, bw, 14, 4, capturing ? Theme.PRIMARY : Theme.TRACK_OFF);
-			textCentered(value, right - bw / 2, y + 5, Theme.WHITE);
+			drawKeyControl((KeySetting) setting, right, y);
 		} else if (setting instanceof TextSetting) {
-			TextSetting textSetting = (TextSetting) setting;
-			boolean editing = textSetting == editingText;
-			int bx = right - TEXT_BOX_W;
-			Render2D.roundedRect(bx, y + 2, TEXT_BOX_W, 14, 4, editing ? Theme.PRIMARY : Theme.TRACK_OFF);
-			Render2D.roundedRect(bx + 1, y + 3, TEXT_BOX_W - 2, 12, 3, Theme.PANEL);
-			String shown = textRenderer.trimToWidth(textSetting.get() + (editing ? caret() : ""), TEXT_BOX_W - 8, true);
-			text(shown, bx + 4, y + 5, Theme.TEXT);
+			drawTextControl((TextSetting) setting, right, y);
 		}
+	}
+
+	/** Slider com o valor ao lado (clicar no valor deixa digitar). */
+	private void drawNumberControl(NumberSetting number, int right, int y, int mouseX, int mouseY) {
+		int sx = right - SLIDER_W;
+		if (number == draggingSlider) {
+			number.setFraction(Math.max(0, Math.min(1, (lastMouseX - sliderX) / (double) SLIDER_W)));
+		}
+		drawSlider(sx, y + 7, number);
+
+		if (number == editingNumber) {
+			int bw = 44;
+			Render2D.roundedRect(sx - bw - 6, y + 2, bw, 14, 3, Theme.PRIMARY);
+			Render2D.roundedRect(sx - bw - 5, y + 3, bw - 2, 12, 2, Theme.PANEL);
+			text(numberBuffer + caret(), sx - bw - 2, y + 5, Theme.TEXT);
+			return;
+		}
+
+		String value = number.format();
+		int valueW = textRenderer.getStringWidth(value);
+		boolean overValue = inside(mouseX, mouseY, sx - valueW - 8, y, valueW + 4, ROW_H);
+		text(value, sx - valueW - 6, y + 5, overValue ? Theme.PRIMARY_LIGHT : Theme.TEXT_MUTED);
+	}
+
+	private void drawChoiceControl(ChoiceSetting choice, int right, int y, int mouseX, int mouseY) {
+		String value = "< " + choice.format() + " >";
+		int bw = Math.max(64, textRenderer.getStringWidth(value) + 12);
+		boolean over = inside(mouseX, mouseY, right - bw, y + 2, bw, 14);
+		float hoverAmount = hover("choice:" + System.identityHashCode(choice), over);
+
+		Render2D.roundedRect(right - bw, y + 2, bw, 14, 4, Theme.lerp(Theme.TRACK_OFF, Theme.PRIMARY, hoverAmount));
+		textCentered(value, right - bw / 2, y + 5, Theme.WHITE);
+	}
+
+	/** Amostra da cor com o código HEX ao lado (clicar abre o seletor). */
+	private void drawColorControl(ColorSetting color, int right, int y) {
+		int sw = 22;
+		checker(right - sw, y + 3, sw, 12);
+		DrawableHelper.fill(right - sw, y + 3, right, y + 15, color.argb());
+		Render2D.outline(right - sw - 1, y + 2, sw + 2, 14, 0x55FFFFFF);
+
+		String hex = color.toHex();
+		text(hex, right - sw - 6 - textRenderer.getStringWidth(hex), y + 5, Theme.TEXT_MUTED);
+	}
+
+	private void drawButtonControl(ButtonSetting button, int right, int y, int mouseX, int mouseY) {
+		int bw = Math.max(50, textRenderer.getStringWidth(button.getLabel()) + 14);
+		boolean over = inside(mouseX, mouseY, right - bw, y + 2, bw, 14);
+		float hoverAmount = hover("button:" + System.identityHashCode(button), over);
+
+		Render2D.roundedRect(right - bw, y + 2, bw, 14, 4, Theme.lerp(Theme.PRIMARY, Theme.PRIMARY_LIGHT, hoverAmount));
+		textCentered(button.getLabel(), right - bw / 2, y + 5, Theme.WHITE);
+	}
+
+	private void drawKeyControl(KeySetting keySetting, int right, int y) {
+		boolean capturing = keySetting == capturingKey;
+		String value = capturing ? "Aperte uma tecla..." : keySetting.format();
+		int bw = Math.max(50, textRenderer.getStringWidth(value) + 12);
+
+		Render2D.roundedRect(right - bw, y + 2, bw, 14, 4, capturing ? Theme.PRIMARY : Theme.TRACK_OFF);
+		textCentered(value, right - bw / 2, y + 5, Theme.WHITE);
+	}
+
+	private void drawTextControl(TextSetting textSetting, int right, int y) {
+		boolean editing = textSetting == editingText;
+		int bx = right - TEXT_BOX_W;
+		Render2D.roundedRect(bx, y + 2, TEXT_BOX_W, 14, 4, editing ? Theme.PRIMARY : Theme.TRACK_OFF);
+		Render2D.roundedRect(bx + 1, y + 3, TEXT_BOX_W - 2, 12, 3, Theme.PANEL);
+
+		String shown = textRenderer.trimToWidth(textSetting.get() + (editing ? caret() : ""), TEXT_BOX_W - 8, true);
+		text(shown, bx + 4, y + 5, Theme.TEXT);
 	}
 
 	private int controlWidth(Setting<?> setting) {
@@ -580,29 +615,39 @@ public class ClickGuiScreen extends Screen {
 		DrawableHelper.fill(px, py, px + panelW, py + panelH, 0x66000000);
 		Render2D.roundedRect(ox - 1, oy - 1, PICKER_W + 2, PICKER_H + 2, 7, Theme.withAlpha(Theme.PRIMARY_LIGHT, 0.5F));
 		Render2D.roundedRect(ox, oy, PICKER_W, PICKER_H, 6, Theme.SIDEBAR);
+
 		text(textRenderer.trimToWidth(picker.getName(), PICKER_W - 30), ox + 8, oy + 7, Theme.TEXT);
 		boolean overClose = inside(mouseX, mouseY, ox + PICKER_W - 16, oy + 4, 12, 12);
 		text("x", ox + PICKER_W - 12, oy + 6, overClose ? Theme.PRIMARY_LIGHT : Theme.TEXT_MUTED);
 
-		// Prévia: cor nova em cima, cor original embaixo.
-		int sx = ox + 8;
-		int sy = oy + 22;
-		checker(sx, sy, 40, 40);
-		DrawableHelper.fill(sx, sy, sx + 40, sy + 28, picker.argb());
-		DrawableHelper.fill(sx, sy + 28, sx + 40, sy + 40, pickerOriginal);
-		Render2D.outline(sx - 1, sy - 1, 42, 42, 0x55FFFFFF);
+		drawPickerPreview(ox + 8, oy + 22);
+		drawPickerChannels(ox, oy);
+		drawPickerHex(ox + 8, oy + 70);
+		drawPickerPalette(ox + 8, oy + 92, mouseX, mouseY);
+		drawPickerButtons(ox, oy, mouseX, mouseY);
+	}
 
-		// Sliders R, G, B e alfa.
+	/** Prévia: cor nova em cima, cor original embaixo. */
+	private void drawPickerPreview(int x, int y) {
+		checker(x, y, 40, 40);
+		DrawableHelper.fill(x, y, x + 40, y + 28, picker.argb());
+		DrawableHelper.fill(x, y + 28, x + 40, y + 40, pickerOriginal);
+		Render2D.outline(x - 1, y - 1, 42, 42, 0x55FFFFFF);
+	}
+
+	/** Sliders R, G, B e alfa. */
+	private void drawPickerChannels(int ox, int oy) {
 		int[] order = {1, 2, 3, 0};
+		int trackX = ox + 66;
+
 		for (int i = 0; i < order.length; i++) {
 			int channel = order[i];
 			int rowY = oy + 22 + i * 11;
-			int trackX = ox + 66;
 			if (channel == draggingChannel) {
 				int amount = Math.round((lastMouseX - trackX) * 255F / PICKER_SLIDER_W);
 				picker.setChannel(channel, amount);
 			}
-			text(CHANNEL_NAMES[channel], ox + 56, rowY, Theme.TEXT_MUTED);
+
 			int zero = withChannel(picker.argb() | 0xFF000000, channel, 0);
 			int full = withChannel(picker.argb() | 0xFF000000, channel, 255);
 			if (channel == 0) {
@@ -610,41 +655,45 @@ public class ClickGuiScreen extends Screen {
 				zero = picker.rgb();
 				full = 0xFF000000 | picker.rgb();
 			}
+
+			text(CHANNEL_NAMES[channel], ox + 56, rowY, Theme.TEXT_MUTED);
 			Render2D.gradientH(trackX, rowY + 1, PICKER_SLIDER_W, 6, zero, full);
 			float knob = trackX + picker.channel(channel) * PICKER_SLIDER_W / 255F;
 			DrawableHelper.fill((int) knob - 1, rowY - 1, (int) knob + 2, rowY + 9, Theme.WHITE);
-			text(String.valueOf(picker.channel(channel)), ox + 66 + PICKER_SLIDER_W + 6, rowY, Theme.TEXT);
+			text(String.valueOf(picker.channel(channel)), trackX + PICKER_SLIDER_W + 6, rowY, Theme.TEXT);
 		}
+	}
 
-		// Campo HEX.
-		int hx = ox + 8;
-		int hy = oy + 70;
-		text("HEX", hx, hy + 3, Theme.TEXT_MUTED);
-		Render2D.roundedRect(hx + 24, hy, 80, 14, 3, editingHex ? Theme.PRIMARY : Theme.TRACK_OFF);
-		Render2D.roundedRect(hx + 25, hy + 1, 78, 12, 2, Theme.PANEL);
-		text(editingHex ? hexBuffer + caret() : picker.toHex(), hx + 29, hy + 3, Theme.TEXT);
+	private void drawPickerHex(int x, int y) {
+		text("HEX", x, y + 3, Theme.TEXT_MUTED);
+		Render2D.roundedRect(x + 24, y, 80, 14, 3, editingHex ? Theme.PRIMARY : Theme.TRACK_OFF);
+		Render2D.roundedRect(x + 25, y + 1, 78, 12, 2, Theme.PANEL);
+		text(editingHex ? hexBuffer + caret() : picker.toHex(), x + 29, y + 3, Theme.TEXT);
+	}
 
-		// Paleta.
-		int palY = oy + 92;
-		text("Paleta", ox + 8, palY, Theme.TEXT_MUTED);
+	private void drawPickerPalette(int x, int y, int mouseX, int mouseY) {
+		text("Paleta", x, y, Theme.TEXT_MUTED);
 		for (int i = 0; i < ColorSetting.PALETTE.length; i++) {
-			int cx = ox + 8 + (i % 8) * 15;
-			int cy = palY + 11 + (i / 8) * 15;
+			int cx = x + (i % 8) * 15;
+			int cy = y + 11 + (i / 8) * 15;
 			boolean over = inside(mouseX, mouseY, cx, cy, 12, 12);
 			DrawableHelper.fill(cx, cy, cx + 12, cy + 12, ColorSetting.PALETTE[i]);
 			Render2D.outline(cx - 1, cy - 1, 14, 14, over ? Theme.WHITE : 0x33FFFFFF);
 		}
+	}
 
-		// Botões.
-		int bx = ox + PICKER_W - 58;
-		int by = oy + PICKER_H - 22;
-		boolean overOk = inside(mouseX, mouseY, bx, by, 50, 14);
-		Render2D.roundedRect(bx, by, 50, 14, 4, Theme.lerp(Theme.PRIMARY, Theme.PRIMARY_LIGHT, hover("picker-ok", overOk)));
-		textCentered("OK", bx + 25, by + 3, Theme.WHITE);
-		int cx = bx - 64;
-		boolean overCancel = inside(mouseX, mouseY, cx, by, 58, 14);
-		Render2D.roundedRect(cx, by, 58, 14, 4, Theme.lerp(Theme.TRACK_OFF, Theme.CARD_HOVER, hover("picker-cancel", overCancel)));
-		textCentered("Cancelar", cx + 29, by + 3, Theme.WHITE);
+	/** OK e Cancelar, no canto de baixo. */
+	private void drawPickerButtons(int ox, int oy, int mouseX, int mouseY) {
+		int okX = ox + PICKER_W - 58;
+		int y = oy + PICKER_H - 22;
+		boolean overOk = inside(mouseX, mouseY, okX, y, 50, 14);
+		Render2D.roundedRect(okX, y, 50, 14, 4, Theme.lerp(Theme.PRIMARY, Theme.PRIMARY_LIGHT, hover("picker-ok", overOk)));
+		textCentered("OK", okX + 25, y + 3, Theme.WHITE);
+
+		int cancelX = okX - 64;
+		boolean overCancel = inside(mouseX, mouseY, cancelX, y, 58, 14);
+		Render2D.roundedRect(cancelX, y, 58, 14, 4, Theme.lerp(Theme.TRACK_OFF, Theme.CARD_HOVER, hover("picker-cancel", overCancel)));
+		textCentered("Cancelar", cancelX + 29, y + 3, Theme.WHITE);
 	}
 
 	private boolean clickPicker(int mouseX, int mouseY, int button) {
@@ -654,17 +703,20 @@ public class ClickGuiScreen extends Screen {
 			closePicker();
 			return true;
 		}
+
 		applyHexIfEditing();
 		if (inside(mouseX, mouseY, ox + PICKER_W - 16, oy + 4, 12, 12)
 				|| inside(mouseX, mouseY, ox + PICKER_W - 58, oy + PICKER_H - 22, 50, 14)) {
 			closePicker();
 			return true;
 		}
+
 		if (inside(mouseX, mouseY, ox + PICKER_W - 122, oy + PICKER_H - 22, 58, 14)) {
 			picker.set(pickerOriginal);
 			closePicker();
 			return true;
 		}
+
 		int[] order = {1, 2, 3, 0};
 		for (int i = 0; i < order.length; i++) {
 			int rowY = oy + 22 + i * 11;
@@ -673,11 +725,13 @@ public class ClickGuiScreen extends Screen {
 				return true;
 			}
 		}
+
 		if (inside(mouseX, mouseY, ox + 32, oy + 70, 80, 14)) {
 			editingHex = true;
 			hexBuffer = picker.toHex();
 			return true;
 		}
+
 		for (int i = 0; i < ColorSetting.PALETTE.length; i++) {
 			int cx = ox + 8 + (i % 8) * 15;
 			int cy = oy + 103 + (i / 8) * 15;
@@ -687,6 +741,7 @@ public class ClickGuiScreen extends Screen {
 				return true;
 			}
 		}
+
 		return true;
 	}
 
@@ -746,13 +801,16 @@ public class ClickGuiScreen extends Screen {
 			stopEditing();
 			return;
 		}
+
 		if (picker != null) {
 			clickPicker(mouseX, mouseY, button);
 			return;
 		}
+
 		if (editingText != null || editingNumber != null) {
 			stopEditing();
 		}
+
 		if (!inside(mouseX, mouseY, px, py, panelW, panelH)) {
 			return;
 		}
@@ -769,6 +827,7 @@ public class ClickGuiScreen extends Screen {
 			}
 			y += 18;
 		}
+
 		if (button == 0 && inside(mouseX, mouseY, px + 6, py + panelH - 24, SIDEBAR_W - 12, 16)) {
 			client.setScreen(new HudEditorScreen(this));
 			return;
@@ -785,6 +844,7 @@ public class ClickGuiScreen extends Screen {
 		if (!inside(mouseX, mouseY, contentX, contentY, contentW, contentH)) {
 			return;
 		}
+
 		List<Module> modules = visibleModules();
 		int cols = Math.max(1, (contentW + GAP) / (CARD_MIN_W + GAP));
 		int cardW = (contentW - GAP * (cols - 1)) / cols;
@@ -813,15 +873,18 @@ public class ClickGuiScreen extends Screen {
 			closeSettings();
 			return;
 		}
+
 		int bw = 96;
 		if (button == 0 && inside(mouseX, mouseY, contentX + contentW - bw, contentY + contentH - 16, bw, 16)) {
 			settingsModule.resetToDefaults();
 			changed(settingsModule, null);
 			return;
 		}
+
 		if (!inside(mouseX, mouseY, contentX, contentY, listW, settingsListHeight())) {
 			return;
 		}
+
 		int y = contentY - Math.round(settingsScrollAnim.get());
 		for (Setting<?> setting : settingRows(settingsModule)) {
 			if (inside(mouseX, mouseY, contentX, y, listW, ROW_H - 2)) {
@@ -839,6 +902,7 @@ public class ClickGuiScreen extends Screen {
 			changed(settingsModule, setting);
 			return;
 		}
+
 		if (setting instanceof NumberSetting) {
 			NumberSetting number = (NumberSetting) setting;
 			int sx = right - SLIDER_W;
@@ -852,9 +916,11 @@ public class ClickGuiScreen extends Screen {
 			}
 			return;
 		}
+
 		if (button != 0) {
 			return;
 		}
+
 		if (setting == null) {
 			settingsModule.toggle();
 			changed(settingsModule, null);
@@ -950,61 +1016,89 @@ public class ClickGuiScreen extends Screen {
 	@Override
 	protected void keyPressed(char character, int keyCode) {
 		if (capturingKey != null) {
-			if (keyCode == Keyboard.KEY_BACK || keyCode == Keyboard.KEY_DELETE) {
-				capturingKey.set(KeySetting.NONE);
-			} else if (keyCode != Keyboard.KEY_ESCAPE && keyCode != Keyboard.KEY_NONE) {
-				capturingKey.set(keyCode);
-			}
-			stopEditing();
-			return;
-		}
-		if (picker != null) {
+			keyCapture(keyCode);
+		} else if (picker != null) {
 			keyPicker(character, keyCode);
-			return;
+		} else if (editingNumber != null) {
+			keyNumber(character, keyCode);
+		} else if (editingText != null) {
+			keyText(character, keyCode);
+		} else if (settingsModule != null || !keySearch(character, keyCode)) {
+			keyClose(keyCode);
 		}
-		if (editingNumber != null) {
-			if (keyCode == Keyboard.KEY_ESCAPE) {
-				editingNumber = null;
-			} else if (keyCode == Keyboard.KEY_RETURN || keyCode == Keyboard.KEY_NUMPADENTER) {
-				stopEditing();
-			} else if (keyCode == Keyboard.KEY_BACK) {
-				numberBuffer = numberBuffer.isEmpty() ? "" : numberBuffer.substring(0, numberBuffer.length() - 1);
-			} else if ((Character.isDigit(character) || character == '.' || character == ',' || character == '-') && numberBuffer.length() < 10) {
-				numberBuffer += character;
-			}
-			return;
+	}
+
+	/** Tecla escolhida para uma opção de atalho (Backspace/Delete limpa). */
+	private void keyCapture(int keyCode) {
+		if (keyCode == Keyboard.KEY_BACK || keyCode == Keyboard.KEY_DELETE) {
+			capturingKey.set(KeySetting.NONE);
+		} else if (keyCode != Keyboard.KEY_ESCAPE && keyCode != Keyboard.KEY_NONE) {
+			capturingKey.set(keyCode);
 		}
-		if (editingText != null) {
-			if (keyCode == Keyboard.KEY_ESCAPE || keyCode == Keyboard.KEY_RETURN || keyCode == Keyboard.KEY_NUMPADENTER) {
-				stopEditing();
-			} else if (keyCode == Keyboard.KEY_BACK) {
-				String value = editingText.get();
-				if (!value.isEmpty()) {
-					editingText.set(value.substring(0, value.length() - 1));
-				}
-			} else if (character >= 32 && character != 127 && character != '§') {
-				editingText.set(editingText.get() + character);
-			}
-			return;
+		stopEditing();
+	}
+
+	/** Digitando o valor de um slider. */
+	private void keyNumber(char character, int keyCode) {
+		boolean numeric = Character.isDigit(character) || character == '.' || character == ',' || character == '-';
+
+		if (keyCode == Keyboard.KEY_ESCAPE) {
+			editingNumber = null;
+		} else if (keyCode == Keyboard.KEY_RETURN || keyCode == Keyboard.KEY_NUMPADENTER) {
+			stopEditing();
+		} else if (keyCode == Keyboard.KEY_BACK) {
+			numberBuffer = numberBuffer.isEmpty() ? "" : numberBuffer.substring(0, numberBuffer.length() - 1);
+		} else if (numeric && numberBuffer.length() < 10) {
+			numberBuffer += character;
 		}
-		if (settingsModule == null) {
-			if (keyCode == Keyboard.KEY_BACK && !search.isEmpty()) {
-				search = search.substring(0, search.length() - 1);
-				scrollTarget = 0;
-				listChangedAt = System.currentTimeMillis();
-				return;
+	}
+
+	/** Digitando numa caixa de texto. */
+	private void keyText(char character, int keyCode) {
+		if (keyCode == Keyboard.KEY_ESCAPE || keyCode == Keyboard.KEY_RETURN || keyCode == Keyboard.KEY_NUMPADENTER) {
+			stopEditing();
+		} else if (keyCode == Keyboard.KEY_BACK) {
+			String value = editingText.get();
+			if (!value.isEmpty()) {
+				editingText.set(value.substring(0, value.length() - 1));
 			}
-			if (keyCode == Keyboard.KEY_ESCAPE && !search.isEmpty()) {
-				search = "";
-				return;
-			}
-			if ((Character.isLetterOrDigit(character) || (character == ' ' && !search.isEmpty())) && search.length() < 24) {
-				search += character;
-				scrollTarget = 0;
-				listChangedAt = System.currentTimeMillis();
-				return;
-			}
+		} else if (character >= 32 && character != 127 && character != '§') {
+			editingText.set(editingText.get() + character);
 		}
+	}
+
+	/**
+	 * Busca na lista de módulos: digitar já filtra.
+	 *
+	 * @return {@code true} se a tecla foi usada pela busca
+	 */
+	private boolean keySearch(char character, int keyCode) {
+		if (keyCode == Keyboard.KEY_BACK && !search.isEmpty()) {
+			search = search.substring(0, search.length() - 1);
+			searchChanged();
+			return true;
+		}
+		if (keyCode == Keyboard.KEY_ESCAPE && !search.isEmpty()) {
+			search = "";
+			return true;
+		}
+
+		boolean typable = Character.isLetterOrDigit(character) || (character == ' ' && !search.isEmpty());
+		if (typable && search.length() < 24) {
+			search += character;
+			searchChanged();
+			return true;
+		}
+		return false;
+	}
+
+	private void searchChanged() {
+		scrollTarget = 0;
+		listChangedAt = System.currentTimeMillis();
+	}
+
+	/** ESC volta das opções para a lista (ou fecha); a tecla do menu fecha. */
+	private void keyClose(int keyCode) {
 		if (keyCode == Keyboard.KEY_ESCAPE) {
 			if (settingsModule != null) {
 				closeSettings();
@@ -1023,6 +1117,7 @@ public class ClickGuiScreen extends Screen {
 			}
 			return;
 		}
+
 		if (keyCode == Keyboard.KEY_ESCAPE) {
 			editingHex = false;
 		} else if (keyCode == Keyboard.KEY_RETURN || keyCode == Keyboard.KEY_NUMPADENTER) {

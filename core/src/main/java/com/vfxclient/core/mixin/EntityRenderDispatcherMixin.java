@@ -4,17 +4,17 @@ import com.vfxclient.core.VfxCore;
 import com.vfxclient.core.module.performance.EntityCullingModule;
 import com.vfxclient.core.module.performance.EntityDistanceModule;
 import com.vfxclient.core.module.visual.HitboxModule;
-import net.minecraft.client.render.WorldRenderer;
-import net.minecraft.util.math.Box;
-import org.lwjgl.opengl.GL11;
-import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.client.render.CameraView;
+import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.math.Box;
+import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /** Pula o desenho de entidades além da distância configurada; hitbox com cor e espessura. */

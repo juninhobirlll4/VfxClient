@@ -4,7 +4,6 @@ import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.imageio.ImageIO;
 
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -70,6 +69,7 @@ public final class Logo {
 		if (CACHE.containsKey(resource)) {
 			return CACHE.get(resource);
 		}
+
 		Loaded loaded = null;
 		try (InputStream in = Logo.class.getResourceAsStream(resource)) {
 			if (in == null) {
@@ -82,6 +82,7 @@ public final class Logo {
 		} catch (Exception e) {
 			VfxCore.LOGGER.warn("Não foi possível carregar {}", resource, e);
 		}
+
 		CACHE.put(resource, loaded);
 		return loaded;
 	}

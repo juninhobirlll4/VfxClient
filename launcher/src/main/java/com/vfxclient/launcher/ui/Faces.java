@@ -19,6 +19,7 @@ public final class Faces {
 		if (skin == null || skin.isError() || skin.getWidth() < 64) {
 			return null;
 		}
+
 		WritableImage out = new WritableImage(8 * scale, 8 * scale);
 		PixelReader px = skin.getPixelReader();
 		for (int x = 0; x < 8; x++) {
@@ -35,6 +36,7 @@ public final class Faces {
 				}
 			}
 		}
+
 		return out;
 	}
 }

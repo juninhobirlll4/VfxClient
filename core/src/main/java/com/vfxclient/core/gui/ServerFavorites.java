@@ -50,6 +50,7 @@ public final class ServerFavorites {
 				VfxCore.LOGGER.warn("Não deu para ler os favoritos: {}", e.toString());
 			}
 		}
+
 		return addresses;
 	}
 

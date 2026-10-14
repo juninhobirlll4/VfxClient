@@ -1,5 +1,9 @@
 package com.vfxclient.launcher;
 
+import java.util.Arrays;
+
+import com.vfxclient.launcher.cli.Cli;
+
 /**
  * Ponto de entrada do executável.
  *
@@ -19,7 +23,7 @@ public final class Main {
 	 */
 	public static void main(String[] args) {
 		if (args.length > 0 && args[0].equals("--cli")) {
-			System.exit(com.vfxclient.launcher.cli.Cli.run(java.util.Arrays.copyOfRange(args, 1, args.length)));
+			System.exit(Cli.run(Arrays.copyOfRange(args, 1, args.length)));
 			return;
 		}
 		VfxLauncherApp.launchApp(args);

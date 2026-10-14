@@ -40,6 +40,7 @@ public final class VfxCommands {
 		if (!lower.equals("/vfx") && !lower.startsWith("/vfx ")) {
 			return false;
 		}
+
 		String arg = trimmed.length() > 4 ? trimmed.substring(4).trim().toLowerCase(Locale.ROOT) : "";
 		VfxCore core = VfxCore.get();
 		if (core == null) {
@@ -69,6 +70,7 @@ public final class VfxCommands {
 			say("§d/vfx hud§f - edita a posição da HUD");
 			say("§d/vfx reset§f - volta tudo ao padrão");
 		}
+
 		return true;
 	}
 

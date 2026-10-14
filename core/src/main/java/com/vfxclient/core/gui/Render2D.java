@@ -1,9 +1,12 @@
 package com.vfxclient.core.gui;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.util.Window;
 import org.lwjgl.opengl.GL11;
 
 /**
@@ -80,6 +83,7 @@ public final class Render2D {
 		if (cull) {
 			GL11.glDisable(GL11.GL_CULL_FACE);
 		}
+
 		BufferBuilder buffer = Tessellator.getInstance().getBuffer();
 		buffer.begin(GL11.GL_QUAD_STRIP, VertexFormats.POSITION);
 		// Quatro cantos em sequência; o primeiro ponto se repete no fim para fechar a borda.
@@ -98,10 +102,12 @@ public final class Render2D {
 				buffer.vertex(corner[0] + cos * inner, corner[1] + sin * inner, 0D).next();
 			}
 		}
+
 		Tessellator.getInstance().draw();
 		if (cull) {
 			GL11.glEnable(GL11.GL_CULL_FACE);
 		}
+
 		end();
 	}
 
@@ -175,6 +181,7 @@ public final class Render2D {
 		if (cull) {
 			GL11.glDisable(GL11.GL_CULL_FACE);
 		}
+
 		BufferBuilder buffer = Tessellator.getInstance().getBuffer();
 		buffer.begin(GL11.GL_QUAD_STRIP, VertexFormats.POSITION);
 		for (int i = 0; i <= segments; i++) {
@@ -184,10 +191,12 @@ public final class Render2D {
 			buffer.vertex(cx + cos * radius, cy + sin * radius, 0D).next();
 			buffer.vertex(cx + cos * inner, cy + sin * inner, 0D).next();
 		}
+
 		Tessellator.getInstance().draw();
 		if (cull) {
 			GL11.glEnable(GL11.GL_CULL_FACE);
 		}
+
 		end();
 	}
 
@@ -277,10 +286,10 @@ public final class Render2D {
 	 * @param color cor ARGB
 	 */
 	public static void outline(int x, int y, int w, int h, int color) {
-		net.minecraft.client.gui.DrawableHelper.fill(x, y, x + w, y + 1, color);
-		net.minecraft.client.gui.DrawableHelper.fill(x, y + h - 1, x + w, y + h, color);
-		net.minecraft.client.gui.DrawableHelper.fill(x, y + 1, x + 1, y + h - 1, color);
-		net.minecraft.client.gui.DrawableHelper.fill(x + w - 1, y + 1, x + w, y + h - 1, color);
+		DrawableHelper.fill(x, y, x + w, y + 1, color);
+		DrawableHelper.fill(x, y + h - 1, x + w, y + h, color);
+		DrawableHelper.fill(x, y + 1, x + 1, y + h - 1, color);
+		DrawableHelper.fill(x + w - 1, y + 1, x + w, y + h - 1, color);
 	}
 
 	/**
@@ -292,8 +301,8 @@ public final class Render2D {
 	 * @param h altura
 	 */
 	public static void scissor(int x, int y, int w, int h) {
-		net.minecraft.client.MinecraftClient client = net.minecraft.client.MinecraftClient.getInstance();
-		int factor = new net.minecraft.client.util.Window(client).getScaleFactor();
+		MinecraftClient client = MinecraftClient.getInstance();
+		int factor = new Window(client).getScaleFactor();
 		GL11.glEnable(GL11.GL_SCISSOR_TEST);
 		GL11.glScissor(x * factor, client.height - (y + h) * factor, Math.max(0, w * factor), Math.max(0, h * factor));
 	}

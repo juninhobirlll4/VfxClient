@@ -1,6 +1,8 @@
 package com.vfxclient.launcher.game;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -67,6 +69,7 @@ public final class OptiFine {
 		if (current != null) {
 			return current;
 		}
+
 		String home = System.getProperty("user.home");
 		String appData = System.getenv("APPDATA");
 		List<Path> places = new ArrayList<>();
@@ -75,6 +78,7 @@ public final class OptiFine {
 		if (installed != null) {
 			places.add(installed.resolve("optifine"));
 		}
+
 		places.add(Path.of(home, "Desktop"));
 		places.add(Path.of(home, "OneDrive", "Desktop"));
 		places.add(Path.of(home, "OneDrive", "Área de Trabalho"));
@@ -83,6 +87,7 @@ public final class OptiFine {
 			places.add(Path.of(appData, ".minecraft", "mods"));
 			places.add(Path.of(appData, ".minecraft", "libraries", "optifine", "OptiFine"));
 		}
+
 		for (Path place : places) {
 			Path found = findIn(place, 2);
 			if (found != null) {
@@ -93,6 +98,7 @@ public final class OptiFine {
 				}
 			}
 		}
+
 		return null;
 	}
 
@@ -118,7 +124,7 @@ public final class OptiFine {
 				String n = p.getFileName().toString();
 				return n.matches("(?i)OptiFine[_-]1\\.8\\.9.*\\.jar") && Files.isRegularFile(p);
 			}).findFirst().orElse(null);
-		} catch (IOException | java.io.UncheckedIOException e) {
+		} catch (IOException | UncheckedIOException e) {
 			return null;
 		}
 	}
@@ -135,17 +141,20 @@ public final class OptiFine {
 		if (!name.toLowerCase().endsWith(".jar") || !name.contains("1.8.9")) {
 			throw new IOException("Escolha o arquivo do OptiFine para 1.8.9 (ex.: OptiFine_1.8.9_HD_U_M5.jar).");
 		}
+
 		try (ZipFile zip = new ZipFile(jar.toFile())) {
 			if (zip.getEntry(TWEAKER_CLASS) == null) {
 				throw new IOException("Esse arquivo não parece ser o OptiFine (falta optifine/OptiFineTweaker).");
 			}
 		}
+
 		Files.createDirectories(storage());
 		try (DirectoryStream<Path> old = Files.newDirectoryStream(storage(), "*.jar")) {
 			for (Path file : old) {
 				Files.deleteIfExists(file);
 			}
 		}
+
 		Path target = storage().resolve(name);
 		Files.copy(jar, target, StandardCopyOption.REPLACE_EXISTING);
 		return target;
@@ -200,6 +209,7 @@ public final class OptiFine {
 		try (ZipFile zip = new ZipFile(optifine.toFile())) {
 			hasPatcher = zip.getEntry(PATCHER_CLASS) != null;
 		}
+
 		if (hasPatcher) {
 			Path out = library.resolveSibling(library.getFileName() + ".tmp");
 			Path javaExe = java.resolveSibling(java.getFileName().toString().replace("javaw", "java"));
@@ -224,6 +234,7 @@ public final class OptiFine {
 				Files.deleteIfExists(out);
 			}
 		}
+
 		Files.copy(optifine, library, StandardCopyOption.REPLACE_EXISTING);
 	}
 
@@ -279,21 +290,25 @@ public final class OptiFine {
 				}
 			}
 		}
+
 		if (jar == null) {
 			return false;
 		}
+
 		Path target = mods.resolve(jar.getFileName());
 		if (!Files.exists(target) || Files.size(target) != Files.size(jar)) {
 			Files.copy(jar, target, StandardCopyOption.REPLACE_EXISTING);
 		}
+
 		if (!Files.exists(optifabric)) {
-			try (java.io.InputStream in = OptiFine.class.getResourceAsStream(OPTIFABRIC)) {
+			try (InputStream in = OptiFine.class.getResourceAsStream(OPTIFABRIC)) {
 				if (in == null) {
 					throw new IOException("O launcher foi gerado sem o Legacy OptiFabric embutido.");
 				}
 				Files.copy(in, optifabric, StandardCopyOption.REPLACE_EXISTING);
 			}
 		}
+
 		return true;
 	}
 

@@ -47,6 +47,7 @@ public final class PostEffect {
 		if (failed || !supported(client)) {
 			return;
 		}
+
 		if (effect == null) {
 			try {
 				effect = new ShaderEffect(client.getTextureManager(), client.getResourceManager(), client.getFramebuffer(), id);
@@ -57,11 +58,13 @@ public final class PostEffect {
 			}
 			width = -1;
 		}
+
 		if (width != client.width || height != client.height) {
 			width = client.width;
 			height = client.height;
 			effect.setupDimensions(width, height);
 		}
+
 		List<PostProcessShader> passes = ((ShaderEffectAccessor) effect).vfx$getPasses();
 		for (PostProcessShader pass : passes) {
 			GlUniform u = pass.getProgram().getUniformByName(uniform);
@@ -69,6 +72,7 @@ public final class PostEffect {
 				u.set(values);
 			}
 		}
+
 		GlStateManager.matrixMode(5890);
 		GlStateManager.pushMatrix();
 		GlStateManager.loadIdentity();

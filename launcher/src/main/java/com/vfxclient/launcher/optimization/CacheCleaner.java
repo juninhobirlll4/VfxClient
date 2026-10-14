@@ -48,6 +48,7 @@ public final class CacheCleaner {
 				// Sem permissão: pula.
 			}
 		}
+
 		if (Files.isDirectory(LauncherPaths.instances())) {
 			try (DirectoryStream<Path> instances = Files.newDirectoryStream(LauncherPaths.instances())) {
 				for (Path instance : instances) {
@@ -58,6 +59,7 @@ public final class CacheCleaner {
 				// Sem permissão: pula.
 			}
 		}
+
 		return new Result((int) totals[0], totals[1]);
 	}
 
@@ -66,6 +68,7 @@ public final class CacheCleaner {
 		if (!Files.isDirectory(dir)) {
 			return;
 		}
+
 		Instant limit = Instant.now().minus(minAge);
 		try (Stream<Path> walk = Files.walk(dir)) {
 			List<Path> paths = walk.sorted(Comparator.reverseOrder()).toList();

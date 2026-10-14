@@ -118,6 +118,7 @@ public final class LibraryInstaller {
 			downloads.add(new Downloader.Task(repo + path, file, sha1, size));
 			classpath.add(file);
 		}
+
 		return new Plan(downloads, classpath, natives);
 	}
 

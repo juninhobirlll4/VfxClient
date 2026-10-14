@@ -88,6 +88,7 @@ public class VanillaOptionsModule extends Module {
 		} else if (setting == viewBobbing) {
 			o.bobView = viewBobbing.get();
 		}
+
 		o.save();
 		if (reloadWorld && client.world != null && client.worldRenderer != null) {
 			client.worldRenderer.reload();

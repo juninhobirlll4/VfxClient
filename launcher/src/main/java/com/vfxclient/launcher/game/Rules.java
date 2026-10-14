@@ -59,14 +59,17 @@ public final class Rules {
 			// Recursos opcionais (demo, resolução customizada...) ficam desligados.
 			return false;
 		}
+
 		JsonObject os = Json.object(rule, "os");
 		if (os == null) {
 			return true;
 		}
+
 		String name = Json.string(os, "name");
 		if (name != null && !name.equals(osName())) {
 			return false;
 		}
+
 		String arch = Json.string(os, "arch");
 		if (arch != null) {
 			boolean x86 = !System.getProperty("os.arch").contains("64");
@@ -74,6 +77,7 @@ public final class Rules {
 				return false;
 			}
 		}
+
 		return true;
 	}
 }

@@ -10,7 +10,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 import javax.imageio.ImageIO;
 
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -449,10 +448,12 @@ public class VfxServerScreen extends MultiplayerScreen {
 		if (data == null) {
 			return null;
 		}
+
 		String key = server.address + "#" + data.hashCode();
 		if (icons.containsKey(key)) {
 			return icons.get(key);
 		}
+
 		Identifier id = null;
 		try {
 			BufferedImage image = ImageIO.read(new ByteArrayInputStream(Base64.getMimeDecoder().decode(data)));
@@ -462,6 +463,7 @@ public class VfxServerScreen extends MultiplayerScreen {
 		} catch (Exception ignored) {
 			// Ícone inválido: fica com as iniciais.
 		}
+
 		icons.put(key, id);
 		return id;
 	}
@@ -491,6 +493,7 @@ public class VfxServerScreen extends MultiplayerScreen {
 			ServerFavorites.toggle(server.address);
 			return;
 		}
+
 		if (action >= ROW) {
 			int index = action - ROW;
 			select(index);

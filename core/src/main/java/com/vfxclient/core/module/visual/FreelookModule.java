@@ -50,10 +50,12 @@ public class FreelookModule extends Module {
 				want = !active;
 			}
 		}
+
 		wasDown = down;
 		if (client.player == null) {
 			want = false;
 		}
+
 		if (want && !active) {
 			start(client);
 		} else if (!want && active) {

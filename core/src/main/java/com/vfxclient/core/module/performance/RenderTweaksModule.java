@@ -42,18 +42,23 @@ public class RenderTweaksModule extends Module {
 		if (!isEnabled() || spriteName == null) {
 			return true;
 		}
+
 		if (spriteName.contains("water")) {
 			return animWater.get();
 		}
+
 		if (spriteName.contains("lava")) {
 			return animLava.get();
 		}
+
 		if (spriteName.contains("fire")) {
 			return animFire.get();
 		}
+
 		if (spriteName.contains("portal")) {
 			return animPortal.get();
 		}
+
 		return true;
 	}
 

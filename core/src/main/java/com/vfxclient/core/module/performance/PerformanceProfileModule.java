@@ -124,20 +124,24 @@ public class PerformanceProfileModule extends Module {
 			cooldown--;
 			return;
 		}
+
 		if (!autoOptimize.get() || preset.get() == CUSTOM || preset.get() == LOW || client.currentScreen != null) {
 			samples = 0;
 			sampleSum = 0;
 			return;
 		}
+
 		if (++sampleTicks < 20) {
 			return;
 		}
+
 		sampleTicks = 0;
 		sampleSum += MinecraftClient.getCurrentFps();
 		samples++;
 		if (samples < SAMPLE_WINDOW) {
 			return;
 		}
+
 		double average = sampleSum / (double) samples;
 		samples = 0;
 		sampleSum = 0;
@@ -216,16 +220,19 @@ public class PerformanceProfileModule extends Module {
 			options.vsync = false;
 			options.maxFramerate = 260;
 		}
+
 		if (touchRenderDistance.get()) {
 			int max = low ? 6 : level == BALANCED ? 10 : 16;
 			options.viewDistance = Math.min(options.viewDistance, max);
 		}
+
 		Display.setVSyncEnabled(options.vsync);
 		// Mipmap 0 recarrega as texturas (alguns segundos), por isso só muda quando precisa.
 		int mipmap = low ? 0 : level == BALANCED ? 2 : 4;
 		if (options.mipmapLevels != mipmap) {
 			options.setValue(GameOptions.Option.MIPMAP_LEVELS, mipmap);
 		}
+
 		options.save();
 		if (client.worldRenderer != null && client.world != null) {
 			client.worldRenderer.reload();

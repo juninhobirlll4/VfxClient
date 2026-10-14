@@ -4,7 +4,6 @@ import java.awt.image.BufferedImage;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
-
 import javax.imageio.ImageIO;
 
 import com.vfxclient.core.VfxCore;
@@ -64,6 +63,7 @@ public class LocalSkinModule extends Module {
 		if (now - lastCheck < 2000L && texture != null) {
 			return;
 		}
+
 		lastCheck = now;
 		Path file = skinFile();
 		try {

@@ -60,27 +60,35 @@ public class ParticleLimitModule extends Module {
 		if (p instanceof LargeExplosionParticle || p instanceof ExplosionSmokeParticle || p instanceof ExplosionEmitterParticle) {
 			return explosions.get();
 		}
+
 		if (p instanceof DamageParticle) {
 			return crits.get();
 		}
+
 		if (p instanceof SpellParticle) {
 			return potions.get();
 		}
+
 		if (p instanceof FireSmokeParticle || p instanceof LargeFireSmokeParticle || p instanceof CloudParticle) {
 			return smoke.get();
 		}
+
 		if (p instanceof BlockDustParticle || p instanceof BlockParticle) {
 			return blocks.get();
 		}
+
 		if (p instanceof RainSplashParticle || p instanceof WaterSplashParticle) {
 			return water.get();
 		}
+
 		if (p instanceof PortalParticle || p instanceof EnchantGlyphParticle) {
 			return magic.get();
 		}
+
 		if (p instanceof FootstepParticle) {
 			return footsteps.get();
 		}
+
 		return true;
 	}
 }

@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.vfxclient.core.VfxCore;
 import com.vfxclient.core.gui.font.Fonts;
 import com.vfxclient.core.mixin.TitleScreenAccessor;
-import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.gui.screen.ResourcePackScreen;
 import net.minecraft.client.gui.screen.SettingsScreen;
 import net.minecraft.client.gui.screen.TitleScreen;

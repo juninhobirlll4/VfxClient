@@ -55,11 +55,13 @@ public class ChatModule extends Module {
 		if (isBlocked(message)) {
 			return null;
 		}
+
 		long now = System.currentTimeMillis();
 		if (antiSpam.get() && raw.equals(lastRaw) && now - lastRawAt < 3000L) {
 			lastRawAt = now;
 			return null;
 		}
+
 		lastRawAt = now;
 		int id;
 		if (stack.get() && raw.equals(lastRaw)) {
@@ -80,6 +82,7 @@ public class ChatModule extends Module {
 		if (repeat > 1) {
 			result.append(new LiteralText(" §7(x" + repeat + ")"));
 		}
+
 		return new Result(result, id);
 	}
 

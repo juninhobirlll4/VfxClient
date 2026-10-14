@@ -62,6 +62,7 @@ public class ToggleNotificationModule extends HudModule {
 		if (alpha <= 0.02F) {
 			return;
 		}
+
 		int w = contentWidth(client, preview);
 		int color = on ? Theme.MODULE_ON : Theme.MODULE_OFF;
 		Render2D.outlinedRect(0, 0, w, 34, 4, Theme.withAlpha(color, alpha), Theme.withAlpha(0xD0101014, alpha));

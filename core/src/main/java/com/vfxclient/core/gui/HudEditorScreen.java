@@ -66,9 +66,11 @@ public class HudEditorScreen extends Screen {
 		if (hovered == null) {
 			hovered = findHandleAt(mouseX, mouseY);
 		}
+
 		if (hovered == null) {
 			hovered = findCloseAt(mouseX, mouseY);
 		}
+
 		for (HudModule module : enabledModules()) {
 			int w = module.getWidth(client, true);
 			int h = module.getHeight(client, true);
@@ -105,6 +107,7 @@ public class HudEditorScreen extends Screen {
 			close.setEnabled(false);
 			return;
 		}
+
 		HudModule handle = button == 0 ? findHandleAt(mouseX, mouseY) : null;
 		if (handle != null) {
 			resizing = handle;
@@ -115,10 +118,12 @@ public class HudEditorScreen extends Screen {
 			resizeStartScale = handle.getScale();
 			return;
 		}
+
 		HudModule module = findAt(mouseX, mouseY);
 		if (module == null) {
 			return;
 		}
+
 		if (button == 0) {
 			dragging = module;
 			offsetX = mouseX - module.screenX(width, module.getWidth(client, true));

@@ -45,6 +45,7 @@ public final class VersionManifest {
 		if (cached != null) {
 			return cached;
 		}
+
 		Path local = LauncherPaths.launcher().resolve("version_manifest_v2.json");
 		JsonObject root;
 		try {
@@ -56,11 +57,13 @@ public final class VersionManifest {
 			}
 			root = Json.readObject(local);
 		}
+
 		List<Entry> entries = new ArrayList<>();
 		for (JsonElement element : root.getAsJsonArray("versions")) {
 			JsonObject v = element.getAsJsonObject();
 			entries.add(new Entry(Json.string(v, "id"), Json.string(v, "type"), Json.string(v, "url"), Json.string(v, "sha1")));
 		}
+
 		cached = entries;
 		return entries;
 	}

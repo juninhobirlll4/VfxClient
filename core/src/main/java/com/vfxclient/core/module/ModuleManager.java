@@ -8,20 +8,13 @@ import java.util.Map;
 
 import com.vfxclient.core.module.general.ConfigProfilesModule;
 import com.vfxclient.core.module.general.HudLayoutModule;
-import com.vfxclient.core.module.general.ToggleNotificationModule;
-import com.vfxclient.core.module.hud.BlockCounterModule;
-import com.vfxclient.core.module.util.HotbarModule;
-import com.vfxclient.core.module.util.ScrollTooltipsModule;
-import com.vfxclient.core.module.visual.BlurModule;
-import com.vfxclient.core.module.visual.FovModule;
-import com.vfxclient.core.module.visual.HitboxModule;
-import com.vfxclient.core.module.visual.ParticleColorModule;
-import com.vfxclient.core.module.visual.ViewModelModule;
 import com.vfxclient.core.module.general.HudStyleModule;
 import com.vfxclient.core.module.general.LocalSkinModule;
 import com.vfxclient.core.module.general.MenuModule;
 import com.vfxclient.core.module.general.TitleScreenModule;
+import com.vfxclient.core.module.general.ToggleNotificationModule;
 import com.vfxclient.core.module.hud.ArmorModule;
+import com.vfxclient.core.module.hud.BlockCounterModule;
 import com.vfxclient.core.module.hud.ClockModule;
 import com.vfxclient.core.module.hud.CoordinatesModule;
 import com.vfxclient.core.module.hud.CpsModule;
@@ -35,11 +28,11 @@ import com.vfxclient.core.module.hud.ServerIpModule;
 import com.vfxclient.core.module.performance.BlockEntityDistanceModule;
 import com.vfxclient.core.module.performance.EntityCullingModule;
 import com.vfxclient.core.module.performance.EntityDistanceModule;
-import com.vfxclient.core.module.performance.PerformanceProfileModule;
-import com.vfxclient.core.module.performance.RenderTweaksModule;
 import com.vfxclient.core.module.performance.FpsLimiterModule;
 import com.vfxclient.core.module.performance.NoCloudsModule;
 import com.vfxclient.core.module.performance.ParticleLimitModule;
+import com.vfxclient.core.module.performance.PerformanceProfileModule;
+import com.vfxclient.core.module.performance.RenderTweaksModule;
 import com.vfxclient.core.module.performance.VanillaOptionsModule;
 import com.vfxclient.core.module.util.AutoGgModule;
 import com.vfxclient.core.module.util.AutoTextModule;
@@ -47,19 +40,26 @@ import com.vfxclient.core.module.util.BlockOutlineModule;
 import com.vfxclient.core.module.util.ChatModule;
 import com.vfxclient.core.module.util.CrosshairModule;
 import com.vfxclient.core.module.util.HitColorModule;
+import com.vfxclient.core.module.util.HotbarModule;
 import com.vfxclient.core.module.util.OwnNametagModule;
 import com.vfxclient.core.module.util.ScoreboardModule;
 import com.vfxclient.core.module.util.ScreenshotModule;
+import com.vfxclient.core.module.util.ScrollTooltipsModule;
 import com.vfxclient.core.module.util.TabListModule;
 import com.vfxclient.core.module.util.TimeChangerModule;
 import com.vfxclient.core.module.util.ToggleSprintModule;
 import com.vfxclient.core.module.util.WeatherChangerModule;
+import com.vfxclient.core.module.visual.BlurModule;
+import com.vfxclient.core.module.visual.FovModule;
 import com.vfxclient.core.module.visual.FreelookModule;
 import com.vfxclient.core.module.visual.FullbrightModule;
+import com.vfxclient.core.module.visual.HitboxModule;
 import com.vfxclient.core.module.visual.LowFireModule;
 import com.vfxclient.core.module.visual.MotionBlurModule;
 import com.vfxclient.core.module.visual.NoHurtCamModule;
+import com.vfxclient.core.module.visual.ParticleColorModule;
 import com.vfxclient.core.module.visual.SaturationModule;
+import com.vfxclient.core.module.visual.ViewModelModule;
 import com.vfxclient.core.module.visual.ZoomModule;
 import net.minecraft.client.MinecraftClient;
 
@@ -71,7 +71,14 @@ public final class ModuleManager {
 
 	/** Registra os módulos que vêm com o client. */
 	public void registerDefaults() {
-		// Geral
+		registerGeneral();
+		registerHud();
+		registerUtilities();
+		registerVisual();
+		registerPerformance();
+	}
+
+	private void registerGeneral() {
 		register(new MenuModule());
 		register(new TitleScreenModule());
 		register(new HudStyleModule());
@@ -79,7 +86,9 @@ public final class ModuleManager {
 		register(new ToggleNotificationModule());
 		register(new ConfigProfilesModule());
 		register(new LocalSkinModule());
-		// HUD
+	}
+
+	private void registerHud() {
 		register(new FpsModule());
 		register(new PingModule());
 		register(new CoordinatesModule());
@@ -92,7 +101,9 @@ public final class ModuleManager {
 		register(new ArmorModule());
 		register(new PotionEffectsModule());
 		register(new CustomTextModule());
-		// Utilidades
+	}
+
+	private void registerUtilities() {
 		register(new ToggleSprintModule());
 		register(new CrosshairModule());
 		register(new BlockOutlineModule());
@@ -108,7 +119,9 @@ public final class ModuleManager {
 		register(new TimeChangerModule());
 		register(new WeatherChangerModule());
 		register(new OwnNametagModule());
-		// Visual
+	}
+
+	private void registerVisual() {
 		register(new ZoomModule());
 		register(new FullbrightModule());
 		register(new LowFireModule());
@@ -121,7 +134,9 @@ public final class ModuleManager {
 		register(new HitboxModule());
 		register(new ParticleColorModule());
 		register(new ViewModelModule());
-		// Desempenho
+	}
+
+	private void registerPerformance() {
 		register(new PerformanceProfileModule());
 		register(new VanillaOptionsModule());
 		register(new RenderTweaksModule());
