@@ -19,7 +19,7 @@
 ## Sumário
 
 - [O que é](#o-que-é)
-- [Novidades da v0.7](#novidades-da-v07)
+- [Novidades da v0.13](#novidades-da-v013)
 - [Instalar e jogar](#instalar-e-jogar)
 - [Recursos](#recursos)
 - [Desempenho](#desempenho)
@@ -45,7 +45,18 @@ No launcher você escolhe o loader do 1.8.9:
 | OptiFine | Só o Minecraft com OptiFine |
 | Forge | Forge 1.8.9 para os seus mods (com OptiFine opcional) |
 
-## Novidades da v0.7
+## Novidades da v0.13
+
+- **Telas do jogo no visual do VfxClient**, com as letras Montserrat (títulos e botões) e Inter (textos):
+  - **tela inicial** redesenhada, com a logo grande e os botões no centro;
+  - **menu de pausa** com o mundo desfocado atrás, botões grandes e etiquetas de servidor, ping, jogadores e tempo de sessão;
+  - **multijogador** com cartões, ping colorido, favoritos (estrela), abas Meus/Favoritos/LAN e busca;
+  - **Opções, Vídeo, Controles** e as demais telas do jogo (inclusive as do OptiFine) com botões planos e fundo escuro.
+- Tudo volta ao original em **Geral > Telas do VfxClient**.
+- Código reorganizado (imports, métodos menores), sem mudança de comportamento.
+
+<details>
+<summary><b>Novidades da v0.7</b></summary>
 
 - **VfxClient + OptiFine juntos:** o perfil VfxClient já abre com o OptiFine, sem precisar escolher outro loader.
   Dá para desligar na tela Início ("OptiFine junto com o VfxClient").
@@ -57,6 +68,8 @@ No launcher você escolhe o loader do 1.8.9:
 - **Prévia da mira:** nas opções da Mira, a mira aparece ao vivo sobre o céu e sobre um fundo escuro, ampliada e em tamanho real.
 - **Zoom sem conflito:** com o OptiFine junto, vale o zoom do VfxClient (o do OptiFine é desligado se usar a mesma tecla).
 - Quem já tinha config salva passa para o visual novo uma vez, sem perder posições nem módulos ligados.
+
+</details>
 
 <details>
 <summary><b>Novidades da v0.6</b></summary>
@@ -190,8 +203,13 @@ Tags com sufixo (`v0.8.0-beta`) saem como *pre-release*. O launcher instalado av
 
 | Versão | Principais mudanças |
 |---|---|
-| **0.7** | VfxClient + OptiFine no mesmo perfil, visual plano, menu com cartões e busca, prévia da mira |
-| 0.6 | Forge embutido, HUD com âncoras e layouts, redimensionar no editor, módulos novos (Servidor, Tempo de jogo, Freelook, Auto GG...) |
+| **0.13** | Tela inicial, menu de pausa (com desfoque), multijogador e Opções no visual novo; fontes Montserrat e Inter |
+| 0.12 | Contorno verde/vermelho no menu, tecla de atalho em todo módulo, Hitbox, FOV, cor das partículas, launcher na bandeja |
+| 0.11 | Atualização dentro do launcher (Atualizar agora / Mais tarde) |
+| 0.10 | Launcher mais simples e animado, arrastar a skin |
+| 0.9 | Primeira tela inicial nova, Texto automático, chat anti-spam, cabeças na Tab, galeria de prints |
+| 0.8 | Launcher minimalista, OptiFine junto sem opções na tela |
+| 0.7 | VfxClient + OptiFine no mesmo perfil, visual plano, menu com cartões e busca, prévia da mira || 0.6 | Forge embutido, HUD com âncoras e layouts, redimensionar no editor, módulos novos (Servidor, Tempo de jogo, Freelook, Auto GG...) |
 | 0.5.1 | Botões de loader: VfxClient / OptiFine / Forge |
 | 0.5 | Launcher completo (contas, skin, RAM, diagnóstico, atualização, instalador), seletor de cor, perfis de config, presets de FPS |
 | 0.4 | Utilidades (sprint, mira, chat, placar) e opções gráficas no menu; site de download |
@@ -203,13 +221,14 @@ Tags com sufixo (`v0.8.0-beta`) saem como *pre-release*. O launcher instalado av
 
 - [ ] **v0.8 – Social:** waypoints (criar, cor, distância, compartilhar no chat) e minimapa opcional
 - [ ] **Contas e skins VfxClient:** cadastro próprio e skin vista por todos que usam o client (backend em avaliação)
-- [ ] Tela inicial do jogo e launcher no mesmo visual novo
+- [x] Tela inicial do jogo e launcher no mesmo visual novo
 - [ ] **v1.0 – Polimento:** arte final, testes com o grupo
 
 ## Terceiros e licenças
 
 - **[Legacy OptiFabric](https://github.com/tildejustin/optifabric)** (MPL-2.0): vai sem modificação dentro do launcher para carregar o OptiFine junto com o VfxClient.
 - **Forge 1.8.9** (LGPL): instalador oficial vai dentro do launcher.
+- **Fontes [Montserrat](https://github.com/JulietaUla/Montserrat) e [Inter](https://github.com/rsms/inter)** (SIL OFL 1.1): vão dentro do mod, com as licenças em `core/src/main/resources/assets/vfx/fonts/`.
 - **OptiFine:** não faz parte deste repositório nem das releases públicas (a licença não permite redistribuir).
 - Minecraft é marca da Mojang/Microsoft. O VfxClient não é afiliado à Mojang nem à Microsoft.
 

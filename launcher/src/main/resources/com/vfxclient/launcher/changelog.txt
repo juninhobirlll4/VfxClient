@@ -1,3 +1,9 @@
+# v0.13
+Menu de pausa novo, com o jogo desfocado atrás
+Tela de servidores nova: ping colorido, favoritos e busca
+Opções do jogo no mesmo visual do VfxClient
+Letras novas nas telas (Montserrat e Inter)
+Tela inicial redesenhada
 # v0.12
 Menu com contorno verde (ligado) e vermelho (desligado)
 Tecla de atalho para qualquer módulo, com aviso na tela

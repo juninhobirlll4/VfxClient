@@ -88,6 +88,21 @@ Tudo é nosso: nome, logo, cores (roxo → branco), código e assets.
   testados abrindo via CLI (v0.6). CLI `--join host:porta` entra direto num servidor (`-Dvfx.join`).
   OptiFine/Forge rodam SEM os recursos do VfxClient (decisão do usuário: opção 1; port para Forge fica para depois).
 
+## v0.13
+- Fontes Montserrat/Inter (OFL, `assets/vfx/fonts/`) desenhadas por `gui/font/` (`GlyphAtlas` AWT → textura, `FontFamily`
+  com cache de até 6 tamanhos: NÃO variar o tamanho de texto por frame; encolher com matriz). `Fonts.setPixelsPerUnit`/`useGuiScale`.
+- `gui/Canvas` (referência 1920x1080), `gui/Ui` (botões `buttonFrame`/`buttonLabel`, ícones, `pill`), `gui/ClickArea`.
+- `gui/ScreenSwap` troca TitleScreen/null → `VfxTitleScreen`, GameMenuScreen → `VfxPauseScreen`, MultiplayerScreen →
+  `VfxServerScreen` (módulo `TitleScreenModule` = "Telas do VfxClient"). Pausa/servidores estendem as telas do jogo e
+  reaproveitam as ações pelos ids dos botões originais.
+- Desfoque: `BlurModule` + `BlurredScreen` (PostEffect `blur.json` depois do mundo). `InGameHudMixin` esconde a HUD sob
+  `BlurredScreen` mas PRECISA chamar `gameRenderer.setupHudMatrixMode()` antes de cancelar (sem isso a tela some).
+- `gui/VanillaStyle` + mixins `ButtonWidget`, `OptionSliderWidget`/`SliderWidget` (pegador), `ScreenBackground`
+  (terra → fundo escuro), `DrawableHelper` (título = texto branco centralizado com y<=20), `ListWidget` (scissor, sem faixas),
+  `TextureManager` (terra das listas → véu 1x1; o OptiFine muda o método que desenha esse fundo, por isso é na textura).
+- `TestShots`: `-Dvfx.titleShot=true|servidores|opcoes|video|controles`, `-Dvfx.openMenu=pausa|<id>`.
+- Código: imports em ordem (java/javax, depois alfabético), sem nome de classe completo no meio do código, métodos curtos.
+
 ## v0.12
 - Menu: `Theme.MODULE_ON/OFF` (verde/vermelho), entrada dos cartões em sequência (`listChangedAt`), opções deslizando
   (`settingsOpenedAt`). Toda módulo desligável ganha `toggleKey` (via `ModuleManager.register` → `Module.enableToggleKey`);

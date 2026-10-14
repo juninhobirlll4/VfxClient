@@ -29,7 +29,9 @@ Organização do launcher (launcher/src/main/java/com/vfxclient/launcher/):
 Organização do mod (core/src/main/java/com/vfxclient/core/):
   module/        módulos (general, hud, util, visual, performance) e opções (setting/)
   hud/           desenho da HUD e contador de cliques
-  gui/           menu (Click GUI), editor de HUD, seletor de cor, tema
+  gui/           menu (Click GUI), editor de HUD, seletor de cor, tema e as telas do jogo
+                 (inicial, pausa, servidores; VanillaStyle = visual das telas de Opções)
+  gui/font/      fontes Montserrat e Inter desenhadas em textura (GlyphAtlas)
   config/        perfis de configuração em JSON
   optimization/  leitura do hardware para os presets
   mixin/         ganchos no Minecraft
@@ -65,6 +67,13 @@ Modo linha de comando do launcher (útil para testar):
 Depois de instalado, os mesmos comandos funcionam com o executável:
   "%LOCALAPPDATA%\Programs\VfxClient\VfxClient.exe" --cli launch --offline SeuNick
 
+Prints de teste sem mexer no teclado e no mouse (o jogo salva o print em screenshots\ e fecha
+sozinho; não traga a janela do jogo para frente):
+  gradlew :launcher:run -Dvfx.titleShot=true --args="--cli launch --offline Teste"
+      tela inicial (vfx-teste-inicio.png); troque true por servidores, opcoes, video ou controles
+  gradlew :launcher:run -Dvfx.openMenu=pausa --args="--cli launch --offline Teste --join localhost:25565"
+      menu de pausa num servidor (vfx-teste.png); troque pausa pelo id de um módulo para ver as
+      opções dele no menu
 Testar com uma pasta de dados separada (não mexe na sua instalação):
   gradlew :launcher:run -Dvfx.home=C:\temp\vfx-teste
 
@@ -174,10 +183,17 @@ Conta e skin
 
 No jogo (Right Shift)
 - Geral > Menu: "Opções no menu" Simples/Completo (mostra as opções avançadas).
-- Tela inicial do jogo (v0.9): panorama desfocado, ícones no topo (opções, menu do VfxClient,
-  pacotes de textura, sair), botões Um jogador / Multijogador e idioma embaixo. Para voltar à
-  tela original: Geral > Tela inicial (desligar).
-- Utilidades > Texto automático: até 6 atalhos (tecla + mensagem ou comando, ex.: "gg", "/l").
+- Telas do jogo (v0.13), todas com as letras Montserrat (títulos e botões) e Inter (textos):
+  - Tela inicial: logo grande, UM JOGADOR (roxo), MULTIJOGADOR, ícones no topo (opções, menu
+    do VfxClient, pacotes de textura, sair) e idioma embaixo.
+  - ESC no jogo: menu de pausa com o mundo desfocado (Visual > Desfoque nos menus), botões
+    Voltar, Menu do VfxClient, Opções, Editar HUD, Conquistas, Estatísticas e Desconectar, e
+    etiquetas com servidor, ping, jogadores e tempo de sessão.
+  - Multijogador: cartões com ping colorido e barras, estrela para favoritar, abas Meus /
+    Favoritos / LAN, busca (é só digitar) e duplo clique para entrar.
+  - Opções, Vídeo, Controles e as outras telas do jogo (inclusive as do OptiFine): botões e
+    sliders planos, fundo escuro no lugar da terra.
+  Para voltar às telas originais: Geral > Telas do VfxClient (desligar).- Utilidades > Texto automático: até 6 atalhos (tecla + mensagem ou comando, ex.: "gg", "/l").
 - Chat: anti-spam (esconde a mesma mensagem repetida em 3 s), palavras bloqueadas e
   Ctrl + clique numa mensagem para copiar.
 - Tab: cabeça dos jogadores também em servidores offline. Placar: "Tamanho (compacto)".
