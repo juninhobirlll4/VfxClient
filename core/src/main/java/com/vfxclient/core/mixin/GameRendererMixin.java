@@ -8,6 +8,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffect;
 import com.vfxclient.core.module.performance.NoCloudsModule;
 import com.vfxclient.core.module.performance.RenderTweaksModule;
+import com.vfxclient.core.module.visual.FovModule;
 import com.vfxclient.core.module.visual.FreelookModule;
 import com.vfxclient.core.module.visual.MotionBlurModule;
 import com.vfxclient.core.module.visual.NoHurtCamModule;
@@ -28,6 +29,10 @@ public abstract class GameRendererMixin {
 
 	@Inject(method = "getFov(FZ)F", at = @At("RETURN"), cancellable = true)
 	private void vfx$zoom(float tickDelta, boolean changingFov, CallbackInfoReturnable<Float> cir) {
+		FovModule fov = VfxCore.module(FovModule.class);
+		if (fov != null && changingFov && fov.isEnabled()) {
+			cir.setReturnValue(fov.adjust(cir.getReturnValue()));
+		}
 		ZoomModule zoom = VfxCore.module(ZoomModule.class);
 		if (zoom != null && changingFov) {
 			float multiplier = zoom.fovMultiplier();
@@ -124,6 +129,23 @@ public abstract class GameRendererMixin {
 		MotionBlurModule blur = VfxCore.module(MotionBlurModule.class);
 		if (blur != null) {
 			blur.render(client, tickDelta);
+		}
+	}
+
+	@org.spongepowered.asm.mixin.Shadow
+	private float movementFovMultiplier;
+
+	@org.spongepowered.asm.mixin.Shadow
+	private float lastMovementFovMultiplier;
+
+	/** FOV fixo: ignora a mudança de FOV ao correr e com efeitos de velocidade/lentidão. */
+	@Inject(method = "updateMovementFovMultiplier()V", at = @At("HEAD"), cancellable = true)
+	private void vfx$staticFov(CallbackInfo ci) {
+		FovModule fov = VfxCore.module(FovModule.class);
+		if (fov != null && fov.staticFov()) {
+			lastMovementFovMultiplier = 1F;
+			movementFovMultiplier = 1F;
+			ci.cancel();
 		}
 	}
 }
