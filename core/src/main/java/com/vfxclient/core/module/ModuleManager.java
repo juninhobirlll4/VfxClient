@@ -12,6 +12,7 @@ import com.vfxclient.core.module.general.ToggleNotificationModule;
 import com.vfxclient.core.module.hud.BlockCounterModule;
 import com.vfxclient.core.module.util.HotbarModule;
 import com.vfxclient.core.module.util.ScrollTooltipsModule;
+import com.vfxclient.core.module.visual.BlurModule;
 import com.vfxclient.core.module.visual.FovModule;
 import com.vfxclient.core.module.visual.HitboxModule;
 import com.vfxclient.core.module.visual.ParticleColorModule;
@@ -115,6 +116,7 @@ public final class ModuleManager {
 		register(new FreelookModule());
 		register(new MotionBlurModule());
 		register(new SaturationModule());
+		register(new BlurModule());
 		register(new FovModule());
 		register(new HitboxModule());
 		register(new ParticleColorModule());
