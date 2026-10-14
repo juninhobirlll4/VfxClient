@@ -88,6 +88,12 @@ Tudo é nosso: nome, logo, cores (roxo → branco), código e assets.
   testados abrindo via CLI (v0.6). CLI `--join host:porta` entra direto num servidor (`-Dvfx.join`).
   OptiFine/Forge rodam SEM os recursos do VfxClient (decisão do usuário: opção 1; port para Forge fica para depois).
 
+## v0.10
+- Launcher simples e animado: `ui/Motion` (enter, hoverGrow, toast, progress; desligado com `-Dvfx.snapshot`), troca de aba com
+  fade em `VfxLauncherApp.show`. `AccountView`: linhas de conta (clique escolhe, x remove), nick + Entrar, Microsoft como link,
+  skin com arrastar e soltar (`drop-zone`), capa só em conta Microsoft. `SettingsView`: memória (GB), desempenho, ao abrir o
+  jogo, avisos; resto em `TitledPane` "Avançado". Salva sozinho. `ui/Faces` recorta o rosto da skin.
+
 ## v0.9
 - `gui/VfxTitleScreen` (estende TitleScreen; `super.init()` + `buttons.clear()`; fundo via `TitleScreenAccessor` @Invoker
   renderBackground). Troca no `MinecraftClientMixin` @Inject HEAD do setScreen (TitleScreen exato ou null sem mundo → cancela e

@@ -1,3 +1,7 @@
+# v0.10
+Launcher mais simples e com animações
+Arraste a skin para trocar
+Configurações só com o essencial
 # v0.9
 Tela inicial nova no jogo
 Texto automático: uma tecla manda mensagem no chat
