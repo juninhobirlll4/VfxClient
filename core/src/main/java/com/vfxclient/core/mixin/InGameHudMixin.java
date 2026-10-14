@@ -1,5 +1,6 @@
 package com.vfxclient.core.mixin;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.vfxclient.core.VfxCore;
 import com.vfxclient.core.hud.HudRenderer;
 import com.vfxclient.core.module.performance.RenderTweaksModule;
@@ -37,11 +38,33 @@ public abstract class InGameHudMixin {
 		return false;
 	}
 
+	@org.spongepowered.asm.mixin.Unique
+	private boolean vfx$scoreboardScaled;
+
 	@Inject(method = "renderScoreboardObjective", at = @At("HEAD"), cancellable = true)
 	private void vfx$hideScoreboard(CallbackInfo ci) {
 		ScoreboardModule module = VfxCore.module(ScoreboardModule.class);
 		if (module != null && module.hideAll()) {
 			ci.cancel();
+			return;
+		}
+		float scale = module == null ? 1F : module.scale();
+		vfx$scoreboardScaled = scale < 0.999F;
+		if (vfx$scoreboardScaled) {
+			// Placar compacto: diminui ancorado na borda direita, no meio da altura (onde o jogo o desenha).
+			Window window = new Window(MinecraftClient.getInstance());
+			GlStateManager.pushMatrix();
+			GlStateManager.translate(window.getWidth(), window.getHeight() / 2F, 0F);
+			GlStateManager.scale(scale, scale, 1F);
+			GlStateManager.translate(-window.getWidth(), -window.getHeight() / 2F, 0F);
+		}
+	}
+
+	@Inject(method = "renderScoreboardObjective", at = @At("RETURN"))
+	private void vfx$scoreboardEnd(CallbackInfo ci) {
+		if (vfx$scoreboardScaled) {
+			vfx$scoreboardScaled = false;
+			GlStateManager.popMatrix();
 		}
 	}
 
