@@ -120,6 +120,7 @@ public final class VfxCore implements ClientModInitializer {
 		ClickTracker.onPress(keyCode);
 		com.vfxclient.core.module.performance.FpsLimiterModule.markInput();
 		modules.get(ToggleSprintModule.class).onKeyPressed(keyCode);
+		modules.get(com.vfxclient.core.module.util.AutoTextModule.class).onKeyPressed(keyCode);
 		MinecraftClient client = MinecraftClient.getInstance();
 		if (client.currentScreen == null && keyCode == modules.get(MenuModule.class).getKey()) {
 			openClickGuiPending = true;

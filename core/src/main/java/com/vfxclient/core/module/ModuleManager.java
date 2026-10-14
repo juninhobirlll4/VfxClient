@@ -33,6 +33,7 @@ import com.vfxclient.core.module.performance.NoCloudsModule;
 import com.vfxclient.core.module.performance.ParticleLimitModule;
 import com.vfxclient.core.module.performance.VanillaOptionsModule;
 import com.vfxclient.core.module.util.AutoGgModule;
+import com.vfxclient.core.module.util.AutoTextModule;
 import com.vfxclient.core.module.util.BlockOutlineModule;
 import com.vfxclient.core.module.util.ChatModule;
 import com.vfxclient.core.module.util.CrosshairModule;
@@ -89,6 +90,7 @@ public final class ModuleManager {
 		register(new ScoreboardModule());
 		register(new TabListModule());
 		register(new AutoGgModule());
+		register(new AutoTextModule());
 		register(new ScreenshotModule());
 		register(new TimeChangerModule());
 		register(new WeatherChangerModule());
