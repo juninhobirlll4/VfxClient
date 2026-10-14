@@ -17,6 +17,7 @@ public class CpsModule extends TextHudModule {
 
 	private final ChoiceSetting buttons = add(new ChoiceSetting("buttons", "Botões", BOTH, "Esquerdo", "Direito", "Esquerdo | Direito", "Soma dos dois"));
 	private final ChoiceSetting average = add(new ChoiceSetting("average", "Cálculo", 0, "Último segundo", "Média de 5 s"));
+	private final ChoiceSetting style = add(new ChoiceSetting("style", "Formato", 0, "12 CPS", "[12 CPS]", "CPS: 12"));
 
 	public CpsModule() {
 		super("cps", "CPS", "Cliques por segundo", false, 4, 76);
@@ -41,7 +42,14 @@ public class CpsModule extends TextHudModule {
 
 	private String format(double left, double right) {
 		String value = value(left, right);
-		return advanced() ? "CPS " + value : value + TEXT + " CPS";
+		switch (style.get()) {
+			case 1:
+				return "[" + value + TEXT + " CPS]";
+			case 2:
+				return "CPS: " + value;
+			default:
+				return advanced() ? "CPS " + value : value + TEXT + " CPS";
+		}
 	}
 
 	@Override

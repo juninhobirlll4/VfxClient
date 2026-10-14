@@ -58,6 +58,7 @@ public class KeystrokesModule extends HudModule {
 	private final BooleanSetting showSpace = add(new BooleanSetting("showSpace", "Espaço", true));
 	private final BooleanSetting showSneak = add(new BooleanSetting("showSneak", "Agachar (Shift)", false));
 	private final BooleanSetting showCps = add(new BooleanSetting("showCps", "CPS nos cliques", true));
+	private final ChoiceSetting mouseLabels = add(new ChoiceSetting("mouseLabels", "Nome dos cliques", 0, "ESQ / DIR", "LMB / RMB"));
 
 	private final Map<String, Anim> anims = new HashMap<String, Anim>();
 
@@ -189,13 +190,14 @@ public class KeystrokesModule extends HudModule {
 		}
 	}
 
-	private static String labelFor(Key key) {
+	private String labelFor(Key key) {
 		int code = key.binding.getCode();
+		boolean english = mouseLabels.get() == 1;
 		if (code == ClickTracker.LEFT) {
-			return "ESQ";
+			return english ? "LMB" : "ESQ";
 		}
 		if (code == ClickTracker.RIGHT) {
-			return "DIR";
+			return english ? "RMB" : "DIR";
 		}
 		String name = KeySetting.describe(code);
 		if (name.equals("SPACE")) {
