@@ -39,12 +39,7 @@ public final class VfxCore implements ClientModInitializer {
 	private String version = "dev";
 	private boolean openClickGuiPending;
 	private long worldJoinedAt;
-	/** Modo de teste: {@code -Dvfx.openMenu=menu} (ou o id de um módulo) abre o menu sozinho ao entrar no mundo. */
-	private String testMenu = System.getProperty("vfx.openMenu");
-	private int testMenuDelay = 60;
-	private int testShotDelay = -1;
-	/** Modo de teste: {@code -Dvfx.titleShot=true} salva um print da tela inicial e fecha o jogo. */
-	private int titleShotDelay = Boolean.getBoolean("vfx.titleShot") ? 80 : -1;
+	private final TestShots testShots = new TestShots();
 
 	/**
 	 * Instância ativa do client.
@@ -86,29 +81,7 @@ public final class VfxCore implements ClientModInitializer {
 				client.setScreen(new ClickGuiScreen());
 			}
 		}
-		if (testMenu != null && client.world != null && client.player != null && --testMenuDelay <= 0
-				&& (client.currentScreen == null || client.currentScreen instanceof net.minecraft.client.gui.screen.GameMenuScreen)) {
-			String id = testMenu;
-			testMenu = null;
-			if ("pausa".equals(id)) {
-				client.setScreen(new net.minecraft.client.gui.screen.GameMenuScreen());
-			} else {
-				client.setScreen(new ClickGuiScreen().withSettings(modules.get(id)));
-			}
-			testShotDelay = 40;
-		}
-		if (titleShotDelay > 0 && client.currentScreen instanceof com.vfxclient.core.gui.VfxTitleScreen && --titleShotDelay == 0) {
-			net.minecraft.client.util.ScreenshotUtils.saveScreenshot(client.runDirectory, "vfx-teste-inicio.png",
-					client.getFramebuffer().viewportWidth, client.getFramebuffer().viewportHeight, client.getFramebuffer());
-			client.scheduleStop();
-		}
-		if (testShotDelay > 0 && --testShotDelay == 0) {
-			// Modo de teste: o próprio jogo salva o print (não depende da janela estar na frente).
-			net.minecraft.client.util.ScreenshotUtils.saveScreenshot(client.runDirectory, "vfx-teste.png",
-					client.getFramebuffer().viewportWidth, client.getFramebuffer().viewportHeight, client.getFramebuffer());
-			LOGGER.info("Print de teste salvo: screenshots/vfx-teste.png");
-			client.scheduleStop();
-		}
+		testShots.tick(client);
 		VfxCommands.tick(client);
 		modules.tick(client);
 		config.tick();
