@@ -206,7 +206,14 @@ public final class GameLauncher {
 		if (arguments != null && arguments.has("jvm")) {
 			command.addAll(expand(arguments.getAsJsonArray("jvm"), vars));
 		} else {
-			command.add("-Djava.library.path=" + natives);
+			// Modos de teste do mod (prints automáticos), repassados se o launcher foi aberto com eles.
+		for (String key : new String[] {"vfx.titleShot", "vfx.openMenu"}) {
+			String value = System.getProperty(key);
+			if (value != null) {
+				command.add("-D" + key + "=" + value);
+			}
+		}
+		command.add("-Djava.library.path=" + natives);
 			command.add("-cp");
 			command.add(vars.get("classpath"));
 		}
