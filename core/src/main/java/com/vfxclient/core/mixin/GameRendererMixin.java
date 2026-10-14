@@ -2,6 +2,7 @@ package com.vfxclient.core.mixin;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.vfxclient.core.VfxCore;
+import com.vfxclient.core.module.performance.FpsTestModule;
 import com.vfxclient.core.module.performance.NoCloudsModule;
 import com.vfxclient.core.module.performance.RenderTweaksModule;
 import com.vfxclient.core.module.visual.BlurModule;
@@ -120,6 +121,15 @@ public abstract class GameRendererMixin {
 	}
 
 	/** Efeitos de tela do VfxClient, logo depois do mundo e antes da HUD. */
+	/** Conta os quadros para o Teste de FPS. */
+	@Inject(method = "render(FJ)V", at = @At("HEAD"))
+	private void vfx$countFrame(float tickDelta, long nanoTime, CallbackInfo ci) {
+		FpsTestModule test = VfxCore.module(FpsTestModule.class);
+		if (test != null) {
+			test.onFrame();
+		}
+	}
+
 	@Inject(method = "render(FJ)V",
 			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;drawEntityOutlineFramebuffer()V", shift = At.Shift.AFTER))
 	private void vfx$postEffects(float tickDelta, long nanoTime, CallbackInfo ci) {

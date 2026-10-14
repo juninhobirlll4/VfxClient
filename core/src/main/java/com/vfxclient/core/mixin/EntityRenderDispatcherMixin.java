@@ -3,6 +3,7 @@ package com.vfxclient.core.mixin;
 import com.vfxclient.core.VfxCore;
 import com.vfxclient.core.module.performance.EntityCullingModule;
 import com.vfxclient.core.module.performance.EntityDistanceModule;
+import com.vfxclient.core.module.performance.HideDecorationsModule;
 import com.vfxclient.core.module.visual.HitboxModule;
 import net.minecraft.client.render.CameraView;
 import net.minecraft.client.render.WorldRenderer;
@@ -17,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** Pula o desenho de entidades além da distância configurada; hitbox com cor e espessura. */
+/** Pula o desenho de entidades longe ou só decorativas; hitbox com cor e espessura. */
 @Mixin(EntityRenderDispatcher.class)
 public abstract class EntityRenderDispatcherMixin {
 
@@ -29,6 +30,13 @@ public abstract class EntityRenderDispatcherMixin {
 			cir.setReturnValue(false);
 			return;
 		}
+
+		HideDecorationsModule decorations = VfxCore.module(HideDecorationsModule.class);
+		if (decorations != null && decorations.shouldSkip(entity)) {
+			cir.setReturnValue(false);
+			return;
+		}
+
 		EntityCullingModule culling = VfxCore.module(EntityCullingModule.class);
 		if (culling != null && culling.shouldCull(entity)) {
 			cir.setReturnValue(false);

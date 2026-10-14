@@ -22,6 +22,7 @@ import net.minecraft.client.util.ScreenshotUtils;
  *   <li>{@code -Dvfx.titleShot=servidores|opcoes|video|controles|mundos|novomundo}: abre essa tela a partir da
  *       inicial ({@code vfx-teste-inicio.png});</li>
  *   <li>{@code -Dvfx.openMenu=pausa}: menu de pausa, já num mundo ({@code vfx-teste.png});</li>
+ *   <li>{@code -Dvfx.openMenu=mundo}: o mundo sem nenhuma tela aberta ({@code vfx-teste.png});</li>
  *   <li>{@code -Dvfx.openMenu=<id do módulo>}: opções do módulo no menu ({@code vfx-teste.png}).</li>
  * </ul>
  */
@@ -95,7 +96,7 @@ final class TestShots {
 		}
 		if ("pausa".equals(menuMode)) {
 			client.setScreen(new GameMenuScreen());
-		} else {
+		} else if (!"mundo".equals(menuMode)) {
 			client.setScreen(new ClickGuiScreen().withSettings(VfxCore.get().getModules().get(menuMode)));
 		}
 		menuMode = null;

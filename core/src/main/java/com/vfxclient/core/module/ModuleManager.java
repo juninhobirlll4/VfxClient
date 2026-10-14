@@ -25,10 +25,14 @@ import com.vfxclient.core.module.hud.PingModule;
 import com.vfxclient.core.module.hud.PlaytimeModule;
 import com.vfxclient.core.module.hud.PotionEffectsModule;
 import com.vfxclient.core.module.hud.ServerIpModule;
+import com.vfxclient.core.module.performance.BlockDetailsModule;
 import com.vfxclient.core.module.performance.BlockEntityDistanceModule;
 import com.vfxclient.core.module.performance.EntityCullingModule;
 import com.vfxclient.core.module.performance.EntityDistanceModule;
+import com.vfxclient.core.module.performance.FarPlayersModule;
 import com.vfxclient.core.module.performance.FpsLimiterModule;
+import com.vfxclient.core.module.performance.FpsTestModule;
+import com.vfxclient.core.module.performance.HideDecorationsModule;
 import com.vfxclient.core.module.performance.NoCloudsModule;
 import com.vfxclient.core.module.performance.ParticleLimitModule;
 import com.vfxclient.core.module.performance.PerformanceProfileModule;
@@ -146,6 +150,10 @@ public final class ModuleManager {
 		register(new ParticleLimitModule());
 		register(new NoCloudsModule());
 		register(new FpsLimiterModule());
+		register(new HideDecorationsModule());
+		register(new FarPlayersModule());
+		register(new BlockDetailsModule());
+		register(new FpsTestModule());
 	}
 
 	/**
