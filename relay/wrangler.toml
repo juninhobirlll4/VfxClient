@@ -1,0 +1,13 @@
+# Servidor de emotes do VfxClient. Publicar: veja relay/README.md.
+name = "vfx-emotes"
+main = "src/index.js"
+compatibility_date = "2025-06-01"
+
+[[durable_objects.bindings]]
+name = "ROOMS"
+class_name = "EmoteRoom"
+
+# Durable Objects com SQLite: disponível no plano gratuito.
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["EmoteRoom"]

@@ -1,0 +1,14 @@
+{
+  "name": "vfx-emotes",
+  "private": true,
+  "description": "Servidor de emotes do VfxClient (Cloudflare Worker)",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "node test/smoke.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "4.151.0"
+  }
+}

@@ -28,3 +28,7 @@ Thumbs.db
 
 # Site: a CI copia a marca para cá antes de publicar
 site/assets/
+# Servidor de emotes (Node)
+relay/node_modules/
+relay/.wrangler/
+
