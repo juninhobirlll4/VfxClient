@@ -24,7 +24,7 @@ public abstract class DrawableHelperMixin {
 
 	@Inject(method = "drawCenteredString", at = @At("HEAD"), cancellable = true)
 	private void vfx$title(TextRenderer textRenderer, String text, int centerX, int y, int color, CallbackInfo ci) {
-		if (y > VFX$TITLE_MAX_Y || color != VFX$WHITE || !vfx$isGameScreen() || !VanillaStyle.enabled()) {
+		if (y > VFX$TITLE_MAX_Y || (color & 0xFFFFFF) != VFX$WHITE || !vfx$isGameScreen() || !VanillaStyle.enabled()) {
 			return;
 		}
 		VanillaStyle.drawTitle(text, centerX, y);

@@ -9,6 +9,8 @@ import net.minecraft.client.gui.screen.SettingsScreen;
 import net.minecraft.client.gui.screen.VideoOptionsScreen;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 import net.minecraft.client.gui.screen.options.ControlsOptionsScreen;
+import net.minecraft.client.gui.screen.world.CreateWorldScreen;
+import net.minecraft.client.gui.screen.world.SelectWorldScreen;
 import net.minecraft.client.util.ScreenshotUtils;
 
 /**
@@ -17,7 +19,7 @@ import net.minecraft.client.util.ScreenshotUtils;
  *
  * <ul>
  *   <li>{@code -Dvfx.titleShot=true}: tela inicial ({@code vfx-teste-inicio.png});</li>
- *   <li>{@code -Dvfx.titleShot=servidores|opcoes|video|controles}: abre essa tela a partir da
+ *   <li>{@code -Dvfx.titleShot=servidores|opcoes|video|controles|mundos|novomundo}: abre essa tela a partir da
  *       inicial ({@code vfx-teste-inicio.png});</li>
  *   <li>{@code -Dvfx.openMenu=pausa}: menu de pausa, já num mundo ({@code vfx-teste.png});</li>
  *   <li>{@code -Dvfx.openMenu=<id do módulo>}: opções do módulo no menu ({@code vfx-teste.png}).</li>
@@ -75,6 +77,12 @@ final class TestShots {
 		}
 		if ("controles".equals(titleMode)) {
 			return new ControlsOptionsScreen(title, client.options);
+		}
+		if ("mundos".equals(titleMode)) {
+			return new SelectWorldScreen(title);
+		}
+		if ("novomundo".equals(titleMode)) {
+			return new CreateWorldScreen(title);
 		}
 		return null;
 	}

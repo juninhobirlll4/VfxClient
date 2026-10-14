@@ -75,14 +75,22 @@ public final class VanillaStyle {
 		end();
 	}
 
-	/** Parte preenchida em roxo e o pegador do slider. */
+	/**
+	 * Trilha e pegador do slider na borda de baixo do botão, longe do texto (o pegador no
+	 * meio do botão ficava por cima das letras).
+	 */
 	private static void drawSlider(float x, float y, float w, float h, float progress) {
-		float inset = 4F;
-		float knobW = 6F;
-		float knobX = x + inset + progress * (w - inset * 2 - knobW);
+		float inset = 14F;
+		float trackY = y + h - 11F;
+		float trackW = w - inset * 2;
+		float knobX = x + inset + progress * trackW;
 
-		Render2D.roundedRect(x + inset, y + inset, knobX + knobW / 2F - x - inset, h - inset * 2, 5, 0x557B2FF7);
-		Render2D.roundedRect(knobX, y + inset, knobW, h - inset * 2, 3, Ui.PURPLE_LIGHT);
+		// Leve tom roxo no fundo até onde o slider está.
+		Render2D.roundedRect(x + 2, y + 2, Math.max(0F, knobX - x - 2), h - 4, 6, 0x247B2FF7);
+
+		Render2D.roundedRect(x + inset, trackY, trackW, 4, 2, 0x33FFFFFF);
+		Render2D.roundedRect(x + inset, trackY, knobX - x - inset, 4, 2, Ui.PURPLE);
+		Render2D.circle(knobX, trackY + 2, 6F, Ui.PURPLE_LIGHT);
 	}
 
 	/**
@@ -118,6 +126,23 @@ public final class VanillaStyle {
 		GlStateManager.scale(squeeze, 1F, 1F);
 		Ui.buttonLabel(label, -w / 2F, 0F, w, h, size, button.active ? Ui.Style.NORMAL : Ui.Style.DISABLED);
 		GlStateManager.popMatrix();
+		end();
+	}
+
+	/**
+	 * Caixa de texto (nome do mundo, endereço do servidor): escura, com contorno roxo quando
+	 * está sendo digitada.
+	 *
+	 * @param x       esquerda, em unidades da interface
+	 * @param y       topo
+	 * @param w       largura
+	 * @param h       altura
+	 * @param focused recebendo o teclado
+	 */
+	public static void drawTextField(int x, int y, int w, int h, boolean focused) {
+		begin();
+		int border = focused ? Ui.PURPLE_LIGHT : 0x59FFFFFF;
+		Render2D.outlinedRect((x - 1) * DETAIL, (y - 1) * DETAIL, (w + 2) * DETAIL, (h + 2) * DETAIL, 8, border, 0xE60C0A12);
 		end();
 	}
 

@@ -25,6 +25,7 @@
     "ShaderEffectAccessor",
     "SkinMixin",
     "SliderWidgetMixin",
+    "TextFieldWidgetMixin",
     "TextureManagerMixin",
     "TitleScreenAccessor",
     "TitleScreenMixin",
