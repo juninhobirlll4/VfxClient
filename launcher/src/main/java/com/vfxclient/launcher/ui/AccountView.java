@@ -18,7 +18,6 @@ import com.vfxclient.launcher.auth.MinecraftServices;
 import com.vfxclient.launcher.auth.OfflineAuth;
 import com.vfxclient.launcher.game.GameLauncher;
 import com.vfxclient.launcher.util.Http;
-import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
@@ -27,112 +26,131 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 
 /**
- * Tela de conta: contas salvas, login Microsoft (código de dispositivo), conta offline,
- * prévia e troca de skin e escolha de capa.
+ * Conta, do jeito mais simples: lista das contas (clique escolhe, "x" remove), campo de nick
+ * para entrar offline e, à direita, a skin. A skin aceita arrastar o PNG para cima dela.
  */
 public final class AccountView extends HBox {
 
 	private final LauncherContext ctx;
-	private final ListView<Account> list = new ListView<>();
+	private final VBox accounts = new VBox(6);
 	private final SkinPreview preview = new SkinPreview(9);
-	private final Label skinInfo = new Label();
-	private final CheckBox slim = new CheckBox("Braço fino (modelo Alex)");
+	private final VBox dropZone;
+	private final Label dropHint = new Label("Arraste a skin (PNG) aqui\nou clique para escolher");
+	private final CheckBox slim = new CheckBox("Braço fino");
 	private final ComboBox<MinecraftServices.Cape> capes = new ComboBox<>();
-	private final Button applyCape = new Button("Usar capa");
+	private final VBox capeBox;
 	private final Label message = new Label();
 
 	/**
 	 * @param ctx estado do launcher
 	 */
 	public AccountView(LauncherContext ctx) {
-		super(24);
+		super(20);
 		this.ctx = ctx;
 		getStyleClass().add("view");
-		setPadding(new Insets(28, 32, 24, 32));
+		setPadding(new Insets(24, 28, 20, 28));
 
-		// Coluna esquerda: contas.
+		// Coluna esquerda: contas e entrar.
 		Label title = new Label("Conta");
 		title.getStyleClass().add("view-title");
-		list.getStyleClass().add("account-list");
-		list.setPrefHeight(170);
-		list.getSelectionModel().selectedItemProperty().addListener((obs, old, account) -> {
-			if (account != null) {
-				ctx.accounts().select(account);
-				ctx.accountChanged();
-				refreshSkin();
-			}
-		});
-		Button remove = new Button("Remover");
-		remove.getStyleClass().add("ghost-button");
-		remove.setOnAction(e -> {
-			Account account = list.getSelectionModel().getSelectedItem();
-			if (account != null) {
-				ctx.accounts().remove(account);
-				ctx.accountChanged();
-				reload();
-			}
-		});
 
-		Button microsoft = new Button("Entrar com Microsoft");
-		microsoft.getStyleClass().add("primary-button");
-		microsoft.setMaxWidth(Double.MAX_VALUE);
-		microsoft.setOnAction(e -> loginMicrosoft());
+		ScrollPane accountScroll = new ScrollPane(accounts);
+		accountScroll.setFitToWidth(true);
+		accountScroll.getStyleClass().add("news-scroll");
+		accountScroll.setPrefHeight(200);
 
 		TextField nick = new TextField();
-		nick.setPromptText("Nick offline");
-		Button addOffline = new Button("Adicionar");
-		addOffline.setMinWidth(javafx.scene.layout.Region.USE_PREF_SIZE);
-		addOffline.getStyleClass().add("ghost-button");
-		addOffline.setOnAction(e -> {
+		nick.setPromptText("Seu nick");
+		nick.getStyleClass().add("big-field");
+		Button enter = new Button("Entrar");
+		enter.getStyleClass().add("primary-button");
+		enter.setMinWidth(Region.USE_PREF_SIZE);
+		Runnable addOffline = () -> {
 			String name = nick.getText().trim();
 			if (!OfflineAuth.validName(name)) {
-				show("Nick inválido: use de 3 a 16 letras, números ou _.");
+				Motion.toast(message, "Use de 3 a 16 letras, números ou _.");
 				return;
 			}
 			ctx.accounts().put(OfflineAuth.create(name));
 			ctx.accountChanged();
 			nick.clear();
 			reload();
-			show("Conta offline criada. Ela entra em servidores não-premium.");
-		});
-		HBox offlineRow = new HBox(8, nick, addOffline);
+			Motion.toast(message, "Pronto, " + name + "!");
+		};
+		enter.setOnAction(e -> addOffline.run());
+		nick.setOnAction(e -> addOffline.run());
+		HBox enterRow = new HBox(8, nick, enter);
 		HBox.setHgrow(nick, Priority.ALWAYS);
 
-		Label offlineHint = new Label("Conta offline: só o nick, para servidores não-premium. Servidores premium exigem conta Microsoft.");
-		offlineHint.setWrapText(true);
-		offlineHint.getStyleClass().add("muted");
-		message.setWrapText(true);
+		Button microsoft = new Button("Entrar com Microsoft (conta original)");
+		microsoft.getStyleClass().add("link-button");
+		microsoft.setOnAction(e -> loginMicrosoft());
+
 		message.getStyleClass().add("accent");
+		message.setWrapText(true);
+		message.setOpacity(0);
 
-		VBox left = new VBox(12, title, card("Contas salvas", list, remove), card("Adicionar conta", microsoft, offlineRow, offlineHint), message);
+		VBox accountCard = new VBox(12, label("Suas contas"), accountScroll, enterRow, microsoft);
+		accountCard.getStyleClass().add("card");
+		VBox left = new VBox(14, title, accountCard, message);
 		left.setPrefWidth(380);
+		left.setMinWidth(320);
 
-		// Coluna direita: skin e capa.
-		Button chooseSkin = new Button("Escolher skin (PNG)");
-		chooseSkin.getStyleClass().add("primary-button");
-		chooseSkin.setOnAction(e -> chooseSkin());
-		slim.setOnAction(e -> preview.setSkin(currentSkinImage(), slim.isSelected()));
-		skinInfo.setWrapText(true);
-		skinInfo.getStyleClass().add("muted");
-		VBox skinBox = new VBox(12, preview, slim, chooseSkin, skinInfo);
-		skinBox.setAlignment(Pos.TOP_CENTER);
+		// Coluna direita: skin (arrastar e soltar) e capa.
+		dropHint.getStyleClass().add("muted");
+		dropHint.setStyle("-fx-text-alignment: center;");
+		slim.setOnAction(e -> {
+			Account account = ctx.accounts().selected();
+			if (account != null) {
+				account.skinModel = slim.isSelected() ? "slim" : "classic";
+				ctx.accountChanged();
+			}
+			preview.setSkin(currentSkinImage(), slim.isSelected());
+		});
+		dropZone = new VBox(12, preview, dropHint);
+		dropZone.setAlignment(Pos.CENTER);
+		dropZone.getStyleClass().add("drop-zone");
+		dropZone.setOnMouseClicked(e -> chooseSkin());
+		dropZone.setOnDragOver(e -> {
+			if (e.getDragboard().hasFiles()) {
+				e.acceptTransferModes(TransferMode.COPY);
+				if (!dropZone.getStyleClass().contains("drop-active")) {
+					dropZone.getStyleClass().add("drop-active");
+				}
+			}
+			e.consume();
+		});
+		dropZone.setOnDragExited(e -> dropZone.getStyleClass().remove("drop-active"));
+		dropZone.setOnDragDropped(e -> {
+			List<File> files = e.getDragboard().getFiles();
+			boolean ok = !files.isEmpty();
+			if (ok) {
+				applySkin(files.get(0));
+			}
+			e.setDropCompleted(ok);
+			e.consume();
+		});
+		VBox.setVgrow(dropZone, Priority.ALWAYS);
 
 		capes.setMaxWidth(Double.MAX_VALUE);
 		capes.setConverter(new javafx.util.StringConverter<>() {
 			@Override
 			public String toString(MinecraftServices.Cape cape) {
-				return cape == null ? "Sem capa" : cape.alias() + (cape.active() ? " (em uso)" : "");
+				return cape == null ? "Sem capa" : cape.alias();
 			}
 
 			@Override
@@ -140,37 +158,83 @@ public final class AccountView extends HBox {
 				return null;
 			}
 		});
-		applyCape.getStyleClass().add("ghost-button");
-		applyCape.setOnAction(e -> applyCape());
-		VBox capeBox = card("Capa", capes, applyCape);
+		capes.setOnAction(e -> applyCape());
+		capeBox = new VBox(8, label("Capa"), capes);
 
-		VBox right = new VBox(14, card("Skin", skinBox), capeBox);
+		VBox skinCard = new VBox(12, label("Skin"), dropZone, slim, capeBox);
+		skinCard.getStyleClass().add("card");
+		VBox.setVgrow(skinCard, Priority.ALWAYS);
+		VBox right = new VBox(skinCard);
 		HBox.setHgrow(right, Priority.ALWAYS);
 		getChildren().addAll(left, right);
 		reload();
+
+		sceneProperty().addListener((obs, old, scene) -> {
+			if (scene != null) {
+				Motion.enter(accountCard, 0);
+				Motion.enter(skinCard, 80);
+			}
+		});
 	}
 
-	private static VBox card(String heading, javafx.scene.Node... children) {
-		Label label = new Label(heading);
+	private static Label label(String text) {
+		Label label = new Label(text);
 		label.getStyleClass().add("card-title");
-		VBox box = new VBox(10);
-		box.getChildren().add(label);
-		box.getChildren().addAll(children);
-		box.getStyleClass().add("card");
-		return box;
+		return label;
 	}
 
+	/** Monta a lista de contas (uma linha por conta). */
 	private void reload() {
-		list.setItems(FXCollections.observableArrayList(ctx.accounts().all()));
+		accounts.getChildren().clear();
 		Account selected = ctx.accounts().selected();
-		if (selected != null) {
-			list.getSelectionModel().select(selected);
+		List<Account> all = ctx.accounts().all();
+		if (all.isEmpty()) {
+			Label empty = new Label("Nenhuma conta ainda. Digite seu nick abaixo.");
+			empty.getStyleClass().add("muted");
+			accounts.getChildren().add(empty);
+		}
+		for (Account account : all) {
+			accounts.getChildren().add(row(account, account == selected));
 		}
 		refreshSkin();
 	}
 
-	private void show(String text) {
-		message.setText(text);
+	private HBox row(Account account, boolean selected) {
+		ImageView head = new ImageView();
+		Image face = null;
+		Path skin = account.type == Account.Type.OFFLINE ? GameLauncher.localSkin(account) : remoteSkinCache(account);
+		if (Files.exists(skin)) {
+			face = Faces.face(new Image(skin.toUri().toString()), 3);
+		}
+		if (face == null) {
+			java.io.InputStream logo = AccountView.class.getResourceAsStream("/com/vfxclient/launcher/logo-256.png");
+			face = logo == null ? null : new Image(logo);
+		}
+		head.setImage(face);
+		head.setFitWidth(24);
+		head.setFitHeight(24);
+		Label name = new Label(account.username);
+		name.getStyleClass().add("account-chip-name");
+		Label type = new Label(account.type == Account.Type.OFFLINE ? "offline" : "original");
+		type.getStyleClass().add("tag");
+		Region spacer = new Region();
+		HBox.setHgrow(spacer, Priority.ALWAYS);
+		Button remove = new Button("✕");
+		remove.getStyleClass().add("remove-button");
+		remove.setOnAction(e -> {
+			ctx.accounts().remove(account);
+			ctx.accountChanged();
+			reload();
+		});
+		HBox row = new HBox(10, head, name, type, spacer, remove);
+		row.setAlignment(Pos.CENTER_LEFT);
+		row.getStyleClass().add(selected ? "account-row-selected" : "account-row");
+		row.setOnMouseClicked(e -> {
+			ctx.accounts().select(account);
+			ctx.accountChanged();
+			reload();
+		});
+		return row;
 	}
 
 	// ------------------------------------------------------------------
@@ -181,16 +245,14 @@ public final class AccountView extends HBox {
 		if (!ctx.settings().microsoftEnabled()) {
 			Alert alert = new Alert(Alert.AlertType.INFORMATION);
 			alert.initOwner(ctx.stage());
-			alert.setTitle("Login Microsoft");
-			alert.setHeaderText("Falta configurar o Client ID da Microsoft");
-			alert.setContentText("O login Microsoft precisa de um aplicativo registrado no Azure (é grátis). "
-					+ "Cole o Client ID em Configurações > Launcher. O passo a passo está no arquivo INSTRUCOES.txt.\n\n"
-					+ "Enquanto isso, use uma conta offline.");
+			alert.setTitle("Entrar com Microsoft");
+			alert.setHeaderText("Ainda não disponível");
+			alert.setContentText("O login com conta original ainda não foi liberado neste launcher. Por enquanto, entre só com o seu nick.");
 			alert.showAndWait();
 			return;
 		}
 		AtomicBoolean cancelled = new AtomicBoolean();
-		show("Pedindo código à Microsoft...");
+		Motion.toast(message, "Pedindo código à Microsoft...");
 		ctx.runAsync(() -> {
 			try {
 				MicrosoftAuth auth = new MicrosoftAuth(ctx.settings().microsoftClientId);
@@ -201,10 +263,10 @@ public final class AccountView extends HBox {
 					ctx.accounts().put(account);
 					ctx.accountChanged();
 					reload();
-					show("Bem-vindo, " + account.username + "!");
+					Motion.toast(message, "Bem-vindo, " + account.username + "!");
 				});
 			} catch (IOException | RuntimeException e) {
-				LauncherContext.ui(() -> show("Login Microsoft: " + e.getMessage()));
+				LauncherContext.ui(() -> Motion.toast(message, "Login Microsoft: " + e.getMessage()));
 			}
 		});
 	}
@@ -214,20 +276,17 @@ public final class AccountView extends HBox {
 		dialog.initOwner(ctx.stage());
 		dialog.setTitle("Entrar com Microsoft");
 		dialog.setHeaderText("Código: " + code.userCode());
-		dialog.setContentText("1. Abra " + code.verificationUri() + "\n2. Digite o código acima\n3. Entre com a conta que tem o Minecraft\n\n"
-				+ "O código já foi copiado. Esta janela pode ser fechada; o launcher continua esperando.");
+		dialog.setContentText("Abrimos a página da Microsoft. Cole o código (já está copiado) e entre com a conta que tem o Minecraft.");
 		ClipboardContent content = new ClipboardContent();
 		content.putString(code.userCode());
 		Clipboard.getSystemClipboard().setContent(content);
 		ctx.host().showDocument(code.verificationUri());
-		ButtonType cancel = new ButtonType("Cancelar login");
+		ButtonType cancel = new ButtonType("Cancelar");
 		dialog.getButtonTypes().setAll(ButtonType.OK, cancel);
 		dialog.showAndWait().ifPresent(button -> {
 			if (button == cancel) {
 				cancelled.set(true);
-				show("Login cancelado.");
-			} else {
-				show("Esperando você confirmar o código no navegador...");
+				Motion.toast(message, "Login cancelado.");
 			}
 		});
 	}
@@ -251,26 +310,19 @@ public final class AccountView extends HBox {
 
 	private void refreshSkin() {
 		Account account = ctx.accounts().selected();
-		capes.getItems().clear();
+		boolean microsoft = account != null && account.type == Account.Type.MICROSOFT;
+		capeBox.setVisible(microsoft);
+		capeBox.setManaged(microsoft);
+		dropZone.setDisable(account == null);
 		if (account == null) {
 			preview.setSkin(null, false);
-			skinInfo.setText("Crie ou escolha uma conta.");
-			capes.setDisable(true);
-			applyCape.setDisable(true);
 			return;
 		}
 		slim.setSelected("slim".equals(account.skinModel));
-		if (account.type == Account.Type.OFFLINE) {
-			preview.setSkin(currentSkinImage(), slim.isSelected());
-			skinInfo.setText("Conta offline: a skin vale dentro do VfxClient (só você vê, até existir o servidor de skins).");
-			capes.setDisable(true);
-			applyCape.setDisable(true);
-			capes.setPromptText("Capas só em contas Microsoft");
+		preview.setSkin(currentSkinImage(), slim.isSelected());
+		if (!microsoft) {
 			return;
 		}
-		skinInfo.setText("Skin oficial da conta Microsoft (todo mundo vê).");
-		capes.setDisable(false);
-		applyCape.setDisable(false);
 		ctx.runAsync(() -> {
 			try {
 				if (!account.tokenValid() && ctx.settings().microsoftEnabled()) {
@@ -289,40 +341,47 @@ public final class AccountView extends HBox {
 				List<MinecraftServices.Cape> list = MinecraftServices.capes(account);
 				LauncherContext.ui(() -> {
 					preview.setSkin(currentSkinImage(), "slim".equals(account.skinModel));
+					capes.setOnAction(null);
 					capes.getItems().setAll(list);
 					capes.getItems().add(0, null);
 					capes.setValue(list.stream().filter(MinecraftServices.Cape::active).findFirst().orElse(null));
+					capes.setOnAction(e -> applyCape());
 				});
 			} catch (IOException | RuntimeException e) {
-				LauncherContext.ui(() -> {
-					preview.setSkin(currentSkinImage(), slim.isSelected());
-					skinInfo.setText("Não foi possível atualizar a skin oficial: " + e.getMessage());
-				});
+				LauncherContext.ui(() -> preview.setSkin(currentSkinImage(), slim.isSelected()));
 			}
 		});
 	}
 
 	private void chooseSkin() {
-		Account account = ctx.accounts().selected();
-		if (account == null) {
-			show("Crie ou escolha uma conta primeiro.");
+		if (ctx.accounts().selected() == null) {
+			Motion.toast(message, "Entre com o seu nick primeiro.");
 			return;
 		}
 		FileChooser chooser = new FileChooser();
 		chooser.setTitle("Escolher skin");
 		chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Skin do Minecraft (PNG)", "*.png"));
 		File file = chooser.showOpenDialog(ctx.stage());
-		if (file == null) {
+		if (file != null) {
+			applySkin(file);
+		}
+	}
+
+	/** Aplica a skin escolhida ou arrastada (offline: salva local; original: envia para a conta). */
+	private void applySkin(File file) {
+		Account account = ctx.accounts().selected();
+		if (account == null) {
+			Motion.toast(message, "Entre com o seu nick primeiro.");
 			return;
 		}
 		try {
 			BufferedImage image = ImageIO.read(file);
 			if (image == null || image.getWidth() != 64 || (image.getHeight() != 64 && image.getHeight() != 32)) {
-				show("A skin precisa ser um PNG de 64x64 (ou 64x32, formato antigo).");
+				Motion.toast(message, "Use um PNG de skin do Minecraft (64x64).");
 				return;
 			}
 		} catch (IOException e) {
-			show("Não foi possível ler a imagem: " + e.getMessage());
+			Motion.toast(message, "Não deu para ler a imagem.");
 			return;
 		}
 		account.skinModel = slim.isSelected() ? "slim" : "classic";
@@ -332,24 +391,24 @@ public final class AccountView extends HBox {
 				Files.createDirectories(target.getParent());
 				Files.copy(file.toPath(), target, StandardCopyOption.REPLACE_EXISTING);
 				ctx.accountChanged();
-				refreshSkin();
-				show("Skin salva. Ela aparece no jogo na próxima vez que você iniciar.");
+				reload();
+				Motion.toast(message, "Skin salva! Ela aparece no jogo.");
 			} catch (IOException e) {
-				show("Não foi possível salvar a skin: " + e.getMessage());
+				Motion.toast(message, "Não deu para salvar a skin.");
 			}
 			return;
 		}
-		show("Enviando a skin para a conta Microsoft...");
+		Motion.toast(message, "Enviando a skin...");
 		ctx.runAsync(() -> {
 			try {
 				MinecraftServices.uploadSkin(account, file.toPath(), slim.isSelected());
 				LauncherContext.ui(() -> {
 					ctx.accountChanged();
-					refreshSkin();
-					show("Skin trocada na sua conta oficial.");
+					reload();
+					Motion.toast(message, "Skin trocada na sua conta.");
 				});
 			} catch (IOException e) {
-				LauncherContext.ui(() -> show("A Mojang recusou a skin: " + e.getMessage()));
+				LauncherContext.ui(() -> Motion.toast(message, "A Mojang recusou a skin."));
 			}
 		});
 	}
@@ -363,12 +422,9 @@ public final class AccountView extends HBox {
 		ctx.runAsync(() -> {
 			try {
 				MinecraftServices.setCape(account, cape == null ? null : cape.id());
-				LauncherContext.ui(() -> {
-					show(cape == null ? "Capa escondida." : "Capa \"" + cape.alias() + "\" em uso.");
-					refreshSkin();
-				});
+				LauncherContext.ui(() -> Motion.toast(message, cape == null ? "Capa escondida." : "Capa em uso."));
 			} catch (IOException e) {
-				LauncherContext.ui(() -> show("Não foi possível trocar a capa: " + e.getMessage()));
+				LauncherContext.ui(() -> Motion.toast(message, "Não deu para trocar a capa."));
 			}
 		});
 	}
