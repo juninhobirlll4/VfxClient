@@ -1,7 +1,11 @@
 package com.vfxclient.core;
 
+import com.vfxclient.core.emote.Emote;
+import com.vfxclient.core.emote.Emotes;
 import com.vfxclient.core.gui.ClickGuiScreen;
+import com.vfxclient.core.gui.EmoteWheelScreen;
 import com.vfxclient.core.gui.VfxTitleScreen;
+import com.vfxclient.core.module.social.EmotesModule;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.GameMenuScreen;
 import net.minecraft.client.gui.screen.Screen;
@@ -22,7 +26,9 @@ import net.minecraft.client.util.ScreenshotUtils;
  *   <li>{@code -Dvfx.titleShot=servidores|opcoes|video|controles|mundos|novomundo}: abre essa tela a partir da
  *       inicial ({@code vfx-teste-inicio.png});</li>
  *   <li>{@code -Dvfx.openMenu=pausa}: menu de pausa, já num mundo ({@code vfx-teste.png});</li>
+ *   <li>{@code -Dvfx.openMenu=emotes}: roda de emotes ({@code vfx-teste.png});</li>
  *   <li>{@code -Dvfx.openMenu=mundo}: o mundo sem nenhuma tela aberta ({@code vfx-teste.png});</li>
+ *   <li>{@code -Dvfx.emote=<id>} junto com o openMenu: faz esse emote antes do print.</li>
  *   <li>{@code -Dvfx.openMenu=<id do módulo>}: opções do módulo no menu ({@code vfx-teste.png}).</li>
  * </ul>
  */
@@ -96,11 +102,22 @@ final class TestShots {
 		}
 		if ("pausa".equals(menuMode)) {
 			client.setScreen(new GameMenuScreen());
+		} else if ("emotes".equals(menuMode)) {
+			client.setScreen(new EmoteWheelScreen(VfxCore.get().getModules().get(EmotesModule.class), 0));
 		} else if (!"mundo".equals(menuMode)) {
 			client.setScreen(new ClickGuiScreen().withSettings(VfxCore.get().getModules().get(menuMode)));
 		}
+		playTestEmote();
 		menuMode = null;
 		shoot("vfx-teste.png");
+	}
+
+	/** {@code -Dvfx.emote=<id>}: faz o emote assim que entra no mundo (o print sai no meio dele). */
+	private static void playTestEmote() {
+		Emote emote = Emotes.byId(System.getProperty("vfx.emote", ""));
+		if (emote != null) {
+			VfxCore.get().getModules().get(EmotesModule.class).play(emote);
+		}
 	}
 
 	private void shoot(String name) {

@@ -9,6 +9,7 @@ import com.vfxclient.core.module.ModuleManager;
 import com.vfxclient.core.module.general.MenuModule;
 import com.vfxclient.core.module.general.ToggleNotificationModule;
 import com.vfxclient.core.module.performance.FpsLimiterModule;
+import com.vfxclient.core.module.social.EmotesModule;
 import com.vfxclient.core.module.util.AutoTextModule;
 import com.vfxclient.core.module.util.ToggleSprintModule;
 import net.fabricmc.api.ClientModInitializer;
@@ -104,6 +105,7 @@ public final class VfxCore implements ClientModInitializer {
 		FpsLimiterModule.markInput();
 		modules.get(ToggleSprintModule.class).onKeyPressed(keyCode);
 		modules.get(AutoTextModule.class).onKeyPressed(keyCode);
+		modules.get(EmotesModule.class).onKeyPressed(keyCode);
 		if (keyCode != 0 && MinecraftClient.getInstance().currentScreen == null) {
 			// Teclas de atalho dos módulos: liga/desliga e mostra o aviso na tela.
 			for (Module module : modules.all()) {

@@ -8,6 +8,8 @@
     "ButtonWidgetMixin",
     "ClientPlayerEntityMixin",
     "DrawableHelperMixin",
+    "EmoteArmMixin",
+    "EmoteModelMixin",
     "EntityRenderDispatcherMixin",
     "GameRendererMixin",
     "InGameHudAccessor",

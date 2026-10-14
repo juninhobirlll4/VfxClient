@@ -38,6 +38,7 @@ import com.vfxclient.core.module.performance.ParticleLimitModule;
 import com.vfxclient.core.module.performance.PerformanceProfileModule;
 import com.vfxclient.core.module.performance.RenderTweaksModule;
 import com.vfxclient.core.module.performance.VanillaOptionsModule;
+import com.vfxclient.core.module.social.EmotesModule;
 import com.vfxclient.core.module.util.AutoGgModule;
 import com.vfxclient.core.module.util.AutoTextModule;
 import com.vfxclient.core.module.util.BlockOutlineModule;
@@ -80,6 +81,7 @@ public final class ModuleManager {
 		registerUtilities();
 		registerVisual();
 		registerPerformance();
+		registerSocial();
 	}
 
 	private void registerGeneral() {
@@ -154,6 +156,10 @@ public final class ModuleManager {
 		register(new FarPlayersModule());
 		register(new BlockDetailsModule());
 		register(new FpsTestModule());
+	}
+
+	private void registerSocial() {
+		register(new EmotesModule());
 	}
 
 	/**
