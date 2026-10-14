@@ -5,6 +5,8 @@
  * endereço em si). Quem está na mesma sala recebe os emotes dos outros. Nada é guardado: quando
  * todo mundo sai, a sala some.
  *
+ * Skins: GET /skin/<nick> e PUT /skin/<nick> (veja skins.js).
+ *
  * Mensagens (JSON, uma por quadro de WebSocket):
  *   client -> servidor  {"t":"hello","v":1,"uuid":"...","name":"..."}
  *                       {"t":"emote","id":"acenar"}
@@ -13,6 +15,9 @@
  *                       {"t":"stop","uuid":"...","name":"..."}
  */
 import { DurableObject } from "cloudflare:workers";
+import { SkinStore } from "./skins.js";
+
+export { SkinStore };
 
 const ROOM = /^[0-9a-f]{64}$/;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
@@ -26,6 +31,10 @@ const MAX_PER_ROOM = 200;
 export default {
 	async fetch(request, env) {
 		const url = new URL(request.url);
+		if (url.pathname.startsWith("/skin/")) {
+			// Todas as skins ficam num único objeto (o grupo é pequeno).
+			return env.SKINS.get(env.SKINS.idFromName("skins")).fetch(request);
+		}
 		if (url.pathname !== "/ws") {
 			return new Response("VfxClient emotes\n", { headers: { "content-type": "text/plain; charset=utf-8" } });
 		}
