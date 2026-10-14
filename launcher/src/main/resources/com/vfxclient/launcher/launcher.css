@@ -334,3 +334,16 @@
 .news-scroll .scroll-bar {
     -fx-opacity: 0.4;
 }
+/* Galeria de prints ------------------------------------------------ */
+.shot-card {
+    -fx-background-color: -vfx-surface;
+    -fx-background-radius: 12;
+    -fx-border-color: -vfx-border;
+    -fx-border-radius: 12;
+    -fx-padding: 8;
+    -fx-cursor: hand;
+}
+
+.shot-card:hover {
+    -fx-border-color: -vfx-primary-light;
+}

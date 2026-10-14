@@ -9,6 +9,7 @@ import com.vfxclient.launcher.game.GameLauncher;
 import com.vfxclient.launcher.ui.AccountView;
 import com.vfxclient.launcher.ui.HomeView;
 import com.vfxclient.launcher.ui.LauncherContext;
+import com.vfxclient.launcher.ui.ScreenshotsView;
 import com.vfxclient.launcher.ui.SettingsView;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -44,6 +45,7 @@ public final class VfxLauncherApp extends Application {
 	private HomeView home;
 	private AccountView account;
 	private SettingsView settings;
+	private ScreenshotsView screenshots;
 
 	/**
 	 * Sobe o runtime do JavaFX e abre a janela.
@@ -60,6 +62,7 @@ public final class VfxLauncherApp extends Application {
 		home = new HomeView(ctx);
 		account = new AccountView(ctx);
 		settings = new SettingsView(ctx);
+		screenshots = new ScreenshotsView(ctx);
 
 		BorderPane root = new BorderPane();
 		root.getStyleClass().add("root-pane");
@@ -96,8 +99,8 @@ public final class VfxLauncherApp extends Application {
 	private void snapshots(Scene scene, Path dir) {
 		javafx.animation.PauseTransition wait = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(4));
 		wait.setOnFinished(e -> {
-			Node[] views = {home, account, settings};
-			String[] names = {"inicio", "conta", "configuracoes"};
+			Node[] views = {home, account, screenshots, settings};
+			String[] names = {"inicio", "conta", "prints", "configuracoes"};
 			try {
 				Files.createDirectories(dir);
 				for (int i = 0; i < views.length; i++) {
@@ -148,13 +151,14 @@ public final class VfxLauncherApp extends Application {
 		header.setAlignment(Pos.CENTER_LEFT);
 		header.setPadding(new Insets(0, 0, 18, 4));
 
-		String[] labels = {"Início", "Conta", "Configurações"};
+		String[] labels = {"Início", "Conta", "Prints", "Configurações"};
+		Node[] views = {home, account, screenshots, settings};
 		for (int i = 0; i < labels.length; i++) {
 			int index = i;
 			Button button = new Button(labels[i]);
 			button.getStyleClass().add("nav-button");
 			button.setMaxWidth(Double.MAX_VALUE);
-			button.setOnAction(e -> show(index == 0 ? home : index == 1 ? account : settings, index));
+			button.setOnAction(e -> show(views[index], index));
 			nav.getChildren().add(button);
 		}
 
