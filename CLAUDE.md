@@ -88,6 +88,17 @@ Tudo é nosso: nome, logo, cores (roxo → branco), código e assets.
   testados abrindo via CLI (v0.6). CLI `--join host:porta` entra direto num servidor (`-Dvfx.join`).
   OptiFine/Forge rodam SEM os recursos do VfxClient (decisão do usuário: opção 1; port para Forge fica para depois).
 
+## v0.13.1
+- Desempenho (desligados por padrão): `HideDecorationsModule` (EntityRenderDispatcher.shouldRender), `FarPlayersModule`
+  (redirect FeatureRenderer.render em LivingEntityRenderer.renderFeatures, setModelPose TAIL, EntityRenderer.renderLabelIfPresent),
+  `BlockDetailsModule` (placas: flag no HEAD + redirect TextRenderer.draw; banners/cabeças no BlockEntityRenderDispatcher; tampa
+  do baú zerada), `FpsTestModule` (contagem no HEAD de GameRenderer.render(FJ)V).
+- Launcher com Montserrat/Inter: build copia as fontes do core; nomes internos dos arquivos são "Montserrat Thin Black",
+  "Montserrat Thin ExtraBold", "Inter Medium" e "Inter" (só bold) — use esses nomes no CSS.
+- `VanillaStyle`: slider com trilha embaixo, caixas de texto (TextFieldWidget fill ordinal 0/1). `-Dvfx.openMenu=mundo`.
+- Teste em mundo com entidades: servidor de teste com RCON (porta 25575) + `execute Teste ~ ~ ~ summon ...`.
+  Cuidado: o jogo de teste pega o foco e recebe o que o usuário digita.
+
 ## v0.13
 - Fontes Montserrat/Inter (OFL, `assets/vfx/fonts/`) desenhadas por `gui/font/` (`GlyphAtlas` AWT → textura, `FontFamily`
   com cache de até 6 tamanhos: NÃO variar o tamanho de texto por frame; encolher com matriz). `Fonts.setPixelsPerUnit`/`useGuiScale`.
