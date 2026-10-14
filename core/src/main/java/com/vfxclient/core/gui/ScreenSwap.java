@@ -6,6 +6,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.GameMenuScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
+import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
+import com.vfxclient.core.mixin.MultiplayerScreenAccessor;
 
 /**
  * Decide quando uma tela do jogo vira a versão do VfxClient. Tudo pode ser desligado no
@@ -38,6 +40,9 @@ public final class ScreenSwap {
 		}
 		if (type == GameMenuScreen.class) {
 			return new VfxPauseScreen();
+		}
+		if (type == MultiplayerScreen.class) {
+			return new VfxServerScreen(((MultiplayerScreenAccessor) requested).vfx$getParent());
 		}
 		return null;
 	}

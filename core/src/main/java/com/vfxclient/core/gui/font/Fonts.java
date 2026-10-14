@@ -111,4 +111,55 @@ public final class Fonts {
 		GlyphAtlas atlas = family.atlas(Math.round(size * pixelsPerUnit));
 		return atlas == null ? 9F : atlas.lineHeight() / pixelsPerUnit;
 	}
+
+	/** Cores dos códigos de formatação do Minecraft (§0 a §f). */
+	private static final int[] FORMAT_COLORS = {
+		0x000000, 0x0000AA, 0x00AA00, 0x00AAAA, 0xAA0000, 0xAA00AA, 0xFFAA00, 0xAAAAAA,
+		0x555555, 0x5555FF, 0x55FF55, 0x55FFFF, 0xFF5555, 0xFF55FF, 0xFFFF55, 0xFFFFFF
+	};
+
+	/**
+	 * Desenha um texto com os códigos de cor do Minecraft (§a, §c...), como a mensagem dos
+	 * servidores. Negrito, itálico e afins são ignorados.
+	 *
+	 * @param defaultColor cor antes do primeiro código e depois de §r
+	 */
+	public static void drawFormatted(FontFamily family, String text, float x, float y, float size, int defaultColor) {
+		int alpha = defaultColor & 0xFF000000;
+		int color = defaultColor;
+		StringBuilder part = new StringBuilder();
+		float cursor = x;
+
+		for (int i = 0; i < text.length(); i++) {
+			char c = text.charAt(i);
+			if (c == '\u00a7' && i + 1 < text.length()) {
+				cursor = flush(family, part, cursor, y, size, color);
+				int code = "0123456789abcdef".indexOf(Character.toLowerCase(text.charAt(i + 1)));
+				if (code >= 0) {
+					color = alpha | FORMAT_COLORS[code];
+				} else if (Character.toLowerCase(text.charAt(i + 1)) == 'r') {
+					color = defaultColor;
+				}
+				i++;
+			} else {
+				part.append(c);
+			}
+		}
+		flush(family, part, cursor, y, size, color);
+	}
+
+	private static float flush(FontFamily family, StringBuilder part, float x, float y, float size, int color) {
+		if (part.length() == 0) {
+			return x;
+		}
+		String text = part.toString();
+		draw(family, text, x, y, size, color);
+		part.setLength(0);
+		return x + width(family, text, size);
+	}
+
+	/** @return o texto sem os códigos de cor do Minecraft */
+	public static String stripFormatting(String text) {
+		return text == null ? "" : text.replaceAll("\u00a7.", "");
+	}
 }
