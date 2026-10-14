@@ -7,12 +7,14 @@ import com.vfxclient.core.module.Category;
 import com.vfxclient.core.module.Module;
 import com.vfxclient.core.module.setting.BooleanSetting;
 import com.vfxclient.core.module.setting.NumberSetting;
+import com.vfxclient.core.module.setting.TextSetting;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 
 /**
  * Melhorias do chat: horário em cada mensagem, mensagens repetidas agrupadas em
- * uma linha com contador ("(x3)") e histórico maior (o jogo guarda só 100 linhas).
+ * uma linha com contador ("(x3)"), histórico maior (o jogo guarda só 100 linhas), filtro
+ * anti-spam e Ctrl + clique para copiar uma mensagem.
  */
 public class ChatModule extends Module {
 
@@ -22,9 +24,13 @@ public class ChatModule extends Module {
 
 	private final BooleanSetting timestamps = add(new BooleanSetting("timestamps", "Horário nas mensagens", true));
 	private final BooleanSetting stack = add(new BooleanSetting("stack", "Agrupar mensagens repetidas", true));
+	private final BooleanSetting antiSpam = add(new BooleanSetting("antiSpam", "Anti-spam: esconder a mesma mensagem repetida em 3 s", true));
+	private final TextSetting blocked = add(new TextSetting("blocked", "Esconder mensagens com (separe por vírgula)", "", 200));
+	private final BooleanSetting copyClick = add(new BooleanSetting("copyClick", "Ctrl + clique copia a mensagem", true));
 	private final NumberSetting history = add(new NumberSetting("history", "Linhas guardadas no histórico", 500, 100, 1000, 50, ""));
 
 	private String lastRaw;
+	private long lastRawAt;
 	private int lastId;
 	private int repeat;
 	private int nextId;
@@ -46,6 +52,15 @@ public class ChatModule extends Module {
 	 */
 	public Result process(Text message) {
 		String raw = message.asFormattedString();
+		if (isBlocked(message)) {
+			return null;
+		}
+		long now = System.currentTimeMillis();
+		if (antiSpam.get() && raw.equals(lastRaw) && now - lastRawAt < 3000L) {
+			lastRawAt = now;
+			return null;
+		}
+		lastRawAt = now;
 		int id;
 		if (stack.get() && raw.equals(lastRaw)) {
 			repeat++;
@@ -66,6 +81,26 @@ public class ChatModule extends Module {
 			result.append(new LiteralText(" §7(x" + repeat + ")"));
 		}
 		return new Result(result, id);
+	}
+
+	private boolean isBlocked(Text message) {
+		String words = blocked.get().trim();
+		if (words.isEmpty()) {
+			return false;
+		}
+		String plain = message.asUnformattedString().replaceAll("§.", "").toLowerCase();
+		for (String word : words.split(",")) {
+			String w = word.trim().toLowerCase();
+			if (!w.isEmpty() && plain.contains(w)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/** @return se Ctrl + clique copia mensagens */
+	public boolean copyOnClick() {
+		return isEnabled() && copyClick.get();
 	}
 
 	/** Mensagem processada e o id da linha no chat. */
