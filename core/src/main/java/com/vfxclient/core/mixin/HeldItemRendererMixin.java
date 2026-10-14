@@ -3,6 +3,7 @@ package com.vfxclient.core.mixin;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.vfxclient.core.VfxCore;
 import com.vfxclient.core.module.visual.LowFireModule;
+import com.vfxclient.core.module.visual.ViewModelModule;
 import net.minecraft.client.render.item.HeldItemRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -10,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** Abaixa o fogo que aparece na frente da câmera. */
+/** Abaixa o fogo que aparece na frente da câmera; tamanho e posição do item na mão. */
 @Mixin(HeldItemRenderer.class)
 public abstract class HeldItemRendererMixin {
 
@@ -32,6 +33,14 @@ public abstract class HeldItemRendererMixin {
 		if (vfx$fireLowered) {
 			GlStateManager.popMatrix();
 			vfx$fireLowered = false;
+		}
+	}
+
+	@Inject(method = "applyEquipAndSwingOffset(FF)V", at = @At("TAIL"))
+	private void vfx$viewModel(float equipProgress, float swingProgress, CallbackInfo ci) {
+		ViewModelModule module = VfxCore.module(ViewModelModule.class);
+		if (module != null) {
+			module.apply();
 		}
 	}
 }
