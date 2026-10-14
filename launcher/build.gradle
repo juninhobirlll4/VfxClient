@@ -47,6 +47,10 @@ processResources {
 		into "com/vfxclient/launcher/mods"
 		rename { "vfxcore.jar" }
 	}
+	// As mesmas fontes das telas do jogo (Montserrat e Inter, com a licença OFL).
+	from(project(':core').file('src/main/resources/assets/vfx/fonts')) {
+		into "com/vfxclient/launcher/fonts"
+	}
 	def props = [
 			clientVersion   : project.version,
 			minecraftVersion: project.minecraft_version

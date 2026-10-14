@@ -42,6 +42,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -73,6 +74,7 @@ public final class VfxLauncherApp extends Application {
 
 	@Override
 	public void start(Stage stage) {
+		loadFonts();
 		ctx = new LauncherContext(stage, getHostServices());
 		home = new HomeView(ctx);
 		account = new AccountView(ctx);
@@ -116,6 +118,24 @@ public final class VfxLauncherApp extends Application {
 
 		TrayManager.install(stage);
 		stage.show();
+	}
+
+	/**
+	 * Registra as fontes do VfxClient (as mesmas das telas do jogo) para o CSS usar pelo nome.
+	 * Os arquivos vêm com nomes internos próprios: "Montserrat Thin Black" e "Montserrat Thin
+	 * ExtraBold" (títulos e botões), "Inter Medium" (texto) e "Inter" (só negrito).
+	 */
+	private static void loadFonts() {
+		String[] files = {"montserrat-800.ttf", "montserrat-900.ttf", "inter-500.ttf", "inter-700.ttf"};
+		for (String file : files) {
+			try (InputStream in = VfxLauncherApp.class.getResourceAsStream(RESOURCE_BASE + "fonts/" + file)) {
+				if (in != null) {
+					Font.loadFont(in, 13);
+				}
+			} catch (IOException e) {
+				System.err.println("Fonte não carregada (" + file + "): " + e.getMessage());
+			}
+		}
 	}
 
 	/** Modo de desenvolvimento: salva um PNG de cada tela e fecha (usado para revisar o visual). */

@@ -15,7 +15,7 @@
     -vfx-muted: #9C92B4;
     -vfx-warning: #FFC46B;
 
-    -fx-font-family: "Segoe UI", "Inter", sans-serif;
+    -fx-font-family: "Inter Medium", "Segoe UI", sans-serif;
     -fx-font-size: 13.5px;
     -fx-base: #171127;
     -fx-background: #0D0A14;
@@ -37,8 +37,8 @@
 }
 
 .brand {
+    -fx-font-family: "Montserrat Thin Black";
     -fx-font-size: 19px;
-    -fx-font-weight: bold;
     -fx-text-fill: -vfx-white;
 }
 
@@ -71,6 +71,7 @@
 
 .account-chip-name {
     -fx-text-fill: -vfx-text;
+    -fx-font-family: "Inter";
     -fx-font-weight: bold;
 }
 
@@ -80,8 +81,8 @@
 }
 
 .view-title {
+    -fx-font-family: "Montserrat Thin Black";
     -fx-font-size: 24px;
-    -fx-font-weight: bold;
     -fx-text-fill: -vfx-white;
 }
 
@@ -107,6 +108,7 @@
 
 .card-title {
     -fx-font-size: 12px;
+    -fx-font-family: "Inter";
     -fx-font-weight: bold;
     -fx-text-fill: -vfx-muted;
 }
@@ -124,6 +126,7 @@
 
 .update-banner .label {
     -fx-text-fill: -vfx-white;
+    -fx-font-family: "Inter";
     -fx-font-weight: bold;
 }
 
@@ -138,6 +141,7 @@
 
 .status {
     -fx-font-size: 15px;
+    -fx-font-family: "Inter";
     -fx-font-weight: bold;
     -fx-text-fill: -vfx-text;
 }
@@ -156,8 +160,8 @@
 .play-button {
     -fx-background-color: linear-gradient(to right, -vfx-primary, -vfx-primary-light);
     -fx-text-fill: -vfx-white;
+    -fx-font-family: "Montserrat Thin ExtraBold";
     -fx-font-size: 20px;
-    -fx-font-weight: bold;
     -fx-padding: 16 56 16 56;
     -fx-background-radius: 12;
     -fx-cursor: hand;
@@ -177,7 +181,7 @@
 .primary-button {
     -fx-background-color: -vfx-primary;
     -fx-text-fill: -vfx-white;
-    -fx-font-weight: bold;
+    -fx-font-family: "Montserrat Thin ExtraBold";
     -fx-padding: 8 16 8 16;
     -fx-background-radius: 8;
     -fx-cursor: hand;
@@ -242,8 +246,8 @@
 }
 
 .hero-title {
+    -fx-font-family: "Montserrat Thin Black";
     -fx-font-size: 30px;
-    -fx-font-weight: bold;
     -fx-text-fill: -vfx-white;
 }
 
@@ -304,6 +308,7 @@
 
 .news-title {
     -fx-font-size: 17px;
+    -fx-font-family: "Inter";
     -fx-font-weight: bold;
     -fx-text-fill: -vfx-white;
 }
@@ -316,6 +321,7 @@
 }
 
 .news-version {
+    -fx-font-family: "Inter";
     -fx-font-weight: bold;
     -fx-text-fill: -vfx-primary-light;
     -fx-padding: 6 0 0 0;
@@ -410,6 +416,7 @@
     -fx-background-radius: 8;
     -fx-padding: 6 10 6 10;
     -fx-text-fill: -vfx-white;
+    -fx-font-family: "Inter";
     -fx-font-weight: bold;
     -fx-alignment: center;
 }
