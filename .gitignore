@@ -28,6 +28,3 @@ Thumbs.db
 
 # Site: a CI copia a marca para cá antes de publicar
 site/assets/
-
-# OptiFine local para o instalador do grupo (nunca vai para o GitHub)
-installer/local/
