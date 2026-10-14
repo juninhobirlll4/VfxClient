@@ -2,6 +2,7 @@ package com.vfxclient.core.mixin;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.vfxclient.core.VfxCore;
+import com.vfxclient.core.gui.BlurredScreen;
 import com.vfxclient.core.hud.HudRenderer;
 import com.vfxclient.core.module.performance.RenderTweaksModule;
 import com.vfxclient.core.module.util.CrosshairModule;
@@ -20,6 +21,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 /** HUD do VfxClient, mira personalizada, placar e vinheta. */
 @Mixin(InGameHud.class)
 public abstract class InGameHudMixin {
+
+	/** Atrás das telas desfocadas do VfxClient (menu de pausa) a HUD some, como nas imagens. */
+	@Inject(method = "render(F)V", at = @At("HEAD"), cancellable = true)
+	private void vfx$hideUnderMenus(float tickDelta, CallbackInfo ci) {
+		if (MinecraftClient.getInstance().currentScreen instanceof BlurredScreen) {
+			ci.cancel();
+		}
+	}
 
 	@Inject(method = "render(F)V", at = @At("TAIL"))
 	private void vfx$renderHud(float tickDelta, CallbackInfo ci) {

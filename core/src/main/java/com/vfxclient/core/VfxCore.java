@@ -38,6 +38,7 @@ public final class VfxCore implements ClientModInitializer {
 	private ConfigManager config;
 	private String version = "dev";
 	private boolean openClickGuiPending;
+	private long worldJoinedAt;
 	/** Modo de teste: {@code -Dvfx.openMenu=menu} (ou o id de um módulo) abre o menu sozinho ao entrar no mundo. */
 	private String testMenu = System.getProperty("vfx.openMenu");
 	private int testMenuDelay = 60;
@@ -78,6 +79,7 @@ public final class VfxCore implements ClientModInitializer {
 	 * @param client instância do Minecraft
 	 */
 	public void onClientTick(MinecraftClient client) {
+		trackSession(client);
 		if (openClickGuiPending) {
 			openClickGuiPending = false;
 			if (client.currentScreen == null) {
@@ -88,7 +90,11 @@ public final class VfxCore implements ClientModInitializer {
 				&& (client.currentScreen == null || client.currentScreen instanceof net.minecraft.client.gui.screen.GameMenuScreen)) {
 			String id = testMenu;
 			testMenu = null;
-			client.setScreen(new ClickGuiScreen().withSettings(modules.get(id)));
+			if ("pausa".equals(id)) {
+				client.setScreen(new net.minecraft.client.gui.screen.GameMenuScreen());
+			} else {
+				client.setScreen(new ClickGuiScreen().withSettings(modules.get(id)));
+			}
 			testShotDelay = 40;
 		}
 		if (titleShotDelay > 0 && client.currentScreen instanceof com.vfxclient.core.gui.VfxTitleScreen && --titleShotDelay == 0) {
@@ -135,6 +141,20 @@ public final class VfxCore implements ClientModInitializer {
 		if (client.currentScreen == null && keyCode == modules.get(MenuModule.class).getKey()) {
 			openClickGuiPending = true;
 		}
+	}
+
+	/** Marca quando o jogador entrou no mundo/servidor atual (tempo de sessão do menu de pausa). */
+	private void trackSession(MinecraftClient client) {
+		if (client.world == null) {
+			worldJoinedAt = 0;
+		} else if (worldJoinedAt == 0) {
+			worldJoinedAt = System.currentTimeMillis();
+		}
+	}
+
+	/** @return há quanto tempo o jogador está no mundo/servidor atual, em milissegundos */
+	public long sessionMillis() {
+		return worldJoinedAt == 0 ? 0 : System.currentTimeMillis() - worldJoinedAt;
 	}
 
 	/**

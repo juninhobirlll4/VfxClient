@@ -8,6 +8,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffect;
 import com.vfxclient.core.module.performance.NoCloudsModule;
 import com.vfxclient.core.module.performance.RenderTweaksModule;
+import com.vfxclient.core.module.visual.BlurModule;
 import com.vfxclient.core.module.visual.FovModule;
 import com.vfxclient.core.module.visual.FreelookModule;
 import com.vfxclient.core.module.visual.MotionBlurModule;
@@ -129,6 +130,10 @@ public abstract class GameRendererMixin {
 		MotionBlurModule blur = VfxCore.module(MotionBlurModule.class);
 		if (blur != null) {
 			blur.render(client, tickDelta);
+		}
+		BlurModule menuBlur = VfxCore.module(BlurModule.class);
+		if (menuBlur != null) {
+			menuBlur.render(client, tickDelta);
 		}
 	}
 
