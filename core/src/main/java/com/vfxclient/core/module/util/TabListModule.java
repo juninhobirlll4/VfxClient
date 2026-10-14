@@ -8,13 +8,22 @@ import com.vfxclient.core.module.setting.BooleanSetting;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
 
-/** Lista de jogadores (Tab): ping em número, colorido pela qualidade, no lugar das barrinhas. */
+/**
+ * Lista de jogadores (Tab): ping em número, colorido pela qualidade, no lugar das barrinhas, e a
+ * cabeça de cada jogador também em servidores offline (o jogo só mostra em servidores originais).
+ */
 public class TabListModule extends Module {
 
 	private final BooleanSetting numericPing = add(new BooleanSetting("numericPing", "Ping em número", true));
+	private final BooleanSetting heads = add(new BooleanSetting("heads", "Cabeça dos jogadores sempre", true));
 
 	public TabListModule() {
 		super("tabList", "Lista de jogadores", "Ping em número no Tab", Category.UTILITY, true);
+	}
+
+	/** @return se a cabeça dos jogadores deve aparecer mesmo em servidor offline */
+	public boolean alwaysHeads() {
+		return isEnabled() && heads.get();
 	}
 
 	/**

@@ -7,9 +7,11 @@ import net.minecraft.client.network.PlayerListEntry;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
+import net.minecraft.network.ClientConnection;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** Ping em número na lista de jogadores. */
+/** Ping em número e cabeças na lista de jogadores. */
 @Mixin(PlayerListHud.class)
 public abstract class PlayerListHudMixin {
 
@@ -19,5 +21,12 @@ public abstract class PlayerListHudMixin {
 		if (module != null && module.renderPing(width, x, y, entry)) {
 			ci.cancel();
 		}
+	}
+
+	/** O jogo só desenha as cabeças em conexão criptografada (servidor original); aqui, sempre. */
+	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/ClientConnection;isEncrypted()Z"))
+	private boolean vfx$alwaysHeads(ClientConnection connection) {
+		TabListModule module = VfxCore.module(TabListModule.class);
+		return (module != null && module.alwaysHeads()) || connection.isEncrypted();
 	}
 }
