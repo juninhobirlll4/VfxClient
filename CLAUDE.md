@@ -88,6 +88,16 @@ Tudo é nosso: nome, logo, cores (roxo → branco), código e assets.
   testados abrindo via CLI (v0.6). CLI `--join host:porta` entra direto num servidor (`-Dvfx.join`).
   OptiFine/Forge rodam SEM os recursos do VfxClient (decisão do usuário: opção 1; port para Forge fica para depois).
 
+## v0.12
+- Menu: `Theme.MODULE_ON/OFF` (verde/vermelho), entrada dos cartões em sequência (`listChangedAt`), opções deslizando
+  (`settingsOpenedAt`). Toda módulo desligável ganha `toggleKey` (via `ModuleManager.register` → `Module.enableToggleKey`);
+  `VfxCore.onKeyPressed` alterna e chama `ToggleNotificationModule.notify`.
+- Novos: `BlockCounterModule`, `HitboxModule` (+EntityRenderDispatcherMixin renderHitbox/drawBox), `ParticleColorModule`
+  (redirect createParticle, ids 9/10), `FovModule` (getFov + updateMovementFovMultiplier), `ViewModelModule`
+  (applyEquipAndSwingOffset TAIL), `ScrollTooltipsModule` (`ScreenTooltipMixin`), `HotbarModule` (redirect drawTexture
+  ordinal 0/1 em renderHotbar). Launcher: `ui/TrayManager` (bandeja, `Platform.setImplicitExit(false)`, fechar janela = sair).
+- Testes de menu (`-Dvfx.openMenu`) e tela inicial (`-Dvfx.titleShot`) fecham o jogo sozinhos depois do print.
+
 ## v0.11
 - Atualização: `ui/UpdateNotifier` (checa ao abrir e a cada 30 min; janela "Atualizar agora / Mais tarde"; notificação do Windows
   via SystemTray se minimizado; "Mais tarde" deixa faixa na Home). `Updater.download` (Downloader com progresso) + `Updater.run`

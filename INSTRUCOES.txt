@@ -182,6 +182,13 @@ No jogo (Right Shift)
   Ctrl + clique numa mensagem para copiar.
 - Tab: cabeça dos jogadores também em servidores offline. Placar: "Tamanho (compacto)".
 - Launcher > Prints: galeria dos prints (F2); clique abre a imagem.
+- Menu (v0.12): contorno verde = ligado, vermelho = desligado. Toda opção de módulo tem
+  "Tecla para ligar/desligar"; ao usar a tecla aparece o aviso LIGADO/DESLIGADO na tela.
+- Novos: HUD > Contador de blocos; Visual > Hitbox, Cor das partículas, FOV, Item na mão;
+  Utilidades > Tooltips com rolagem (rodinha no inventário, Shift = para os lados), Barra de itens.
+  CPS com formato [12 CPS]; Teclas com rótulo LMB/RMB; Efeitos com estilo Painel.
+- Launcher: ao abrir o jogo ele fica na bandeja do Windows (ícone perto do relógio);
+  clique para abrir, ou botão direito > Sair do launcher. Volta sozinho quando o jogo fecha.
 - Menu: cartões com contorno (contorno branco = ligado). Clique liga/desliga; a engrenagem
   (ou botão direito) abre as opções. Digite com o menu aberto para buscar um módulo.
 - Utilidades > Mira: prévia ao vivo nas opções (sobre céu e fundo escuro, 2x e tamanho real).

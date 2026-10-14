@@ -1,3 +1,10 @@
+# v0.12
+Menu com contorno verde (ligado) e vermelho (desligado)
+Tecla de atalho para qualquer módulo, com aviso na tela
+Hitbox, cor das partículas, FOV e item na mão
+Contador de blocos e barra de itens nova
+Tooltips com rolagem
+Launcher fica na bandeja enquanto você joga
 # v0.11
 Aviso de versão nova: Atualizar agora ou Mais tarde
 Atualiza sozinho e reabre o launcher
