@@ -171,6 +171,14 @@ Conta e skin
 
 No jogo (Right Shift)
 - Geral > Menu: "Opções no menu" Simples/Completo (mostra as opções avançadas).
+- Tela inicial do jogo (v0.9): panorama desfocado, ícones no topo (opções, menu do VfxClient,
+  pacotes de textura, sair), botões Um jogador / Multijogador e idioma embaixo. Para voltar à
+  tela original: Geral > Tela inicial (desligar).
+- Utilidades > Texto automático: até 6 atalhos (tecla + mensagem ou comando, ex.: "gg", "/l").
+- Chat: anti-spam (esconde a mesma mensagem repetida em 3 s), palavras bloqueadas e
+  Ctrl + clique numa mensagem para copiar.
+- Tab: cabeça dos jogadores também em servidores offline. Placar: "Tamanho (compacto)".
+- Launcher > Prints: galeria dos prints (F2); clique abre a imagem.
 - Menu: cartões com contorno (contorno branco = ligado). Clique liga/desliga; a engrenagem
   (ou botão direito) abre as opções. Digite com o menu aberto para buscar um módulo.
 - Utilidades > Mira: prévia ao vivo nas opções (sobre céu e fundo escuro, 2x e tamanho real).

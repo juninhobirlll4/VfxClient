@@ -88,6 +88,16 @@ Tudo é nosso: nome, logo, cores (roxo → branco), código e assets.
   testados abrindo via CLI (v0.6). CLI `--join host:porta` entra direto num servidor (`-Dvfx.join`).
   OptiFine/Forge rodam SEM os recursos do VfxClient (decisão do usuário: opção 1; port para Forge fica para depois).
 
+## v0.9
+- `gui/VfxTitleScreen` (estende TitleScreen; `super.init()` + `buttons.clear()`; fundo via `TitleScreenAccessor` @Invoker
+  renderBackground). Troca no `MinecraftClientMixin` @Inject HEAD do setScreen (TitleScreen exato ou null sem mundo → cancela e
+  abre a nossa). NÃO usar ModifyVariable no PUTFIELD (a tela original ia para currentScreen sem init → NPE).
+- `AutoTextModule` (6 tecla+texto, cooldown 1,5 s, via `VfxCore.onKeyPressed`); `ChatModule` anti-spam/bloqueio/cópia
+  (`hud/ChatLines` implementado no `ChatHudMixin`, `ChatScreenMixin` Ctrl+clique); `TabListModule.alwaysHeads` (redirect
+  `ClientConnection.isEncrypted` no PlayerListHud.render); placar compacto (push/pop em renderScoreboardObjective HEAD/RETURN).
+- Launcher: aba Prints (`ScreenshotsView`). Testes: `-Dvfx.titleShot=true` no gradlew :launcher:run (repassado ao jogo)
+  salva `screenshots/vfx-teste-inicio.png` e fecha o jogo sozinho.
+
 ## v0.8
 - Launcher minimalista: `HomeView` = cartão (logo, JOGAR, seletor de versão com só a versão no botão, "+"), painel Novidades
   (`resources/.../changelog.txt`, linhas com `#` = versão) e rodapé com preset/RAM. Sem botões de loader nem opções de OptiFine.
