@@ -5,6 +5,7 @@ import com.vfxclient.core.VfxCore;
 import com.vfxclient.core.hud.HudRenderer;
 import com.vfxclient.core.module.performance.RenderTweaksModule;
 import com.vfxclient.core.module.util.CrosshairModule;
+import com.vfxclient.core.module.util.HotbarModule;
 import com.vfxclient.core.module.util.ScoreboardModule;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -84,6 +85,30 @@ public abstract class InGameHudMixin {
 		RenderTweaksModule tweaks = VfxCore.module(RenderTweaksModule.class);
 		if (tweaks != null && !tweaks.vignette()) {
 			ci.cancel();
+		}
+	}
+
+	/** Barra de itens no visual plano: troca o fundo da barra... */
+	@Redirect(method = "renderHotbar",
+			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/InGameHud;drawTexture(IIIIII)V", ordinal = 0))
+	private void vfx$hotbarBackground(InGameHud hud, int x, int y, int u, int v, int width, int height) {
+		HotbarModule module = VfxCore.module(HotbarModule.class);
+		if (module != null && module.isEnabled()) {
+			module.drawBar(x, y);
+		} else {
+			hud.drawTexture(x, y, u, v, width, height);
+		}
+	}
+
+	/** ...e o destaque do slot escolhido. */
+	@Redirect(method = "renderHotbar",
+			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/InGameHud;drawTexture(IIIIII)V", ordinal = 1))
+	private void vfx$hotbarSelected(InGameHud hud, int x, int y, int u, int v, int width, int height) {
+		HotbarModule module = VfxCore.module(HotbarModule.class);
+		if (module != null && module.isEnabled()) {
+			module.drawSelected(x, y);
+		} else {
+			hud.drawTexture(x, y, u, v, width, height);
 		}
 	}
 }
