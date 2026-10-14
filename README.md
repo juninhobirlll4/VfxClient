@@ -203,7 +203,7 @@ Tags com sufixo (`v0.8.0-beta`) saem como *pre-release*. O launcher instalado av
 
 | Versão | Principais mudanças |
 |---|---|
-| **0.14** | Emotes (tecla B) vistos por quem usa o VfxClient, opções de desempenho novas, teste de FPS, launcher com as fontes do jogo |
+| **0.14** | Emotes (tecla B) e skins vistos por quem usa o VfxClient, opções de desempenho novas, teste de FPS, launcher com as fontes do jogo |
 | 0.13 | Tela inicial, menu de pausa (com desfoque), multijogador e Opções no visual novo; fontes Montserrat e Inter |
 | 0.12 | Contorno verde/vermelho no menu, tecla de atalho em todo módulo, Hitbox, FOV, cor das partículas, launcher na bandeja |
 | 0.11 | Atualização dentro do launcher (Atualizar agora / Mais tarde) |
@@ -220,9 +220,9 @@ Tags com sufixo (`v0.8.0-beta`) saem como *pre-release*. O launcher instalado av
 
 ## Próximos passos
 
-- [x] **Emotes** (v0.14)
+- [x] **Emotes** e **skins online** (v0.14)
 - [ ] **Social:** waypoints (criar, cor, distância, compartilhar no chat) e minimapa opcional
-- [ ] **Contas e skins VfxClient:** cadastro próprio e skin vista por todos que usam o client (backend em avaliação)
+- [ ] **Contas VfxClient:** cadastro próprio (as skins online já funcionam para contas offline, sem cadastro)
 - [x] Tela inicial do jogo e launcher no mesmo visual novo
 - [ ] **v1.0 – Polimento:** arte final, testes com o grupo
 

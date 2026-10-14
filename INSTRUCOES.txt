@@ -228,6 +228,12 @@ No jogo (Right Shift)
 - Visual: Freelook (desligado; Alt esquerdo; ALGUNS SERVIDORES PROÍBEM, veja as regras),
   Motion blur e Saturação de cor (desligados; usam efeitos do próprio Minecraft e precisam de
   "Usar FBOs" ligado nas opções de vídeo).
+- Skins (v0.14): no launcher, Conta > escolha o PNG da skin (conta offline). Ela aparece no jogo e é
+  enviada ao servidor do VfxClient (aviso na tela: "Skin salva e enviada"). Quem usa o client no mesmo
+  servidor vê a sua skin, e você vê a deles (Geral > Skins do VfxClient > "Ver a skin dos amigos").
+  O primeiro envio de um nick fica com o seu launcher (chave secreta guardada na conta); em outro PC o nick
+  aparece como ocupado. Só vale em servidor offline; contas originais usam a skin oficial.
+  Teste do servidor: node relay\test\skins.mjs https://vfx-emotes.vfxclient-sand.workers.dev
 - Social > Emotes (v0.14): segure B, aponte para um emote e solte (ou clique). Andar cancela.
   A câmera vira de frente durante o emote (opção). Quem usa o VfxClient no mesmo servidor vê
   os seus emotes, se o servidor de emotes estiver publicado (relay/README.md). Em mundo local,

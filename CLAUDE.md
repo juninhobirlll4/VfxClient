@@ -91,9 +91,19 @@ Tudo é nosso: nome, logo, cores (roxo → branco), código e assets.
 ## v0.14
 - Emotes: `emote/` (`Emotes` com 8 animações por ângulos; `EmoteState` quem faz o quê + `applyPose` no TAIL de
   PlayerEntityModel.setAngles; corpo alinhado à cabeça no tick; braço em 1ª pessoa ignorado via EmoteArmMixin),
-  `RelaySocket` (WebSocket mínimo Java 8), `RelayTls` (raízes GTS/ISRG em `assets/vfx/certs/roots.pem` + checagem de nome),
-  `EmoteRelay` (sala = SHA-256 de host:porta normalizado). `module/social/EmotesModule` (tecla B, câmera, URL avançada;
-  `DEFAULT_RELAY` = URL publicada). Roda: `gui/EmoteWheelScreen`.
+  `RelaySocket` (WebSocket mínimo Java 8), `net/VfxTls` (raízes GTS/ISRG em `assets/vfx/certs/roots.pem` + checagem de nome;
+  também usado pelo download de skins), `EmoteRelay` (sala = SHA-256 de host:porta normalizado). `module/social/EmotesModule`
+  (tecla B, câmera, URL avançada; vazio = `VfxServices.emotesUrl()`). Roda: `gui/EmoteWheelScreen`.
+- Servidor do VfxClient: `https://vfx-emotes.vfxclient-sand.workers.dev` (Cloudflare, conta do usuário). O endereço vem de
+  `services_url` no `gradle.properties` e chega ao mod (`assets/vfx/services.properties` → `net/VfxServices`) e ao launcher
+  (`build-info.properties` → `BuildInfo.servicesUrl()`).
+- Skins online (só contas offline): launcher `skins/SkinUploader` (PUT com `Account.skinKey`, chave secreta por conta criada no
+  1º envio; o servidor guarda só o SHA-256 e o 1º envio reivindica o nick; 403 = nick de outro PC). Mod: `skin/RemoteSkins`
+  baixa a skin dos outros jogadores (só se o UUID for o offline de "OfflinePlayer:<nick>"), cria `NativeImageBackedTexture` na
+  thread do jogo; atualiza a cada 10 min; `-Dvfx.remoteSelf=true` testa em você mesmo.
+- **ARMADILHA (Yarn 1.8.9): `AbstractClientPlayerEntity.getCapeId()` devolve a SKIN e `getSkinId()` devolve a CAPA** (nomes
+  trocados). `SkinMixin` hookava `getSkinId` e por isso a skin local aparecia como capa e o corpo ficava Steve; corrigido na
+  0.14 para `getCapeId`. `getModel()` está certo.
 - Convenção dos ângulos (1.8.9): braço pitch -90 frente, -180 cima; yaw negativo = braço direito para dentro (~20° junta
   as mãos); roll positivo = braço direito para fora ABAIXO do ombro e para dentro acima (`Emotes.outward`).
 - `relay/`: Worker + Durable Object (SQLite, plano grátis). `npm run dev` + `npm test`; publicar com `npx wrangler deploy`.
