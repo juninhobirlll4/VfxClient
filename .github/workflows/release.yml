@@ -1,4 +1,8 @@
-# Release: a cada tag "v*" (ex.: v0.1.0) gera e publica no GitHub Releases:
+# Release: gera e publica no GitHub Releases quando
+#   - um push no main traz uma versão nova em gradle.properties (client_version) que ainda não tem release; ou
+#   - uma tag "v*" é enviada (ex.: v0.1.0).
+# O launcher instalado confere as releases e oferece "Atualizar agora / Mais tarde".
+# Arquivos publicados:
 #   - VfxClient-Setup-<versão>.exe   (instalador Inno Setup)
 #   - VfxClient-<versão>-portable.zip
 #   - vfxcore-<versão>.jar           (o mod, usado pelo launcher no auto-update)
@@ -6,10 +10,16 @@ name: Release
 
 on:
   push:
+    branches: [main]
     tags: ["v*"]
 
 permissions:
   contents: write
+
+# Push e tag da mesma versão não publicam ao mesmo tempo.
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 jobs:
   release:
@@ -30,19 +40,28 @@ jobs:
       - name: Cache do Gradle
         uses: gradle/actions/setup-gradle@v5
 
-      - name: Versão a partir da tag
+      - name: Versão (da tag ou do gradle.properties)
         shell: pwsh
         run: |
-          $v = "${{ github.ref_name }}".TrimStart("v")
+          if ("${{ github.ref_type }}" -eq "tag") {
+            $v = "${{ github.ref_name }}".TrimStart("v")
+          } else {
+            $v = ((Select-String -Path gradle.properties -Pattern "^client_version=(.+)$").Matches[0].Groups[1].Value).Trim()
+            # Push no main: só publica se essa versão ainda não tem tag/release.
+            $existing = git ls-remote --tags origin "refs/tags/v$v"
+            if ($existing) { "SKIP=true" >> $env:GITHUB_ENV; Write-Host "v$v já publicada; nada a fazer." }
+          }
           $num = ($v -split "-")[0]
           "VERSION=$v" >> $env:GITHUB_ENV
           "NUMERIC_VERSION=$num" >> $env:GITHUB_ENV
 
       - name: Build + jpackage
+        if: env.SKIP != 'true'
         shell: pwsh
         run: ./gradlew.bat build :launcher:jpackageImage "-Pclient_version=$env:VERSION"
 
       - name: Zip portátil e jar do mod
+        if: env.SKIP != 'true'
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force dist | Out-Null
@@ -50,6 +69,7 @@ jobs:
           Compress-Archive -Path "launcher/build/jpackage/VfxClient" -DestinationPath "dist/VfxClient-$env:VERSION-portable.zip"
 
       - name: Instalador (Inno Setup)
+        if: env.SKIP != 'true'
         shell: pwsh
         run: |
           $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
@@ -64,8 +84,11 @@ jobs:
           }
 
       - name: Publicar release
+        if: env.SKIP != 'true'
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: v${{ env.VERSION }}
+          target_commitish: ${{ github.sha }}
           name: VfxClient ${{ env.VERSION }}
           prerelease: ${{ contains(github.ref_name, '-') }}
           generate_release_notes: true
