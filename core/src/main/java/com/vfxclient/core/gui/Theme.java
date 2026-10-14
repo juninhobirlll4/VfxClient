@@ -23,6 +23,9 @@ public final class Theme {
 	public static final int DIVIDER = 0x22FFFFFF;
 	public static final int OUTLINE_OFF = 0x55FFFFFF;
 	public static final int OUTLINE_ON = 0xF0FFFFFF;
+	/** Contorno de módulo ligado (verde) e desligado (vermelho) no menu. */
+	public static final int MODULE_ON = 0xFF2FD07A;
+	public static final int MODULE_OFF = 0xFFE5484D;
 
 	public static final int TEXT = 0xFFF2F2F5;
 	public static final int TEXT_MUTED = 0xFF9A9AA6;

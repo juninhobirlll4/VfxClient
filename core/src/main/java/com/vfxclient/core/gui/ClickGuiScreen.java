@@ -39,8 +39,8 @@ import org.lwjgl.input.Mouse;
 public class ClickGuiScreen extends Screen {
 
 	private static final int SIDEBAR_W = 92;
-	private static final int CARD_MIN_W = 118;
-	private static final int CARD_H = 26;
+	private static final int CARD_MIN_W = 128;
+	private static final int CARD_H = 30;
 	private static final int ICON_W = 22;
 	private static final int GEAR_W = 16;
 	private static final int GAP = 6;
@@ -69,6 +69,10 @@ public class ClickGuiScreen extends Screen {
 	private float settingsScrollTarget;
 	private int lastMouseX;
 	private String search = "";
+	/** Momento da última troca de categoria/busca (os cartões entram em sequência). */
+	private long listChangedAt = System.currentTimeMillis();
+	/** Momento em que as opções de um módulo abriram (deslizam da direita). */
+	private long settingsOpenedAt;
 
 	// Edição em andamento (só uma por vez).
 	private NumberSetting draggingSlider;
@@ -151,7 +155,12 @@ public class ClickGuiScreen extends Screen {
 		drawSidebar(mouseX, mouseY);
 		int listMouseX = picker != null ? -1 : mouseX;
 		if (settingsModule != null) {
+			// Opções deslizam da direita ao abrir.
+			float slide = Anim.easeOutCubic((System.currentTimeMillis() - settingsOpenedAt) / 220F);
+			GlStateManager.pushMatrix();
+			GlStateManager.translate((1F - slide) * 18F, 0F, 0F);
 			drawSettings(listMouseX, mouseY);
+			GlStateManager.popMatrix();
 		} else {
 			drawModules(listMouseX, mouseY);
 		}
@@ -244,7 +253,11 @@ public class ClickGuiScreen extends Screen {
 			if (hovered) {
 				hoveredModule = module;
 			}
+			float appear = Anim.easeOutCubic((System.currentTimeMillis() - listChangedAt - i * 22) / 260F);
+			GlStateManager.pushMatrix();
+			GlStateManager.translate(0F, (1F - appear) * 10F, 0F);
 			drawCard(module, x, y, cardW, hovered, mouseX, mouseY);
+			GlStateManager.popMatrix();
 		}
 		Render2D.endScissor();
 
@@ -255,7 +268,7 @@ public class ClickGuiScreen extends Screen {
 		} else if (!search.isEmpty()) {
 			subtitle = modules.size() + " módulo(s) para \"" + search + "\"";
 		} else {
-			subtitle = category.getDescription();
+			subtitle = "Clique para ligar/desligar  -  engrenagem: opções";
 			if (category == Category.PERFORMANCE) {
 				subtitle += "  -  agora: " + MinecraftClient.getCurrentFps() + " FPS";
 			}
@@ -295,14 +308,16 @@ public class ClickGuiScreen extends Screen {
 	private void drawCard(Module module, int x, int y, int w, boolean hovered, int mouseX, int mouseY) {
 		float hover = hover(module, hovered);
 		float on = toggle(module, module.isEnabled() || module.isAlwaysOn());
-		int border = Theme.lerp(Theme.OUTLINE_OFF, Theme.OUTLINE_ON, Math.max(on, hover * 0.5F));
+		// Verde = ligado, vermelho = desligado; módulos sempre ligados (Geral) ficam com contorno neutro.
+		int base = module.isAlwaysOn() ? Theme.OUTLINE_ON : Theme.lerp(Theme.MODULE_OFF, Theme.MODULE_ON, on);
+		int border = Theme.lerp(Theme.withAlpha(base, 0.75F), base, hover);
 		int fill = Theme.lerp(Theme.CARD, Theme.CARD_HOVER, hover);
-		Render2D.outlinedRect(x, y, w, CARD_H, 4, border, fill);
+		Render2D.outlinedRect(x, y, w, CARD_H, 5, border, fill);
 
-		int textColor = Theme.lerp(Theme.TEXT_MUTED, Theme.TEXT, Math.max(on, hover));
+		int textColor = Theme.lerp(0xFFC4C4CC, Theme.WHITE, Math.max(on, hover));
 		String icon = initials(module);
 		text(icon, x + 1 + (ICON_W - textRenderer.getStringWidth(icon)) / 2, y + (CARD_H - 8) / 2, textColor);
-		DrawableHelper.fill(x + ICON_W + 1, y + 6, x + ICON_W + 2, y + CARD_H - 6, Theme.withAlpha(border, 0.7F));
+		DrawableHelper.fill(x + ICON_W + 1, y + 7, x + ICON_W + 2, y + CARD_H - 7, Theme.withAlpha(0xFFFFFFFF, 0.25F));
 
 		int nameX = x + ICON_W + 7;
 		boolean hasSettings = !module.getSettings().isEmpty();
@@ -313,10 +328,7 @@ public class ClickGuiScreen extends Screen {
 			boolean gearHovered = hovered && inside(mouseX, mouseY, x + w - GEAR_W - 2, y, GEAR_W + 2, CARD_H);
 			Render2D.gear(x + w - GEAR_W / 2F - 3, y + CARD_H / 2F, 3.5F, gearHovered ? Theme.PRIMARY_LIGHT : Theme.withAlpha(textColor, 0.8F));
 		}
-		if (module.isEnabled() && !module.isAlwaysOn()) {
-			// Pontinho de "ligado" na cor de destaque.
-			Render2D.circle(x + w - 4, y + 4, 1.5F, Theme.PRIMARY_LIGHT);
-		}
+
 	}
 
 	private void drawSettings(int mouseX, int mouseY) {
@@ -752,6 +764,7 @@ public class ClickGuiScreen extends Screen {
 				search = "";
 				closeSettings();
 				scrollTarget = 0;
+				listChangedAt = System.currentTimeMillis();
 				return;
 			}
 			y += 18;
@@ -873,6 +886,7 @@ public class ClickGuiScreen extends Screen {
 	}
 
 	private void openSettings(Module module) {
+		settingsOpenedAt = System.currentTimeMillis();
 		module.onSettingsOpened();
 		settingsModule = module;
 		settingsScrollTarget = 0;
@@ -881,6 +895,9 @@ public class ClickGuiScreen extends Screen {
 
 	private void closeSettings() {
 		closePicker();
+		if (settingsModule != null) {
+			listChangedAt = System.currentTimeMillis();
+		}
 		settingsModule = null;
 		stopEditing();
 	}
@@ -974,6 +991,7 @@ public class ClickGuiScreen extends Screen {
 			if (keyCode == Keyboard.KEY_BACK && !search.isEmpty()) {
 				search = search.substring(0, search.length() - 1);
 				scrollTarget = 0;
+				listChangedAt = System.currentTimeMillis();
 				return;
 			}
 			if (keyCode == Keyboard.KEY_ESCAPE && !search.isEmpty()) {
@@ -983,6 +1001,7 @@ public class ClickGuiScreen extends Screen {
 			if ((Character.isLetterOrDigit(character) || (character == ' ' && !search.isEmpty())) && search.length() < 24) {
 				search += character;
 				scrollTarget = 0;
+				listChangedAt = System.currentTimeMillis();
 				return;
 			}
 		}
