@@ -31,4 +31,23 @@ public abstract class MinecraftClientMixin {
 			}
 		}
 	}
+
+	/**
+	 * Troca a tela inicial do Minecraft pela do VfxClient (módulo "Tela inicial"). Feito no começo
+	 * do setScreen: a tela nova passa pelo setScreen inteiro (init, limpar chat etc.).
+	 */
+	@Inject(method = "setScreen(Lnet/minecraft/client/gui/screen/Screen;)V", at = @At("HEAD"), cancellable = true)
+	private void vfx$titleScreen(net.minecraft.client.gui.screen.Screen screen, CallbackInfo ci) {
+		MinecraftClient client = (MinecraftClient) (Object) this;
+		boolean vanillaTitle = screen != null && screen.getClass() == net.minecraft.client.gui.screen.TitleScreen.class;
+		boolean impliedTitle = screen == null && client.world == null;
+		if (!vanillaTitle && !impliedTitle) {
+			return;
+		}
+		com.vfxclient.core.module.general.TitleScreenModule module = VfxCore.module(com.vfxclient.core.module.general.TitleScreenModule.class);
+		if (module != null && module.isEnabled()) {
+			ci.cancel();
+			client.setScreen(new com.vfxclient.core.gui.VfxTitleScreen());
+		}
+	}
 }

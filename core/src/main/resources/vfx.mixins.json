@@ -16,6 +16,7 @@
     "ParticleManagerMixin",
     "ShaderEffectAccessor",
     "SkinMixin",
+    "TitleScreenAccessor",
     "TitleScreenMixin",
     "perf.ArmorFeatureRendererMixin",
     "perf.BlockEntityRenderDispatcherMixin",
