@@ -20,7 +20,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.image.PixelReader;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -184,7 +183,19 @@ public final class VfxLauncherApp extends Application {
 	}
 
 	private void show(Node view, int navIndex) {
+		boolean changed = content.getChildren().isEmpty() || content.getChildren().get(0) != view;
 		content.getChildren().setAll(view);
+		if (changed && com.vfxclient.launcher.ui.Motion.ENABLED) {
+			// Troca de aba suave: aparece e desliza um pouco para cima.
+			view.setOpacity(0);
+			view.setTranslateY(10);
+			javafx.animation.FadeTransition fade = new javafx.animation.FadeTransition(javafx.util.Duration.millis(220), view);
+			fade.setToValue(1);
+			javafx.animation.TranslateTransition move = new javafx.animation.TranslateTransition(javafx.util.Duration.millis(220), view);
+			move.setToY(0);
+			move.setInterpolator(javafx.animation.Interpolator.SPLINE(0.2, 0.8, 0.2, 1.0));
+			new javafx.animation.ParallelTransition(fade, move).play();
+		}
 		for (int i = 0; i < nav.getChildren().size(); i++) {
 			nav.getChildren().get(i).getStyleClass().remove("nav-selected");
 			if (i == navIndex) {
@@ -203,35 +214,10 @@ public final class VfxLauncherApp extends Application {
 					? GameLauncher.localSkin(selected)
 					: LauncherPaths.launcher().resolve("skins").resolve(selected.uuid + "-oficial.png");
 			if (Files.exists(skin)) {
-				face = face(new Image(skin.toUri().toString()));
+				face = com.vfxclient.launcher.ui.Faces.face(new Image(skin.toUri().toString()), 4);
 			}
 		}
 		accountHead.setImage(face != null ? face : loadImage("logo-256.png"));
-	}
-
-	/** Recorta o rosto (8x8 + camada do chapéu) da skin e amplia sem suavizar. */
-	private static Image face(Image skin) {
-		if (skin.isError() || skin.getWidth() < 64) {
-			return null;
-		}
-		int scale = 4;
-		WritableImage out = new WritableImage(8 * scale, 8 * scale);
-		PixelReader px = skin.getPixelReader();
-		for (int x = 0; x < 8; x++) {
-			for (int y = 0; y < 8; y++) {
-				int argb = px.getArgb(8 + x, 8 + y);
-				int hat = px.getArgb(40 + x, 8 + y);
-				if ((hat >>> 24) > 10) {
-					argb = hat;
-				}
-				for (int dx = 0; dx < scale; dx++) {
-					for (int dy = 0; dy < scale; dy++) {
-						out.getPixelWriter().setArgb(x * scale + dx, y * scale + dy, argb | 0xFF000000);
-					}
-				}
-			}
-		}
-		return out;
 	}
 
 	private static Image loadImage(String name) {

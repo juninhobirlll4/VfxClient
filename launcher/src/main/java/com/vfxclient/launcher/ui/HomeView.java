@@ -86,6 +86,12 @@ public final class HomeView extends BorderPane {
 
 		ctx.onProfilesChanged(this::reloadProfiles);
 		reloadProfiles();
+		sceneProperty().addListener((obs, old, scene) -> {
+			if (scene != null) {
+				Motion.enter(main.getChildren().get(0), 0);
+				Motion.enter(main.getChildren().get(1), 90);
+			}
+		});
 		runDiagnostics();
 		checkUpdates();
 	}
@@ -111,6 +117,7 @@ public final class HomeView extends BorderPane {
 
 		play.getStyleClass().add("play-button");
 		play.setOnAction(e -> startGame());
+		Motion.hoverGrow(play, 1.03);
 		play.setMaxWidth(Double.MAX_VALUE);
 
 		profileBox.getStyleClass().add("version-picker");
@@ -192,6 +199,7 @@ public final class HomeView extends BorderPane {
 			label.setWrapText(true);
 			label.getStyleClass().add(line.startsWith("#") ? "news-version" : "news-item");
 			items.getChildren().add(label);
+			Motion.enter(label, 120 + items.getChildren().size() * 35);
 		}
 		javafx.scene.control.ScrollPane scroll = new javafx.scene.control.ScrollPane(items);
 		scroll.setFitToWidth(true);
@@ -437,7 +445,7 @@ public final class HomeView extends BorderPane {
 						(stage, fraction, text) -> LauncherContext.ui(() -> {
 							status.setText(stage);
 							detail.setText(text == null ? "" : text);
-							progressBar.setProgress(fraction < 0 ? ProgressBar.INDETERMINATE_PROGRESS : fraction);
+							Motion.progress(progressBar, fraction);
 						}));
 				running = session.process();
 				lastLog = session.log();
