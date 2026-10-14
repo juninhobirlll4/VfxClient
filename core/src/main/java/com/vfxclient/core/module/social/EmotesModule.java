@@ -24,7 +24,7 @@ import org.lwjgl.input.Keyboard;
 public class EmotesModule extends Module {
 
 	/** Servidor de emotes publicado na Cloudflare (relay/README.md). Vazio = só você vê. */
-	public static final String DEFAULT_RELAY = "";
+	public static final String DEFAULT_RELAY = "wss://vfx-emotes.vfxclient-sand.workers.dev/ws";
 
 	private static final int CAMERA_FRONT = 0;
 	private static final int CAMERA_BACK = 1;
