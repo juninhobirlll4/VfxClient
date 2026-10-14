@@ -453,7 +453,7 @@ public final class HomeView extends BorderPane {
 				ctx.stage().close();
 				break;
 			case "minimize":
-				ctx.stage().setIconified(true);
+				TrayManager.hideToTray();
 				break;
 			default:
 				break;
@@ -461,7 +461,9 @@ public final class HomeView extends BorderPane {
 	}
 
 	private void gameClosed(int code) {
-		ctx.stage().setIconified(false);
+		if (!ctx.stage().isShowing() || ctx.stage().isIconified()) {
+			TrayManager.restore();
+		}
 		play.setDisable(false);
 		progressBar.setVisible(false);
 		refreshProfile();

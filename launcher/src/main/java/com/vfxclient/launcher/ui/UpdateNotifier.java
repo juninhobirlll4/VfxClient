@@ -1,7 +1,5 @@
 package com.vfxclient.launcher.ui;
 
-import java.awt.SystemTray;
-import java.awt.TrayIcon;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -86,8 +84,8 @@ public final class UpdateNotifier {
 		if (showing) {
 			return;
 		}
-		if (System.getProperty("vfx.snapshot") == null && (ctx.stage().isIconified() || !ctx.stage().isFocused())) {
-			windowsNotification(update);
+		if (System.getProperty("vfx.snapshot") == null && (!ctx.stage().isShowing() || ctx.stage().isIconified() || !ctx.stage().isFocused())) {
+			TrayManager.message("VfxClient " + update.version() + " disponível", "Abra o launcher para atualizar agora ou mais tarde.");
 		}
 		show(update);
 	}
@@ -229,36 +227,5 @@ public final class UpdateNotifier {
 			out.append(l).append('\n');
 		}
 		return out.length() == 0 ? "Melhorias e correções." : out.toString().trim();
-	}
-
-	/** Notificação do Windows (aparece mesmo com o launcher minimizado ou durante o jogo). */
-	private void windowsNotification(Updater.Update update) {
-		if (!SystemTray.isSupported()) {
-			return;
-		}
-		java.awt.EventQueue.invokeLater(() -> {
-			try {
-				java.awt.Image image = javax.imageio.ImageIO.read(UpdateNotifier.class.getResource("/com/vfxclient/launcher/logo-256.png"));
-				TrayIcon icon = new TrayIcon(image, "VfxClient");
-				icon.setImageAutoSize(true);
-				SystemTray tray = SystemTray.getSystemTray();
-				tray.add(icon);
-				icon.addActionListener(e -> Platform.runLater(() -> {
-					ctx.stage().setIconified(false);
-					ctx.stage().toFront();
-				}));
-				icon.displayMessage("VfxClient " + update.version() + " disponível",
-						"Abra o launcher para atualizar agora ou mais tarde.", TrayIcon.MessageType.INFO);
-				// Tira o ícone da bandeja depois de um tempo, para não ficar sobrando.
-				new javax.swing.Timer(15000, e -> tray.remove(icon)) {
-					{
-						setRepeats(false);
-						start();
-					}
-				};
-			} catch (Exception ignored) {
-				// Sem bandeja do sistema: fica só a janela de aviso.
-			}
-		});
 	}
 }

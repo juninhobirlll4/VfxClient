@@ -83,7 +83,12 @@ public final class VfxLauncherApp extends Application {
 		stage.setMinWidth(900);
 		stage.setMinHeight(580);
 		stage.setScene(scene);
-		stage.setOnCloseRequest(e -> ctx.saveAll());
+		// Fechar a janela fecha o launcher (a bandeja mantém o programa vivo só enquanto o jogo roda).
+		stage.setOnCloseRequest(e -> {
+			ctx.saveAll();
+			javafx.application.Platform.exit();
+			System.exit(0);
+		});
 
 		String snapshotDir = System.getProperty("vfx.snapshot");
 		if (snapshotDir != null) {
@@ -91,6 +96,7 @@ public final class VfxLauncherApp extends Application {
 			snapshots(scene, Path.of(snapshotDir));
 			return;
 		}
+		com.vfxclient.launcher.ui.TrayManager.install(stage);
 		stage.show();
 	}
 

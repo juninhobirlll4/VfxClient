@@ -34,7 +34,7 @@ public final class SettingsView extends ScrollPane {
 	private static final String[] PRESET_IDS = {"auto", "low", "balanced", "high"};
 	private static final String[] PRESET_NAMES = {"Automático (recomendado)", "Mais FPS", "Equilibrado", "Mais bonito"};
 	private static final String[] LAUNCH_IDS = {"minimize", "keep", "close"};
-	private static final String[] LAUNCH_NAMES = {"Minimizar o launcher", "Deixar aberto", "Fechar o launcher"};
+	private static final String[] LAUNCH_NAMES = {"Esconder na bandeja (perto do relógio)", "Deixar aberto", "Fechar o launcher"};
 
 	private final LauncherContext ctx;
 	private final Slider ram = new Slider();
