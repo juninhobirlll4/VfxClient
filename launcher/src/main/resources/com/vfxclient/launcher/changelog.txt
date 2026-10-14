@@ -1,6 +1,8 @@
 # v0.14
 Emotes: aperte B, escolha e solte (Social > Emotes)
 Quem usa o VfxClient no mesmo servidor vê os seus emotes
+Skins online: seus amigos com o VfxClient veem a sua skin (conta offline)
+Corrigido: a skin escolhida no launcher aparecia como capa no jogo
 Desempenho: esconder decorações (suportes, molduras, XP, fogos)
 Desempenho: jogadores longe com menos detalhe
 Desempenho: texto das placas só de perto, banners e cabeças por distância

@@ -15,9 +15,10 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
-
 import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSocket;
+
+import com.vfxclient.core.net.VfxTls;
 
 /**
  * WebSocket mínimo (o Java 8 do jogo não traz um): conecta em {@code ws://} ou {@code wss://},
@@ -68,7 +69,7 @@ final class RelaySocket implements Closeable {
 		raw.connect(new InetSocketAddress(uri.getHost(), port), CONNECT_TIMEOUT_MS);
 		Socket socket = raw;
 		if (secure) {
-			SSLSocket tls = (SSLSocket) RelayTls.socketFactory().createSocket(raw, uri.getHost(), port, true);
+			SSLSocket tls = (SSLSocket) VfxTls.socketFactory().createSocket(raw, uri.getHost(), port, true);
 			// O Java 8 não confere sozinho se o certificado é deste endereço.
 			SSLParameters parameters = tls.getSSLParameters();
 			parameters.setEndpointIdentificationAlgorithm("HTTPS");

@@ -12,6 +12,7 @@ import com.vfxclient.core.module.setting.BooleanSetting;
 import com.vfxclient.core.module.setting.ChoiceSetting;
 import com.vfxclient.core.module.setting.KeySetting;
 import com.vfxclient.core.module.setting.TextSetting;
+import com.vfxclient.core.net.VfxServices;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.input.Input;
 import net.minecraft.entity.player.ClientPlayerEntity;
@@ -23,9 +24,6 @@ import org.lwjgl.input.Keyboard;
  */
 public class EmotesModule extends Module {
 
-	/** Servidor de emotes publicado na Cloudflare (relay/README.md). Vazio = só você vê. */
-	public static final String DEFAULT_RELAY = "wss://vfx-emotes.vfxclient-sand.workers.dev/ws";
-
 	private static final int CAMERA_FRONT = 0;
 	private static final int CAMERA_BACK = 1;
 	private static final int PERSPECTIVE_BACK = 1;
@@ -36,7 +34,7 @@ public class EmotesModule extends Module {
 	private final BooleanSetting share = add(new BooleanSetting("share", "Mostrar os meus emotes para os outros", true));
 	private final ChoiceSetting camera = add(new ChoiceSetting("camera", "Câmera durante o emote", CAMERA_FRONT,
 			"De frente", "De costas", "Não mudar"));
-	private final TextSetting relayUrl = addAdvanced(new TextSetting("relay", "Servidor de emotes", DEFAULT_RELAY, 200));
+	private final TextSetting relayUrl = addAdvanced(new TextSetting("relay", "Servidor de emotes (vazio = o do VfxClient)", "", 200));
 
 	private final EmoteRelay relay = new EmoteRelay();
 	private boolean wheelPending;
@@ -134,7 +132,8 @@ public class EmotesModule extends Module {
 
 	/** Endereço do servidor de emotes; {@code -Dvfx.emoteRelay} troca (testes com o servidor local). */
 	private String relayUrl() {
-		return System.getProperty("vfx.emoteRelay", relayUrl.get()).trim();
+		String custom = System.getProperty("vfx.emoteRelay", relayUrl.get()).trim();
+		return custom.isEmpty() ? VfxServices.emotesUrl() : custom;
 	}
 
 	/** Andar, pular, agachar ou bater cancelam o emote. */

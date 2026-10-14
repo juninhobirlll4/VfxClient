@@ -17,9 +17,14 @@ dependencies {
 processResources {
 	def props = [version: project.version]
 	inputs.properties props
+	def services = [servicesUrl: project.services_url]
+	inputs.properties services
 
 	filesMatching("fabric.mod.json") {
 		expand props
+	}
+	filesMatching("**/services.properties") {
+		expand services
 	}
 }
 

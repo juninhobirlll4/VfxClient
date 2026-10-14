@@ -34,6 +34,8 @@ public final class Account {
 	public String skinModel = "classic";
 	/** Xbox user id (enviado ao jogo nas versões novas). */
 	public String xuid;
+	/** Chave secreta (64 hex) que prova que o nick é seu no servidor de skins do VfxClient. */
+	public String skinKey;
 
 	/** @return {@code msa} ou {@code legacy}, como o jogo espera em {@code --userType} */
 	public String userType() {

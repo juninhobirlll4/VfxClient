@@ -10,6 +10,7 @@ import com.vfxclient.core.VfxCore;
 import com.vfxclient.core.VfxPaths;
 import com.vfxclient.core.module.Category;
 import com.vfxclient.core.module.Module;
+import com.vfxclient.core.module.setting.BooleanSetting;
 import com.vfxclient.core.module.setting.ChoiceSetting;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImageBackedTexture;
@@ -19,18 +20,20 @@ import net.minecraft.util.Identifier;
  * Skin local: usa {@code .minecraft/vfxclient/skins/skin.png} como a sua skin.
  *
  * <p>Pensado para contas offline (sem skin oficial). O launcher grava o arquivo quando você
- * escolhe uma skin. Só você vê essa skin até existir o servidor de skins do VfxClient.</p>
+ * escolhe uma skin e também a envia para o servidor do VfxClient; quem usa o client vê a sua skin,
+ * e você vê a deles ({@link com.vfxclient.core.skin.RemoteSkins}).</p>
  */
 public class LocalSkinModule extends Module {
 
 	private final ChoiceSetting model = add(new ChoiceSetting("model", "Modelo do braço", 0, "Clássico (4 px)", "Fino (3 px)"));
+	private final BooleanSetting showOthers = add(new BooleanSetting("showOthers", "Ver a skin dos amigos que usam o VfxClient", true));
 
 	private Identifier texture;
 	private long loadedModified = -1L;
 	private long lastCheck;
 
 	public LocalSkinModule() {
-		super("localSkin", "Skin local", "Usa a skin escolhida no launcher", Category.GENERAL, true);
+		super("localSkin", "Skins do VfxClient", "Sua skin do launcher e a dos amigos que usam o client", Category.GENERAL, true);
 	}
 
 	/** @return caminho do arquivo da skin */
@@ -51,6 +54,11 @@ public class LocalSkinModule extends Module {
 		}
 		reloadIfChanged();
 		return texture;
+	}
+
+	/** @return se a skin dos outros jogadores do VfxClient deve aparecer */
+	public boolean showOthers() {
+		return isEnabled() && showOthers.get();
 	}
 
 	/** @return {@code "slim"} ou {@code "default"} conforme a opção */

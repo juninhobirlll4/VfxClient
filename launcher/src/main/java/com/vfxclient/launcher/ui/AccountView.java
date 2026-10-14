@@ -17,6 +17,7 @@ import com.vfxclient.launcher.auth.MicrosoftAuth;
 import com.vfxclient.launcher.auth.MinecraftServices;
 import com.vfxclient.launcher.auth.OfflineAuth;
 import com.vfxclient.launcher.game.GameLauncher;
+import com.vfxclient.launcher.skins.SkinUploader;
 import com.vfxclient.launcher.util.Http;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -146,6 +147,7 @@ public final class AccountView extends HBox {
 			if (account != null) {
 				account.skinModel = slim.isSelected() ? "slim" : "classic";
 				ctx.accountChanged();
+				resendSkin(account);
 			}
 			preview.setSkin(currentSkinImage(), slim.isSelected());
 		});
@@ -447,8 +449,45 @@ public final class AccountView extends HBox {
 			ctx.accountChanged();
 			reload();
 			Motion.toast(message, "Skin salva! Ela aparece no jogo.");
+			shareSkin(account, target);
 		} catch (IOException e) {
 			Motion.toast(message, "Não deu para salvar a skin.");
+		}
+	}
+
+	/** Troca o braço (clássico/fino) de uma skin offline já escolhida: manda de novo para os amigos. */
+	private void resendSkin(Account account) {
+		Path skin = GameLauncher.localSkin(account);
+		if (account.type == Account.Type.OFFLINE && Files.exists(skin)) {
+			shareSkin(account, skin);
+		}
+	}
+
+	/** Envia a skin offline para o servidor do VfxClient, para quem usa o client ver. */
+	private void shareSkin(Account account, Path skin) {
+		boolean slimArm = "slim".equals(account.skinModel);
+		ctx.runAsync(() -> {
+			SkinUploader.Result result = SkinUploader.upload(account, skin, slimArm);
+			LauncherContext.ui(() -> {
+				// A chave do nick é criada no primeiro envio: precisa ir para o disco.
+				ctx.saveAll();
+				Motion.toast(message, shareMessage(result));
+			});
+		});
+	}
+
+	private static String shareMessage(SkinUploader.Result result) {
+		switch (result) {
+			case OK:
+				return "Skin salva e enviada! Quem usa o VfxClient vê ela.";
+			case NICK_TAKEN:
+				return "Skin salva, mas este nick já é de outro PC no servidor do VfxClient: os amigos não verão.";
+			case TOO_FAST:
+				return "Skin salva. Espere uns segundos e escolha de novo para enviar aos amigos.";
+			case REJECTED:
+				return "Skin salva, mas o servidor do VfxClient recusou o arquivo.";
+			default:
+				return "Skin salva. Sem internet para enviar aos amigos agora.";
 		}
 	}
 

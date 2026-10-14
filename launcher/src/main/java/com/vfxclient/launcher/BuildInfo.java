@@ -9,8 +9,9 @@ import java.util.Properties;
  *
  * @param clientVersion    versão do VfxClient, ex.: {@code 0.1.0}
  * @param minecraftVersion versão do Minecraft suportada, ex.: {@code 1.8.9}
+ * @param servicesUrl      servidor do VfxClient na Cloudflare (emotes e skins), vazio se não houver
  */
-public record BuildInfo(String clientVersion, String minecraftVersion) {
+public record BuildInfo(String clientVersion, String minecraftVersion, String servicesUrl) {
 
 	private static final String RESOURCE = "build-info.properties";
 
@@ -30,6 +31,14 @@ public record BuildInfo(String clientVersion, String minecraftVersion) {
 		}
 		return new BuildInfo(
 				props.getProperty("client.version", "dev"),
-				props.getProperty("minecraft.version", "1.8.9"));
+				props.getProperty("minecraft.version", "1.8.9"),
+				cleanUrl(props.getProperty("services.url", "")));
+	}
+
+	/** Só aceita {@code https://...}; um valor não preenchido pelo Gradle vira vazio. */
+	private static String cleanUrl(String url) {
+		String value = url.trim();
+		boolean valid = value.startsWith("https://") && !value.contains("${");
+		return valid ? value.replaceAll("/+$", "") : "";
 	}
 }

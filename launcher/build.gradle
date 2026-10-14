@@ -53,7 +53,8 @@ processResources {
 	}
 	def props = [
 			clientVersion   : project.version,
-			minecraftVersion: project.minecraft_version
+			minecraftVersion: project.minecraft_version,
+			servicesUrl     : project.services_url
 	]
 	inputs.properties props
 	filesMatching("**/build-info.properties") {

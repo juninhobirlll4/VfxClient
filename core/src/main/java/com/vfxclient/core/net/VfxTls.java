@@ -1,4 +1,4 @@
-package com.vfxclient.core.emote;
+package com.vfxclient.core.net;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Scanner;
-
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
@@ -21,19 +20,20 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
 /**
- * Conexão segura com o servidor de emotes. O Java do jogo (8u51, de 2015) não conhece as
+ * Conexão segura com o servidor do VfxClient (emotes e skins). O Java do jogo (8u51, de 2015) não conhece as
  * autoridades que assinam os certificados da Cloudflare hoje; por isso o client leva os
  * certificados raiz públicos em {@code assets/vfx/certs/roots.pem} e confia neles além dos do Java.
  */
-final class RelayTls {
+public final class VfxTls {
 
 	private static final String ROOTS = "/assets/vfx/certs/roots.pem";
 	private static SSLSocketFactory factory;
 
-	private RelayTls() {
+	private VfxTls() {
 	}
 
-	static synchronized SSLSocketFactory socketFactory() throws IOException {
+	/** @return fábrica de conexões seguras que confia nos certificados do Java e nos do client */
+	public static synchronized SSLSocketFactory socketFactory() throws IOException {
 		if (factory == null) {
 			try {
 				SSLContext context = SSLContext.getInstance("TLSv1.2");
@@ -74,7 +74,7 @@ final class RelayTls {
 	/** Lê os blocos PEM do arquivo (os comentários entre eles são ignorados). */
 	private static List<X509Certificate> readRoots() throws IOException, CertificateException {
 		List<X509Certificate> roots = new ArrayList<X509Certificate>();
-		InputStream in = RelayTls.class.getResourceAsStream(ROOTS);
+		InputStream in = VfxTls.class.getResourceAsStream(ROOTS);
 		if (in == null) {
 			return roots;
 		}

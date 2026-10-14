@@ -208,7 +208,7 @@ public final class GameLauncher {
 			command.addAll(expand(arguments.getAsJsonArray("jvm"), vars));
 		} else {
 			// Modos de teste do mod (prints automáticos), repassados se o launcher foi aberto com eles.
-			for (String key : new String[] {"vfx.titleShot", "vfx.openMenu", "vfx.emote", "vfx.emoteRelay"}) {
+			for (String key : new String[] {"vfx.titleShot", "vfx.openMenu", "vfx.emote", "vfx.emoteRelay", "vfx.remoteSelf"}) {
 				String value = System.getProperty(key);
 				if (value != null) {
 					command.add("-D" + key + "=" + value);

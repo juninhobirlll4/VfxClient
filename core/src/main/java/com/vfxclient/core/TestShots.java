@@ -28,7 +28,8 @@ import net.minecraft.client.util.ScreenshotUtils;
  *   <li>{@code -Dvfx.openMenu=pausa}: menu de pausa, já num mundo ({@code vfx-teste.png});</li>
  *   <li>{@code -Dvfx.openMenu=emotes}: roda de emotes ({@code vfx-teste.png});</li>
  *   <li>{@code -Dvfx.openMenu=mundo}: o mundo sem nenhuma tela aberta ({@code vfx-teste.png});</li>
- *   <li>{@code -Dvfx.emote=<id>} junto com o openMenu: faz esse emote antes do print.</li>
+ *   <li>{@code -Dvfx.emote=<id>} junto com o openMenu: faz esse emote antes do print;</li>
+ *   <li>{@code -Dvfx.remoteSelf=true}: você também recebe a skin do servidor do VfxClient (para testar).</li>
  *   <li>{@code -Dvfx.openMenu=<id do módulo>}: opções do módulo no menu ({@code vfx-teste.png}).</li>
  * </ul>
  */
