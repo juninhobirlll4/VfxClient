@@ -47,14 +47,6 @@ public final class Render2D {
 	}
 
 	/**
-	 * Círculo preenchido.
-	 *
-	 * @param cx     centro X
-	 * @param cy     centro Y
-	 * @param radius raio
-	 * @param color  cor ARGB
-	 */
-	/**
 	 * Contorno arredondado de 1 pixel com o miolo preenchido (cartões do menu).
 	 *
 	 * @param x      esquerda
@@ -66,8 +58,51 @@ public final class Render2D {
 	 * @param fill   cor do miolo (opaca, para o contorno não aparecer por baixo)
 	 */
 	public static void outlinedRect(float x, float y, float w, float h, float radius, int border, int fill) {
-		roundedRect(x, y, w, h, radius, border);
 		roundedRect(x + 1, y + 1, w - 2, h - 2, Math.max(0F, radius - 1), fill);
+		roundedOutline(x, y, w, h, radius, 1.5F, border);
+	}
+
+	/**
+	 * Só a borda de um retângulo arredondado (o miolo fica livre, então fundos translúcidos não
+	 * mostram a cor da borda por baixo).
+	 *
+	 * @param thickness espessura da borda
+	 */
+	public static void roundedOutline(float x, float y, float w, float h, float radius, float thickness, int color) {
+		if (w <= 0 || h <= 0) {
+			return;
+		}
+		// O raio nunca fica menor que a espessura, senão a borda some nos cantos retos.
+		float r = Math.max(thickness, Math.min(radius, Math.min(w, h) / 2F));
+		float inner = r - thickness;
+		begin(color);
+		boolean cull = GL11.glIsEnabled(GL11.GL_CULL_FACE);
+		if (cull) {
+			GL11.glDisable(GL11.GL_CULL_FACE);
+		}
+		BufferBuilder buffer = Tessellator.getInstance().getBuffer();
+		buffer.begin(GL11.GL_QUAD_STRIP, VertexFormats.POSITION);
+		// Quatro cantos em sequência; o primeiro ponto se repete no fim para fechar a borda.
+		float[][] corners = {
+			{x + w - r, y + r, 270}, {x + w - r, y + h - r, 0}, {x + r, y + h - r, 90}, {x + r, y + r, 180}
+		};
+		int steps = 8;
+		for (int c = 0; c <= corners.length; c++) {
+			float[] corner = corners[c % corners.length];
+			int count = c == corners.length ? 0 : steps;
+			for (int i = 0; i <= count; i++) {
+				double angle = Math.toRadians(corner[2] + 90.0 * i / steps);
+				double cos = Math.cos(angle);
+				double sin = Math.sin(angle);
+				buffer.vertex(corner[0] + cos * r, corner[1] + sin * r, 0D).next();
+				buffer.vertex(corner[0] + cos * inner, corner[1] + sin * inner, 0D).next();
+			}
+		}
+		Tessellator.getInstance().draw();
+		if (cull) {
+			GL11.glEnable(GL11.GL_CULL_FACE);
+		}
+		end();
 	}
 
 	/**
@@ -88,6 +123,35 @@ public final class Render2D {
 		ring(cx, cy, r - 0.5F, 1.5F, color);
 	}
 
+	/**
+	 * Triângulo preenchido (usado na estrela de favorito).
+	 */
+	public static void triangle(float x1, float y1, float x2, float y2, float x3, float y3, int color) {
+		begin(color);
+		boolean cull = GL11.glIsEnabled(GL11.GL_CULL_FACE);
+		if (cull) {
+			GL11.glDisable(GL11.GL_CULL_FACE);
+		}
+		BufferBuilder buffer = Tessellator.getInstance().getBuffer();
+		buffer.begin(GL11.GL_TRIANGLES, VertexFormats.POSITION);
+		buffer.vertex(x1, y1, 0D).next();
+		buffer.vertex(x2, y2, 0D).next();
+		buffer.vertex(x3, y3, 0D).next();
+		Tessellator.getInstance().draw();
+		if (cull) {
+			GL11.glEnable(GL11.GL_CULL_FACE);
+		}
+		end();
+	}
+
+	/**
+	 * Círculo preenchido.
+	 *
+	 * @param cx     centro X
+	 * @param cy     centro Y
+	 * @param radius raio
+	 * @param color  cor ARGB
+	 */
 	public static void circle(float cx, float cy, float radius, int color) {
 		roundedRect(cx - radius, cy - radius, radius * 2F, radius * 2F, radius, color);
 	}
