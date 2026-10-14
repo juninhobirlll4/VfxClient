@@ -1,11 +1,14 @@
 package com.vfxclient.core;
 
 import com.vfxclient.core.gui.ClickGuiScreen;
-import com.vfxclient.core.gui.VfxServerScreen;
 import com.vfxclient.core.gui.VfxTitleScreen;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.GameMenuScreen;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.SettingsScreen;
+import net.minecraft.client.gui.screen.VideoOptionsScreen;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
+import net.minecraft.client.gui.screen.options.ControlsOptionsScreen;
 import net.minecraft.client.util.ScreenshotUtils;
 
 /**
@@ -14,7 +17,8 @@ import net.minecraft.client.util.ScreenshotUtils;
  *
  * <ul>
  *   <li>{@code -Dvfx.titleShot=true}: tela inicial ({@code vfx-teste-inicio.png});</li>
- *   <li>{@code -Dvfx.titleShot=servidores}: tela de servidores ({@code vfx-teste-inicio.png});</li>
+ *   <li>{@code -Dvfx.titleShot=servidores|opcoes|video|controles}: abre essa tela a partir da
+ *       inicial ({@code vfx-teste-inicio.png});</li>
  *   <li>{@code -Dvfx.openMenu=pausa}: menu de pausa, já num mundo ({@code vfx-teste.png});</li>
  *   <li>{@code -Dvfx.openMenu=<id do módulo>}: opções do módulo no menu ({@code vfx-teste.png}).</li>
  * </ul>
@@ -48,17 +52,31 @@ final class TestShots {
 	}
 
 	private void tickTitleMode(MinecraftClient client) {
-		boolean servers = "servidores".equals(titleMode);
-		if (shotTicks < 0 && client.currentScreen instanceof VfxTitleScreen && --titleTicks <= 0) {
-			if (servers) {
-				client.setScreen(new MultiplayerScreen(client.currentScreen));
-			} else {
-				shoot("vfx-teste-inicio.png");
-			}
+		if (shotTicks >= 0 || !(client.currentScreen instanceof VfxTitleScreen) || --titleTicks > 0) {
+			return;
 		}
-		if (servers && shotTicks < 0 && client.currentScreen instanceof VfxServerScreen) {
-			shoot("vfx-teste-inicio.png");
+		Screen target = titleTarget(client.currentScreen, client);
+		if (target != null) {
+			client.setScreen(target);
 		}
+		shoot("vfx-teste-inicio.png");
+	}
+
+	/** @return a tela a abrir a partir da inicial, ou {@code null} para fotografar a própria inicial */
+	private Screen titleTarget(Screen title, MinecraftClient client) {
+		if ("servidores".equals(titleMode)) {
+			return new MultiplayerScreen(title);
+		}
+		if ("opcoes".equals(titleMode)) {
+			return new SettingsScreen(title, client.options);
+		}
+		if ("video".equals(titleMode)) {
+			return new VideoOptionsScreen(title, client.options);
+		}
+		if ("controles".equals(titleMode)) {
+			return new ControlsOptionsScreen(title, client.options);
+		}
+		return null;
 	}
 
 	private void tickMenuMode(MinecraftClient client) {
