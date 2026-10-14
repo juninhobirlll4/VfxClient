@@ -88,7 +88,17 @@ Tudo é nosso: nome, logo, cores (roxo → branco), código e assets.
   testados abrindo via CLI (v0.6). CLI `--join host:porta` entra direto num servidor (`-Dvfx.join`).
   OptiFine/Forge rodam SEM os recursos do VfxClient (decisão do usuário: opção 1; port para Forge fica para depois).
 
-## v0.13.1
+## v0.14
+- Emotes: `emote/` (`Emotes` com 8 animações por ângulos; `EmoteState` quem faz o quê + `applyPose` no TAIL de
+  PlayerEntityModel.setAngles; corpo alinhado à cabeça no tick; braço em 1ª pessoa ignorado via EmoteArmMixin),
+  `RelaySocket` (WebSocket mínimo Java 8), `RelayTls` (raízes GTS/ISRG em `assets/vfx/certs/roots.pem` + checagem de nome),
+  `EmoteRelay` (sala = SHA-256 de host:porta normalizado). `module/social/EmotesModule` (tecla B, câmera, URL avançada;
+  `DEFAULT_RELAY` = URL publicada). Roda: `gui/EmoteWheelScreen`.
+- Convenção dos ângulos (1.8.9): braço pitch -90 frente, -180 cima; yaw negativo = braço direito para dentro (~20° junta
+  as mãos); roll positivo = braço direito para fora ABAIXO do ombro e para dentro acima (`Emotes.outward`).
+- `relay/`: Worker + Durable Object (SQLite, plano grátis). `npm run dev` + `npm test`; publicar com `npx wrangler deploy`.
+
+## v0.13.1 (publicado junto na 0.14)
 - Desempenho (desligados por padrão): `HideDecorationsModule` (EntityRenderDispatcher.shouldRender), `FarPlayersModule`
   (redirect FeatureRenderer.render em LivingEntityRenderer.renderFeatures, setModelPose TAIL, EntityRenderer.renderLabelIfPresent),
   `BlockDetailsModule` (placas: flag no HEAD + redirect TextRenderer.draw; banners/cabeças no BlockEntityRenderDispatcher; tampa

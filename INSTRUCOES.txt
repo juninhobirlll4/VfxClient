@@ -71,6 +71,8 @@ Prints de teste sem mexer no teclado e no mouse (o jogo salva o print em screens
 sozinho; não traga a janela do jogo para frente):
   gradlew :launcher:run -Dvfx.titleShot=true --args="--cli launch --offline Teste"
       tela inicial (vfx-teste-inicio.png); troque true por servidores, opcoes, video ou controles
+  gradlew :launcher:run -Dvfx.openMenu=mundo -Dvfx.emote=acenar -Dvfx.emoteRelay=ws://localhost:8787/ws --args="--cli launch --offline Teste --join localhost:25565"
+      faz o emote e tira o print de frente (servidor de emotes local: relay\README.md)
   gradlew :launcher:run -Dvfx.openMenu=pausa --args="--cli launch --offline Teste --join localhost:25565"
       menu de pausa num servidor (vfx-teste.png); troque pausa pelo id de um módulo para ver as
       opções dele no menu
@@ -226,7 +228,11 @@ No jogo (Right Shift)
 - Visual: Freelook (desligado; Alt esquerdo; ALGUNS SERVIDORES PROÍBEM, veja as regras),
   Motion blur e Saturação de cor (desligados; usam efeitos do próprio Minecraft e precisam de
   "Usar FBOs" ligado nas opções de vídeo).
-- Desempenho (v0.13.1, todas desligadas por padrão):
+- Social > Emotes (v0.14): segure B, aponte para um emote e solte (ou clique). Andar cancela.
+  A câmera vira de frente durante o emote (opção). Quem usa o VfxClient no mesmo servidor vê
+  os seus emotes, se o servidor de emotes estiver publicado (relay/README.md). Em mundo local,
+  só você vê.
+- Desempenho (v0.14, todas desligadas por padrão):
   Esconder decorações: suportes de armadura (textos flutuantes ficam), molduras, XP, fogos,
     itens no chão (opcional). Bom em lobbies.
   Jogadores longe simples: a partir de X blocos, sem capa, armadura, item na mão e camadas

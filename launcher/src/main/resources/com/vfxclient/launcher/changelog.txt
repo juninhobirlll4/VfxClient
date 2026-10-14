@@ -1,4 +1,6 @@
-# v0.13.1
+# v0.14
+Emotes: aperte B, escolha e solte (Social > Emotes)
+Quem usa o VfxClient no mesmo servidor vê os seus emotes
 Desempenho: esconder decorações (suportes, molduras, XP, fogos)
 Desempenho: jogadores longe com menos detalhe
 Desempenho: texto das placas só de perto, banners e cabeças por distância
