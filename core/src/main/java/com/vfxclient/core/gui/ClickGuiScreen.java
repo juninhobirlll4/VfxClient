@@ -268,12 +268,12 @@ public class ClickGuiScreen extends Screen {
 		} else if (!search.isEmpty()) {
 			subtitle = modules.size() + " módulo(s) para \"" + search + "\"";
 		} else {
-			subtitle = "Clique para ligar/desligar  -  engrenagem: opções";
+			subtitle = "Clique liga/desliga  -  engrenagem abre as opções";
 			if (category == Category.PERFORMANCE) {
 				subtitle += "  -  agora: " + MinecraftClient.getCurrentFps() + " FPS";
 			}
 		}
-		drawHeader(title, textRenderer.trimToWidth(subtitle, contentW - 112));
+		drawHeader(title, textRenderer.trimToWidth(subtitle, contentW));
 		drawSearchBox();
 		if (modules.isEmpty()) {
 			textCentered(search.isEmpty() ? "Nada aqui ainda - chega numa próxima versão." : "Nenhum módulo encontrado.",
@@ -285,14 +285,14 @@ public class ClickGuiScreen extends Screen {
 	private void drawSearchBox() {
 		int w = 104;
 		int x = contentX + contentW - w;
-		int y = py + 9;
+		int y = py + 5;
 		boolean active = !search.isEmpty();
-		Render2D.outlinedRect(x, y, w, 15, 3, active ? Theme.OUTLINE_ON : Theme.OUTLINE_OFF, Theme.SIDEBAR);
+		Render2D.outlinedRect(x, y, w, 14, 3, active ? Theme.OUTLINE_ON : Theme.OUTLINE_OFF, Theme.SIDEBAR);
 		Render2D.ring(x + 8, y + 7, 3F, 1F, Theme.TEXT_MUTED);
 		DrawableHelper.fill(x + 10, y + 9, x + 12, y + 11, Theme.TEXT_MUTED);
 		boolean caret = active && (System.currentTimeMillis() / 500) % 2 == 0;
 		String shown = active ? textRenderer.trimToWidth(search, w - 26, true) + (caret ? "_" : "") : "Buscar...";
-		text(shown, x + 16, y + 4, active ? Theme.TEXT : Theme.TEXT_MUTED);
+		text(shown, x + 16, y + 3, active ? Theme.TEXT : Theme.TEXT_MUTED);
 	}
 
 	/** Duas letras que identificam o módulo no cartão (no lugar de um ícone). */

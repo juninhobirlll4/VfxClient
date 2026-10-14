@@ -8,6 +8,14 @@ import java.util.Map;
 
 import com.vfxclient.core.module.general.ConfigProfilesModule;
 import com.vfxclient.core.module.general.HudLayoutModule;
+import com.vfxclient.core.module.general.ToggleNotificationModule;
+import com.vfxclient.core.module.hud.BlockCounterModule;
+import com.vfxclient.core.module.util.HotbarModule;
+import com.vfxclient.core.module.util.ScrollTooltipsModule;
+import com.vfxclient.core.module.visual.FovModule;
+import com.vfxclient.core.module.visual.HitboxModule;
+import com.vfxclient.core.module.visual.ParticleColorModule;
+import com.vfxclient.core.module.visual.ViewModelModule;
 import com.vfxclient.core.module.general.HudStyleModule;
 import com.vfxclient.core.module.general.LocalSkinModule;
 import com.vfxclient.core.module.general.MenuModule;
@@ -67,6 +75,7 @@ public final class ModuleManager {
 		register(new TitleScreenModule());
 		register(new HudStyleModule());
 		register(new HudLayoutModule());
+		register(new ToggleNotificationModule());
 		register(new ConfigProfilesModule());
 		register(new LocalSkinModule());
 		// HUD
@@ -76,6 +85,7 @@ public final class ModuleManager {
 		register(new ClockModule());
 		register(new ServerIpModule());
 		register(new PlaytimeModule());
+		register(new BlockCounterModule());
 		register(new CpsModule());
 		register(new KeystrokesModule());
 		register(new ArmorModule());
@@ -92,6 +102,8 @@ public final class ModuleManager {
 		register(new AutoGgModule());
 		register(new AutoTextModule());
 		register(new ScreenshotModule());
+		register(new ScrollTooltipsModule());
+		register(new HotbarModule());
 		register(new TimeChangerModule());
 		register(new WeatherChangerModule());
 		register(new OwnNametagModule());
@@ -103,6 +115,10 @@ public final class ModuleManager {
 		register(new FreelookModule());
 		register(new MotionBlurModule());
 		register(new SaturationModule());
+		register(new FovModule());
+		register(new HitboxModule());
+		register(new ParticleColorModule());
+		register(new ViewModelModule());
 		// Desempenho
 		register(new PerformanceProfileModule());
 		register(new VanillaOptionsModule());
@@ -147,6 +163,9 @@ public final class ModuleManager {
 			throw new IllegalArgumentException("Módulo duplicado: " + module.getId());
 		}
 		modules.add(module);
+		if (!module.isAlwaysOn()) {
+			module.enableToggleKey();
+		}
 	}
 
 	/**
