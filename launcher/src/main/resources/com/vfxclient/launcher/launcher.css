@@ -347,3 +347,85 @@
 .shot-card:hover {
     -fx-border-color: -vfx-primary-light;
 }
+/* Conta e configurações simples (v1.0) ------------------------------ */
+.big-field {
+    -fx-pref-height: 40;
+    -fx-font-size: 14px;
+}
+
+.account-row, .account-row-selected {
+    -fx-background-color: -vfx-surface-2;
+    -fx-background-radius: 10;
+    -fx-padding: 8 10 8 10;
+    -fx-cursor: hand;
+}
+
+.account-row:hover {
+    -fx-background-color: -vfx-border;
+}
+
+.account-row-selected {
+    -fx-background-color: rgba(123, 47, 247, 0.28);
+    -fx-border-color: -vfx-primary-light;
+    -fx-border-radius: 10;
+}
+
+.tag {
+    -fx-text-fill: -vfx-muted;
+    -fx-font-size: 11px;
+    -fx-background-color: rgba(255, 255, 255, 0.06);
+    -fx-background-radius: 6;
+    -fx-padding: 1 6 1 6;
+}
+
+.remove-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: -vfx-muted;
+    -fx-cursor: hand;
+    -fx-padding: 2 6 2 6;
+}
+
+.remove-button:hover {
+    -fx-text-fill: #FF6B6B;
+}
+
+.drop-zone {
+    -fx-background-color: rgba(255, 255, 255, 0.02);
+    -fx-background-radius: 14;
+    -fx-border-color: -vfx-border;
+    -fx-border-style: segments(8, 6);
+    -fx-border-width: 2;
+    -fx-border-radius: 14;
+    -fx-padding: 16;
+    -fx-cursor: hand;
+}
+
+.drop-zone:hover, .drop-active {
+    -fx-border-color: -vfx-primary-light;
+    -fx-background-color: rgba(123, 47, 247, 0.10);
+}
+
+.value-pill {
+    -fx-background-color: -vfx-surface-2;
+    -fx-background-radius: 8;
+    -fx-padding: 6 10 6 10;
+    -fx-text-fill: -vfx-white;
+    -fx-font-weight: bold;
+    -fx-alignment: center;
+}
+
+.advanced-pane > .title {
+    -fx-background-color: -vfx-surface;
+    -fx-background-radius: 12;
+    -fx-padding: 12 16 12 16;
+}
+
+.advanced-pane > .title > .text {
+    -fx-fill: -vfx-muted;
+}
+
+.advanced-pane > .content {
+    -fx-background-color: -vfx-surface;
+    -fx-border-color: transparent;
+    -fx-background-radius: 0 0 12 12;
+}
