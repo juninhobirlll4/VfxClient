@@ -151,6 +151,75 @@ public final class Render2D {
 	}
 
 	/**
+	 * Linha grossa entre dois pontos, com pontas retas.
+	 *
+	 * @param width espessura
+	 */
+	public static void line(float x1, float y1, float x2, float y2, float width, int color) {
+		float dx = x2 - x1;
+		float dy = y2 - y1;
+		float length = (float) Math.sqrt(dx * dx + dy * dy);
+		if (length < 0.001F) {
+			return;
+		}
+		// Perpendicular, com metade da espessura.
+		float px = -dy / length * width / 2F;
+		float py = dx / length * width / 2F;
+		quad(x1 + px, y1 + py, x2 + px, y2 + py, x2 - px, y2 - py, x1 - px, y1 - py, color);
+	}
+
+	/** Quadrilátero preenchido (os quatro pontos em volta, em qualquer sentido). */
+	public static void quad(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, int color) {
+		begin(color);
+		boolean cull = GL11.glIsEnabled(GL11.GL_CULL_FACE);
+		if (cull) {
+			GL11.glDisable(GL11.GL_CULL_FACE);
+		}
+		BufferBuilder buffer = Tessellator.getInstance().getBuffer();
+		buffer.begin(GL11.GL_QUADS, VertexFormats.POSITION);
+		buffer.vertex(x1, y1, 0D).next();
+		buffer.vertex(x2, y2, 0D).next();
+		buffer.vertex(x3, y3, 0D).next();
+		buffer.vertex(x4, y4, 0D).next();
+		Tessellator.getInstance().draw();
+		if (cull) {
+			GL11.glEnable(GL11.GL_CULL_FACE);
+		}
+		end();
+	}
+
+	/**
+	 * Fatia de anel (uma "casca" entre dois raios e dois ângulos), usada na roda de emotes.
+	 *
+	 * @param inner raio de dentro
+	 * @param outer raio de fora
+	 * @param from  ângulo inicial, em radianos (0 = direita, cresce no sentido do relógio)
+	 * @param to    ângulo final, em radianos
+	 */
+	public static void ringSegment(float cx, float cy, float inner, float outer, double from, double to, int color) {
+		int steps = Math.max(2, (int) Math.ceil(Math.abs(to - from) / (Math.PI / 24)));
+		begin(color);
+		boolean cull = GL11.glIsEnabled(GL11.GL_CULL_FACE);
+		if (cull) {
+			GL11.glDisable(GL11.GL_CULL_FACE);
+		}
+		BufferBuilder buffer = Tessellator.getInstance().getBuffer();
+		buffer.begin(GL11.GL_QUAD_STRIP, VertexFormats.POSITION);
+		for (int i = 0; i <= steps; i++) {
+			double angle = from + (to - from) * i / steps;
+			double cos = Math.cos(angle);
+			double sin = Math.sin(angle);
+			buffer.vertex(cx + cos * outer, cy + sin * outer, 0D).next();
+			buffer.vertex(cx + cos * inner, cy + sin * inner, 0D).next();
+		}
+		Tessellator.getInstance().draw();
+		if (cull) {
+			GL11.glEnable(GL11.GL_CULL_FACE);
+		}
+		end();
+	}
+
+	/**
 	 * Círculo preenchido.
 	 *
 	 * @param cx     centro X

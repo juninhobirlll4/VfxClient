@@ -27,8 +27,10 @@ import net.minecraft.client.util.ScreenshotUtils;
  *       inicial ({@code vfx-teste-inicio.png});</li>
  *   <li>{@code -Dvfx.openMenu=pausa}: menu de pausa, já num mundo ({@code vfx-teste.png});</li>
  *   <li>{@code -Dvfx.openMenu=emotes}: roda de emotes ({@code vfx-teste.png});</li>
+ *       com {@code -Dvfx.wheelPage=n} e {@code -Dvfx.wheelHover=n} a roda já abre nessa página, com esse emote apontado;</li>
  *   <li>{@code -Dvfx.openMenu=mundo}: o mundo sem nenhuma tela aberta ({@code vfx-teste.png});</li>
  *   <li>{@code -Dvfx.emote=<id>} junto com o openMenu: faz esse emote antes do print;</li>
+ *   <li>{@code -Dvfx.emoteSheet=true}: um print de cada emote ({@code emote-<id>.png}), para revisar as animações;</li>
  *   <li>{@code -Dvfx.remoteSelf=true}: você também recebe a skin do servidor do VfxClient (para testar).</li>
  *   <li>{@code -Dvfx.openMenu=<id do módulo>}: opções do módulo no menu ({@code vfx-teste.png}).</li>
  * </ul>
@@ -44,6 +46,8 @@ final class TestShots {
 	private int menuTicks = WAIT_TICKS;
 	private int shotTicks = -1;
 	private String shotName;
+	private int sheetStep = -1;
+	private int sheetWait = WAIT_TICKS;
 
 	/** Chamado a cada tick do cliente. */
 	void tick(MinecraftClient client) {
@@ -53,10 +57,11 @@ final class TestShots {
 		if (menuMode != null) {
 			tickMenuMode(client);
 		}
+		if (Boolean.getBoolean("vfx.emoteSheet")) {
+			tickEmoteSheet(client);
+		}
 		if (shotTicks > 0 && --shotTicks == 0) {
-			ScreenshotUtils.saveScreenshot(client.runDirectory, shotName,
-					client.getFramebuffer().viewportWidth, client.getFramebuffer().viewportHeight, client.getFramebuffer());
-			VfxCore.LOGGER.info("Print de teste salvo: screenshots/{}", shotName);
+			saveShot(client, shotName);
 			client.scheduleStop();
 		}
 	}
@@ -113,12 +118,51 @@ final class TestShots {
 		shoot("vfx-teste.png");
 	}
 
+	/**
+	 * {@code -Dvfx.emoteSheet=true}: faz cada emote (no momento do ícone), um por vez, e salva um print
+	 * de cada ({@code emote-<id>.png}); depois fecha o jogo. Serve para revisar todas as animações.
+	 */
+	private void tickEmoteSheet(MinecraftClient client) {
+		if (client.world == null || client.player == null) {
+			return;
+		}
+		if (client.currentScreen != null) {
+			// Sem foco na janela o jogo abre o menu de pausa sozinho; no teste isso só atrapalha.
+			client.setScreen(null);
+			return;
+		}
+		if (--sheetWait > 0) {
+			return;
+		}
+		EmotesModule module = VfxCore.get().getModules().get(EmotesModule.class);
+
+		// Primeiro quadro de cada emote: o print é do emote anterior, já desenhado.
+		if (sheetStep >= 0 && sheetStep < Emotes.ALL.size()) {
+			saveShot(client, "emote-" + Emotes.ALL.get(sheetStep).id() + ".png");
+		}
+		sheetStep++;
+		if (sheetStep >= Emotes.ALL.size()) {
+			client.scheduleStop();
+			return;
+		}
+		Emote emote = Emotes.ALL.get(sheetStep);
+		// Espera 12 ticks (0,6 s) até o print, então começa 0,6 s antes do instante do ícone.
+		module.play(emote, Math.max(0F, emote.previewSeconds() - 0.6F));
+		sheetWait = 12;
+	}
+
 	/** {@code -Dvfx.emote=<id>}: faz o emote assim que entra no mundo (o print sai no meio dele). */
 	private static void playTestEmote() {
 		Emote emote = Emotes.byId(System.getProperty("vfx.emote", ""));
 		if (emote != null) {
 			VfxCore.get().getModules().get(EmotesModule.class).play(emote);
 		}
+	}
+
+	private static void saveShot(MinecraftClient client, String name) {
+		ScreenshotUtils.saveScreenshot(client.runDirectory, name,
+				client.getFramebuffer().viewportWidth, client.getFramebuffer().viewportHeight, client.getFramebuffer());
+		VfxCore.LOGGER.info("Print de teste salvo: screenshots/{}", name);
 	}
 
 	private void shoot(String name) {

@@ -28,6 +28,7 @@ public final class Emote {
 	private final String name;
 	private final float duration;
 	private final Animation animation;
+	private final float previewSeconds;
 
 	/**
 	 * @param id        id enviado pela rede
@@ -36,9 +37,17 @@ public final class Emote {
 	 * @param animation movimento
 	 */
 	Emote(String id, String name, float duration, Animation animation) {
+		this(id, name, duration, 0.7F, animation);
+	}
+
+	/**
+	 * @param previewSeconds instante do movimento usado no ícone da roda (um momento marcante)
+	 */
+	Emote(String id, String name, float duration, float previewSeconds, Animation animation) {
 		this.id = id;
 		this.name = name;
 		this.duration = duration;
+		this.previewSeconds = previewSeconds;
 		this.animation = animation;
 	}
 
@@ -60,7 +69,19 @@ public final class Emote {
 		return loops() ? LOOP_LIMIT : duration;
 	}
 
-	void apply(PlayerEntityModel model, float seconds, float blend) {
+	/** @return instante do movimento que representa o emote no ícone da roda */
+	public float previewSeconds() {
+		return previewSeconds;
+	}
+
+	/**
+	 * Põe o modelo na pose do emote.
+	 *
+	 * @param model   modelo do jogador
+	 * @param seconds tempo desde o começo do emote
+	 * @param blend   0 = pose normal, 1 = pose do emote
+	 */
+	public void apply(PlayerEntityModel model, float seconds, float blend) {
 		animation.apply(model, seconds, blend);
 	}
 }

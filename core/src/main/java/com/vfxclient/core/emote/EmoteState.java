@@ -23,11 +23,12 @@ public final class EmoteState {
 	private static final class Playing {
 		final Emote emote;
 		final String name;
-		final long startedAt = System.nanoTime();
+		final long startedAt;
 
-		Playing(Emote emote, String name) {
+		Playing(Emote emote, String name, float startSeconds) {
 			this.emote = emote;
 			this.name = name;
+			this.startedAt = System.nanoTime() - (long) (startSeconds * 1_000_000_000F);
 		}
 
 		float seconds() {
@@ -49,7 +50,16 @@ public final class EmoteState {
 	 * @param emote emote a fazer
 	 */
 	public static void play(UUID uuid, String name, Emote emote) {
-		PLAYING.put(uuid, new Playing(emote, name));
+		play(uuid, name, emote, 0F);
+	}
+
+	/**
+	 * Igual a {@link #play(UUID, String, Emote)}, começando no meio do movimento (testes e prévias).
+	 *
+	 * @param startSeconds quanto do emote já passou
+	 */
+	public static void play(UUID uuid, String name, Emote emote, float startSeconds) {
+		PLAYING.put(uuid, new Playing(emote, name, startSeconds));
 	}
 
 	public static void stop(UUID uuid) {
@@ -102,20 +112,25 @@ public final class EmoteState {
 		if (drawingFirstPersonArm) {
 			return;
 		}
+
+		// O jogo usa o mesmo modelo para todos os jogadores e nunca zera a inclinação lateral da
+		// cabeça e das pernas; sem isto, o que um emote deixa para trás aparece em todo mundo.
+		model.head.posZ = 0F;
+		model.rightLeg.posZ = 0F;
+		model.leftLeg.posZ = 0F;
+
 		Playing playing = find(player);
-		if (playing == null) {
-			return;
+		if (playing != null && playing.seconds() < playing.emote.length()) {
+			float seconds = playing.seconds();
+			float length = playing.emote.length();
+			float blend = Math.min(1F, Math.min(seconds / FADE_IN, (length - seconds) / FADE_OUT));
+			playing.emote.apply(model, seconds, blend);
 		}
+		copyLayers(model);
+	}
 
-		float seconds = playing.seconds();
-		float length = playing.emote.length();
-		if (seconds >= length) {
-			return;
-		}
-		float blend = Math.min(1F, Math.min(seconds / FADE_IN, (length - seconds) / FADE_OUT));
-		playing.emote.apply(model, seconds, blend);
-
-		// As camadas da skin seguem os braços, pernas e corpo.
+	/** As camadas da skin seguem os braços, pernas, corpo e cabeça. */
+	private static void copyLayers(PlayerEntityModel model) {
 		EntityModel.copyModelPart(model.leftLeg, model.leftPants);
 		EntityModel.copyModelPart(model.rightLeg, model.rightPants);
 		EntityModel.copyModelPart(model.leftArm, model.leftSleeve);
