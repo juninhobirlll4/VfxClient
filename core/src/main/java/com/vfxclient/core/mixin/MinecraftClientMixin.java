@@ -3,11 +3,14 @@ package com.vfxclient.core.mixin;
 import com.vfxclient.core.VfxCore;
 import com.vfxclient.core.gui.ScreenSwap;
 import com.vfxclient.core.module.performance.FpsLimiterModule;
+import com.vfxclient.core.module.visual.ZoomModule;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.entity.player.PlayerInventory;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -20,6 +23,16 @@ public abstract class MinecraftClientMixin {
 		VfxCore core = VfxCore.get();
 		if (core != null) {
 			core.onClientTick((MinecraftClient) (Object) this);
+		}
+	}
+
+	/** Com a tecla do zoom segurada, a rodinha do mouse muda o zoom em vez de trocar o item da barra. */
+	@Redirect(method = "tick()V", at = @At(value = "INVOKE",
+			target = "Lnet/minecraft/entity/player/PlayerInventory;scrollInHotbar(I)V"))
+	private void vfx$zoomScroll(PlayerInventory inventory, int scroll) {
+		ZoomModule zoom = VfxCore.module(ZoomModule.class);
+		if (zoom == null || !zoom.consumeScroll(scroll)) {
+			inventory.scrollInHotbar(scroll);
 		}
 	}
 

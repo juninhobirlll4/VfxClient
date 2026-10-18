@@ -6,6 +6,7 @@ import com.vfxclient.core.gui.ClickGuiScreen;
 import com.vfxclient.core.gui.EmoteWheelScreen;
 import com.vfxclient.core.gui.VfxTitleScreen;
 import com.vfxclient.core.module.social.EmotesModule;
+import com.vfxclient.core.module.visual.ZoomModule;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.GameMenuScreen;
 import net.minecraft.client.gui.screen.Screen;
@@ -32,6 +33,7 @@ import net.minecraft.client.util.ScreenshotUtils;
  *   <li>{@code -Dvfx.openMenu=mundo}: o mundo sem nenhuma tela aberta ({@code vfx-teste.png});</li>
  *   <li>{@code -Dvfx.emote=<id>} junto com o openMenu: faz esse emote antes do print;</li>
  *   <li>{@code -Dvfx.emoteSheet=true}: um print de cada emote ({@code emote-<id>.png}), para revisar as animações;</li>
+ *   <li>{@code -Dvfx.zoomHeld=true} e {@code -Dvfx.zoomScroll=n}: zoom como se a tecla estivesse segurada, com n cliques de rodinha;</li>
  *   <li>{@code -Dvfx.tab=true}: a lista de jogadores (Tab) fica aberta no print;</li>
  *   <li>{@code -Dvfx.remoteSelf=true}: você também recebe a skin do servidor do VfxClient (para testar).</li>
  *   <li>{@code -Dvfx.openMenu=<id do módulo>}: opções do módulo no menu ({@code vfx-teste.png}).</li>
@@ -64,6 +66,9 @@ final class TestShots {
 		}
 		if (Boolean.getBoolean("vfx.tab") && client.world != null) {
 			KeyBinding.setKeyPressed(client.options.playerListKey.getCode(), true);
+		}
+		if (shotTicks == 30) {
+			testZoomScroll();
 		}
 		if (shotTicks > 0 && --shotTicks == 0) {
 			saveShot(client, shotName);
@@ -161,6 +166,15 @@ final class TestShots {
 		Emote emote = Emotes.byId(System.getProperty("vfx.emote", ""));
 		if (emote != null) {
 			VfxCore.get().getModules().get(EmotesModule.class).play(emote);
+		}
+	}
+
+	/** {@code -Dvfx.zoomScroll=n}: gira a rodinha n cliques (negativo = para baixo) antes do print. */
+	private static void testZoomScroll() {
+		int clicks = Integer.getInteger("vfx.zoomScroll", 0);
+		ZoomModule zoom = VfxCore.get().getModules().get(ZoomModule.class);
+		for (int i = 0; i < Math.abs(clicks); i++) {
+			zoom.consumeScroll(clicks > 0 ? 120 : -120);
 		}
 	}
 
