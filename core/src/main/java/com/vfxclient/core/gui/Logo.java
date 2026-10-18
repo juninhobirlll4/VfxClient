@@ -1,5 +1,7 @@
 package com.vfxclient.core.gui;
 
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -24,6 +26,8 @@ public final class Logo {
 
 	/** Ícone quadrado (V roxo). */
 	public static final String ICON = "/assets/vfx/icon.png";
+	/** Ícone reduzido (32x32, suavizado), para tamanhos pequenos como o nick e a Tab. */
+	public static final String ICON_SMALL = "/assets/vfx/icon.png#small";
 	/** Logotipo horizontal (ícone + "VfxClient"), proporção 4:1. */
 	public static final String WORDMARK = "/assets/vfx/textures/gui/wordmark.png";
 
@@ -41,6 +45,11 @@ public final class Logo {
 	 */
 	public static void draw(int x, int y, int size) {
 		draw(ICON, x, y, size, size);
+	}
+
+	/** Igual a {@link #draw(int, int, int)}, com a versão reduzida (nítida em tamanhos pequenos). */
+	public static void drawSmall(int x, int y, int size) {
+		draw(ICON_SMALL, x, y, size, size);
 	}
 
 	/**
@@ -71,11 +80,16 @@ public final class Logo {
 		}
 
 		Loaded loaded = null;
-		try (InputStream in = Logo.class.getResourceAsStream(resource)) {
+		boolean small = resource.endsWith("#small");
+		String path = small ? resource.substring(0, resource.indexOf('#')) : resource;
+		try (InputStream in = Logo.class.getResourceAsStream(path)) {
 			if (in == null) {
-				throw new IllegalStateException("recurso não encontrado: " + resource);
+				throw new IllegalStateException("recurso não encontrado: " + path);
 			}
 			BufferedImage image = ImageIO.read(in);
+			if (small) {
+				image = scaled(image, SMALL);
+			}
 			Identifier id = MinecraftClient.getInstance().getTextureManager()
 					.registerDynamicTexture("vfx_" + CACHE.size(), new NativeImageBackedTexture(image));
 			loaded = new Loaded(id, image.getWidth(), image.getHeight());
@@ -85,6 +99,24 @@ public final class Logo {
 
 		CACHE.put(resource, loaded);
 		return loaded;
+	}
+
+	/** Lado do ícone reduzido, em pixels. */
+	private static final int SMALL = 32;
+
+	/** Reduz em etapas (metade por vez): fica bem mais suave que reduzir de uma vez. */
+	private static BufferedImage scaled(BufferedImage source, int size) {
+		BufferedImage current = source;
+		while (current.getWidth() > size) {
+			int next = Math.max(size, current.getWidth() / 2);
+			BufferedImage half = new BufferedImage(next, next, BufferedImage.TYPE_INT_ARGB);
+			Graphics2D g = half.createGraphics();
+			g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+			g.drawImage(current, 0, 0, next, next, null);
+			g.dispose();
+			current = half;
+		}
+		return current;
 	}
 
 	private static final class Loaded {

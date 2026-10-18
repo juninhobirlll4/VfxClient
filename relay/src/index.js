@@ -13,6 +13,8 @@
  *                       {"t":"stop"}
  *   servidor -> client  {"t":"emote","uuid":"...","name":"...","id":"acenar"}
  *                       {"t":"stop","uuid":"...","name":"..."}
+ *                       {"t":"roster","players":[{"uuid":"...","name":"..."}]}   (ao entrar: quem já está)
+ *                       {"t":"join","uuid":"...","name":"..."}   {"t":"leave",...}
  */
 import { DurableObject } from "cloudflare:workers";
 import { SkinStore } from "./skins.js";
@@ -101,9 +103,29 @@ export class EmoteRoom extends DurableObject {
 			ws.close(1008, "Identificação inválida");
 			return;
 		}
+		const alreadyHere = Boolean(player.uuid);
 		player.uuid = message.uuid;
 		player.name = message.name;
 		ws.serializeAttachment(player);
+
+		// Quem entra recebe a lista de quem já está na sala (quem usa o VfxClient neste servidor);
+		// os outros recebem o aviso de que ele entrou.
+		ws.send(JSON.stringify({ t: "roster", players: this.others(ws) }));
+		if (!alreadyHere) {
+			this.broadcast(ws, { t: "join", uuid: player.uuid, name: player.name });
+		}
+	}
+
+	/** @returns quem já se identificou na sala, menos {@code ws} */
+	others(ws) {
+		const players = [];
+		for (const other of this.ctx.getWebSockets()) {
+			const info = other !== ws ? other.deserializeAttachment() : null;
+			if (info && info.uuid) {
+				players.push({ uuid: info.uuid, name: info.name });
+			}
+		}
+		return players;
 	}
 
 	emote(ws, player, message) {
@@ -123,6 +145,7 @@ export class EmoteRoom extends DurableObject {
 		const player = ws.deserializeAttachment();
 		if (player && player.uuid) {
 			this.broadcast(ws, { t: "stop", uuid: player.uuid, name: player.name });
+			this.broadcast(ws, { t: "leave", uuid: player.uuid, name: player.name });
 		}
 	}
 

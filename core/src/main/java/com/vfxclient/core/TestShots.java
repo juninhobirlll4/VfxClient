@@ -15,6 +15,7 @@ import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 import net.minecraft.client.gui.screen.options.ControlsOptionsScreen;
 import net.minecraft.client.gui.screen.world.CreateWorldScreen;
 import net.minecraft.client.gui.screen.world.SelectWorldScreen;
+import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.ScreenshotUtils;
 
 /**
@@ -31,6 +32,7 @@ import net.minecraft.client.util.ScreenshotUtils;
  *   <li>{@code -Dvfx.openMenu=mundo}: o mundo sem nenhuma tela aberta ({@code vfx-teste.png});</li>
  *   <li>{@code -Dvfx.emote=<id>} junto com o openMenu: faz esse emote antes do print;</li>
  *   <li>{@code -Dvfx.emoteSheet=true}: um print de cada emote ({@code emote-<id>.png}), para revisar as animações;</li>
+ *   <li>{@code -Dvfx.tab=true}: a lista de jogadores (Tab) fica aberta no print;</li>
  *   <li>{@code -Dvfx.remoteSelf=true}: você também recebe a skin do servidor do VfxClient (para testar).</li>
  *   <li>{@code -Dvfx.openMenu=<id do módulo>}: opções do módulo no menu ({@code vfx-teste.png}).</li>
  * </ul>
@@ -59,6 +61,9 @@ final class TestShots {
 		}
 		if (Boolean.getBoolean("vfx.emoteSheet")) {
 			tickEmoteSheet(client);
+		}
+		if (Boolean.getBoolean("vfx.tab") && client.world != null) {
+			KeyBinding.setKeyPressed(client.options.playerListKey.getCode(), true);
 		}
 		if (shotTicks > 0 && --shotTicks == 0) {
 			saveShot(client, shotName);

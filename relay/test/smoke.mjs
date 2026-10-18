@@ -1,44 +1,73 @@
-// Teste rápido do servidor de emotes: dois clients na mesma sala, um manda emote, o outro recebe.
+// Teste rápido do servidor de emotes: presença (quem usa o VfxClient), emote e saída.
 // Uso: npm run dev (em outro terminal) e depois: node test/smoke.mjs [ws://localhost:8787/ws]
-import { createHash } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 
 const base = process.argv[2] || "ws://localhost:8787/ws";
-const room = createHash("sha256").update("localhost:25565").digest("hex");
+// Uma sala nova a cada execução, para não depender de testes anteriores.
+const room = createHash("sha256").update("teste-" + randomBytes(6).toString("hex")).digest("hex");
 
+/** Abre um client na sala; as mensagens recebidas ficam numa fila. */
 function open(uuid, name) {
 	return new Promise((resolve, reject) => {
 		const ws = new WebSocket(`${base}?room=${room}`);
+		const queue = [];
+		const waiting = [];
+		ws.addEventListener("message", (event) => {
+			const message = JSON.parse(event.data);
+			const waiter = waiting.shift();
+			if (waiter) {
+				waiter(message);
+			} else {
+				queue.push(message);
+			}
+		});
 		ws.addEventListener("open", () => {
 			ws.send(JSON.stringify({ t: "hello", v: 1, uuid, name }));
-			resolve(ws);
+			resolve({
+				ws,
+				next: () => new Promise((resolveNext, rejectNext) => {
+					if (queue.length) {
+						resolveNext(queue.shift());
+						return;
+					}
+					const timer = setTimeout(() => rejectNext(new Error("nada chegou em 3 s")), 3000);
+					waiting.push((message) => {
+						clearTimeout(timer);
+						resolveNext(message);
+					});
+				}),
+			});
 		});
 		ws.addEventListener("error", reject);
 	});
 }
 
-function next(ws) {
-	return new Promise((resolve, reject) => {
-		const timer = setTimeout(() => reject(new Error("nada chegou em 3 s")), 3000);
-		ws.addEventListener("message", (event) => {
-			clearTimeout(timer);
-			resolve(JSON.parse(event.data));
-		}, { once: true });
-	});
+function expect(label, ok) {
+	console.log(`${ok ? "ok  " : "ERRO"} ${label}`);
+	if (!ok) {
+		process.exitCode = 1;
+	}
 }
 
 const alice = await open("11111111-1111-1111-1111-111111111111", "Alice");
+expect("Alice recebe a lista vazia ao entrar", (await alice.next()).players?.length === 0);
+
 const bob = await open("22222222-2222-2222-2222-222222222222", "Bob");
-await new Promise((r) => setTimeout(r, 200));
+const roster = await bob.next();
+expect("Bob recebe a lista com a Alice", roster.t === "roster" && roster.players.length === 1 && roster.players[0].name === "Alice");
 
-alice.send(JSON.stringify({ t: "emote", id: "acenar" }));
-const got = await next(bob);
-console.log("Bob recebeu:", got);
-if (got.t !== "emote" || got.name !== "Alice" || got.id !== "acenar") {
-	throw new Error("mensagem errada");
-}
+const join = await alice.next();
+expect("Alice é avisada de que o Bob entrou", join.t === "join" && join.name === "Bob");
 
-const stop = next(bob);
-alice.close();
-console.log("Bob recebeu ao Alice sair:", await stop);
-bob.close();
-console.log("OK");
+alice.ws.send(JSON.stringify({ t: "emote", id: "acenar" }));
+const emote = await bob.next();
+expect("Bob recebe o emote da Alice", emote.t === "emote" && emote.name === "Alice" && emote.id === "acenar");
+
+alice.ws.close();
+const stop = await bob.next();
+const leave = await bob.next();
+expect("Bob recebe o stop da Alice ao ela sair", stop.t === "stop" && stop.name === "Alice");
+expect("Bob é avisado de que a Alice saiu", leave.t === "leave" && leave.name === "Alice");
+
+bob.ws.close();
+console.log(process.exitCode ? "FALHOU" : "OK");

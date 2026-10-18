@@ -13,9 +13,11 @@ import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.vfxclient.core.VfxCore;
+import com.vfxclient.core.net.VfxUsers;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ServerInfo;
 
@@ -91,6 +93,7 @@ public final class EmoteRelay {
 			current.close();
 		}
 		EmoteState.clear();
+		VfxUsers.clear();
 	}
 
 	/** @param text mensagem, ou {@code null} para só mandar um ping */
@@ -154,6 +157,7 @@ public final class EmoteRelay {
 			}
 			socket = opened;
 			retryDelay = RETRY_MIN_MS;
+			VfxUsers.add(name);
 			VfxCore.LOGGER.info("Emotes: conectado ao servidor de emotes.");
 		} catch (IOException | URISyntaxException e) {
 			VfxCore.LOGGER.warn("Emotes: não deu para conectar ({}). Tentando de novo em {} s.", e.getMessage(), retryDelay / 1000);
@@ -179,9 +183,20 @@ public final class EmoteRelay {
 
 	private static void handle(MinecraftClient client, String text, boolean showOthers) {
 		JsonObject message;
-		UUID uuid;
 		try {
 			message = new JsonParser().parse(text).getAsJsonObject();
+		} catch (RuntimeException e) {
+			return;
+		}
+
+		String type = message.has("t") ? message.get("t").getAsString() : "";
+		if ("roster".equals(type)) {
+			handleRoster(message);
+			return;
+		}
+
+		UUID uuid;
+		try {
 			uuid = UUID.fromString(message.get("uuid").getAsString());
 		} catch (RuntimeException e) {
 			return;
@@ -190,18 +205,33 @@ public final class EmoteRelay {
 			return;
 		}
 
-		String type = message.has("t") ? message.get("t").getAsString() : "";
-		if ("stop".equals(type)) {
+		String name = message.has("name") ? message.get("name").getAsString() : null;
+		if ("join".equals(type)) {
+			VfxUsers.add(name);
+		} else if ("leave".equals(type)) {
+			VfxUsers.remove(name);
+			EmoteState.stop(uuid);
+		} else if ("stop".equals(type)) {
 			EmoteState.stop(uuid);
 		} else if ("emote".equals(type) && showOthers) {
 			Emote emote = Emotes.byId(message.has("id") ? message.get("id").getAsString() : "");
-			String name = message.has("name") ? message.get("name").getAsString() : null;
 			if (emote != null) {
 				EmoteState.play(uuid, name, emote);
 			}
 		}
 	}
 
+	/** Lista de quem já usa o VfxClient neste servidor (chega logo depois de conectar). */
+	private static void handleRoster(JsonObject message) {
+		if (!message.has("players") || !message.get("players").isJsonArray()) {
+			return;
+		}
+		for (JsonElement player : message.getAsJsonArray("players")) {
+			if (player.isJsonObject() && player.getAsJsonObject().has("name")) {
+				VfxUsers.add(player.getAsJsonObject().get("name").getAsString());
+			}
+		}
+	}
 	/** @return a sala do servidor atual, ou {@code null} em mundo local / fora de um mundo */
 	private static String roomFor(MinecraftClient client) {
 		if (client.world == null || client.isInSingleplayer()) {

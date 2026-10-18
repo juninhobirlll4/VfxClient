@@ -36,6 +36,7 @@ public class EmotesModule extends Module {
 	private final KeySetting key = add(new KeySetting("key", "Tecla da roda de emotes", Keyboard.KEY_B));
 	private final BooleanSetting showOthers = add(new BooleanSetting("showOthers", "Ver os emotes dos outros", true));
 	private final BooleanSetting share = add(new BooleanSetting("share", "Mostrar os meus emotes para os outros", true));
+	private final BooleanSetting showBadge = add(new BooleanSetting("showBadge", "Logo do VfxClient ao lado do nick de quem usa o client", true));
 	private final ChoiceSetting camera = add(new ChoiceSetting("camera", "Câmera durante o emote", CAMERA_FRONT,
 			"De frente", "De costas", "Não mudar"));
 	private final TextSetting relayUrl = addAdvanced(new TextSetting("relay", "Servidor de emotes (vazio = o do VfxClient)", "", 200));
@@ -67,6 +68,11 @@ public class EmotesModule extends Module {
 		if (shortcut != null) {
 			play(shortcut);
 		}
+	}
+
+	/** @return se a logo do VfxClient aparece ao lado do nick de quem usa o client (nick e Tab) */
+	public boolean showBadge() {
+		return showBadge.get();
 	}
 
 	/** @return a página em que a roda parou da última vez (começa em 0) */
