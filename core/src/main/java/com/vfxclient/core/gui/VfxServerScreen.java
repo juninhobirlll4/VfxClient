@@ -1,16 +1,10 @@
 package com.vfxclient.core.gui;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
-import java.util.Base64;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import javax.imageio.ImageIO;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.vfxclient.core.gui.font.Fonts;
@@ -27,7 +21,6 @@ import net.minecraft.client.network.LanServerQueryManager;
 import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.option.ServerList;
 import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.util.Identifier;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -72,7 +65,6 @@ public class VfxServerScreen extends MultiplayerScreen {
 	});
 
 	private final List<ClickArea> areas = new ArrayList<ClickArea>();
-	private final Map<String, Identifier> icons = new HashMap<String, Identifier>();
 	private final long openedAt = System.currentTimeMillis();
 	private Canvas canvas;
 	private int tab = TAB_ALL;
@@ -444,28 +436,7 @@ public class VfxServerScreen extends MultiplayerScreen {
 
 	/** Ícone que o servidor manda (PNG 64x64 em base64), guardado como textura. */
 	private Identifier icon(ServerInfo server) {
-		String data = server.getIcon();
-		if (data == null) {
-			return null;
-		}
-
-		String key = server.address + "#" + data.hashCode();
-		if (icons.containsKey(key)) {
-			return icons.get(key);
-		}
-
-		Identifier id = null;
-		try {
-			BufferedImage image = ImageIO.read(new ByteArrayInputStream(Base64.getMimeDecoder().decode(data)));
-			if (image != null) {
-				id = client.getTextureManager().registerDynamicTexture("vfx_server_icon", new NativeImageBackedTexture(image));
-			}
-		} catch (Exception ignored) {
-			// Ícone inválido: fica com as iniciais.
-		}
-
-		icons.put(key, id);
-		return id;
+		return ServerIcons.textureFor(server);
 	}
 
 	// ------------------------------------------------------------------

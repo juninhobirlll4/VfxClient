@@ -1,5 +1,12 @@
 package com.vfxclient.core;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Base64;
+import javax.imageio.ImageIO;
+
 import com.vfxclient.core.emote.Emote;
 import com.vfxclient.core.emote.Emotes;
 import com.vfxclient.core.gui.ClickGuiScreen;
@@ -19,6 +26,7 @@ import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 import net.minecraft.client.gui.screen.options.ControlsOptionsScreen;
 import net.minecraft.client.gui.screen.world.CreateWorldScreen;
 import net.minecraft.client.gui.screen.world.SelectWorldScreen;
+import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.ScreenshotUtils;
 
@@ -37,6 +45,7 @@ import net.minecraft.client.util.ScreenshotUtils;
  *   <li>{@code -Dvfx.emote=<id>} junto com o openMenu: faz esse emote antes do print;</li>
  *   <li>{@code -Dvfx.emoteSheet=true}: um print de cada emote ({@code emote-<id>.png}), para revisar as animações;</li>
  *   <li>{@code -Dvfx.openMenu=mira}: editor da mira; {@code -Dvfx.crosshair=Alvo}: usa essa predefinição como mira;</li>
+ *   <li>{@code -Dvfx.enable=serverIp,texturePack} e {@code -Dvfx.fakeServer=Nome@endereço}: liga módulos e finge um servidor da lista;</li>
  *   <li>{@code -Dvfx.zoomHeld=true} e {@code -Dvfx.zoomScroll=n}: zoom como se a tecla estivesse segurada, com n cliques de rodinha;</li>
  *   <li>{@code -Dvfx.tab=true}: a lista de jogadores (Tab) fica aberta no print;</li>
  *   <li>{@code -Dvfx.remoteSelf=true}: você também recebe a skin do servidor do VfxClient (para testar).</li>
@@ -121,6 +130,7 @@ final class TestShots {
 			return;
 		}
 		applyTestCrosshair();
+		applyTestHud(client);
 		if ("mira".equals(menuMode)) {
 			client.setScreen(new CrosshairEditorScreen(VfxCore.get().getModules().get(CrosshairModule.class), null));
 		} else if ("pausa".equals(menuMode)) {
@@ -183,6 +193,48 @@ final class TestShots {
 			CrosshairModule module = VfxCore.get().getModules().get(CrosshairModule.class);
 			module.setDrawing(CrosshairDrawing.preset(preset));
 			module.useDrawing();
+		}
+	}
+
+	/**
+	 * {@code -Dvfx.enable=id,id}: liga esses módulos ({@code -Dvfx.disable} desliga); {@code -Dvfx.fakeServer=Nome@endereço}: finge que você
+	 * entrou por esse servidor da lista (com o ícone do VfxClient), para ver o HUD do servidor.
+	 */
+	private static void applyTestHud(MinecraftClient client) {
+		String enable = System.getProperty("vfx.enable");
+		if (enable != null) {
+			for (String id : enable.split(",")) {
+				VfxCore.get().getModules().get(id.trim()).setEnabled(true);
+			}
+		}
+
+		String disable = System.getProperty("vfx.disable");
+		if (disable != null) {
+			for (String id : disable.split(",")) {
+				VfxCore.get().getModules().get(id.trim()).setEnabled(false);
+			}
+		}
+
+		String fake = System.getProperty("vfx.fakeServer");
+		if (fake != null) {
+			String[] parts = fake.split("@", 2);
+			ServerInfo info = new ServerInfo(parts[0], parts.length > 1 ? parts[1] : parts[0], false);
+			info.setIcon(testIcon());
+			client.setCurrentServerEntry(info);
+		}
+	}
+
+	/** O ícone do VfxClient (reduzido) em base64, como um servidor mandaria. */
+	private static String testIcon() {
+		try (InputStream in = TestShots.class.getResourceAsStream("/assets/vfx/icon.png")) {
+			BufferedImage image = ImageIO.read(in);
+			BufferedImage small = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
+			small.createGraphics().drawImage(image, 0, 0, 64, 64, null);
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			ImageIO.write(small, "png", out);
+			return Base64.getEncoder().encodeToString(out.toByteArray());
+		} catch (IOException e) {
+			return null;
 		}
 	}
 

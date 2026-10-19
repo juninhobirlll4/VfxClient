@@ -2,36 +2,35 @@ package com.vfxclient.core.module.hud;
 
 import java.util.List;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.vfxclient.core.gui.Render2D;
-import com.vfxclient.core.gui.Theme;
+import com.vfxclient.core.gui.IconCard;
 import com.vfxclient.core.module.Category;
 import com.vfxclient.core.module.HudModule;
+import com.vfxclient.core.module.setting.BooleanSetting;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.resource.ResourcePackLoader;
 
 /**
- * Aviso com o pacote de textura em uso: a logo (ícone do pacote), o nome inteiro do arquivo e a
- * descrição. Aparece ao entrar no mundo e quando você troca de pacote, e some sozinho.
+ * Cartão com o pacote de textura em uso: o ícone do pacote, o nome inteiro do arquivo e a
+ * descrição. Aparece ao entrar no mundo e quando você troca de pacote (e some sozinho), ou fica
+ * sempre na tela se a opção estiver ligada.
  */
 public class TexturePackModule extends HudModule {
 
 	private static final long SHOW_MS = 6000L;
 	private static final long FADE_MS = 500L;
-	private static final int ICON = 36;
-	private static final int PAD = 5;
 	private static final int MAX_TEXT = 320;
-	private static final int NAME_COLOR = 0xFF7FE9FF;
-	private static final int DESCRIPTION_COLOR = 0xFFD8D8E0;
+	private static final int PURPLE = 0xFF5B3FA0;
+	private static final int BORDER = 0xAAB48CFF;
+
+	private final BooleanSetting always = add(new BooleanSetting("always", "Deixar sempre na tela", false));
 
 	private String signature;
 	private boolean inWorld;
 	private long shownAt;
 
 	public TexturePackModule() {
-		super("texturePack", "Aviso do pacote de textura", "Mostra o nome e a logo do pacote de textura em uso",
+		super("texturePack", "Pacote de textura", "Mostra o ícone, o nome e a descrição do pacote de textura em uso",
 				Category.HUD, true, 4, 4);
 		setDefaultAnchor(TOP_RIGHT);
 	}
@@ -56,65 +55,60 @@ public class TexturePackModule extends HudModule {
 
 	@Override
 	public boolean isVisible(MinecraftClient client, boolean preview) {
-		return preview || System.currentTimeMillis() - shownAt < SHOW_MS && topPack(client) != null;
+		if (preview) {
+			return true;
+		}
+		return topPack(client) != null && (always.get() || System.currentTimeMillis() - shownAt < SHOW_MS);
 	}
 
 	@Override
 	protected int contentWidth(MinecraftClient client, boolean preview) {
-		return PAD * 3 + ICON + textWidth(client, preview);
+		ResourcePackLoader.Entry pack = topPack(client);
+		TextRenderer text = client.textRenderer;
+		int title = Math.min(MAX_TEXT, text.getStringWidth(titleOf(pack)));
+		int subtitle = Math.min(MAX_TEXT, text.getStringWidth(subtitleOf(pack)));
+		return IconCard.width(Math.max(title, subtitle));
 	}
 
 	@Override
 	protected int contentHeight(MinecraftClient client, boolean preview) {
-		return PAD * 2 + ICON;
+		return IconCard.HEIGHT;
 	}
 
 	@Override
 	protected void renderContent(MinecraftClient client, boolean preview) {
-		long age = System.currentTimeMillis() - shownAt;
-		float alpha = preview ? 1F : Math.max(0F, Math.min(1F, (SHOW_MS - age) / (float) FADE_MS));
-		if (alpha <= 0.02F) {
-			return;
+		float alpha = 1F;
+		if (!preview && !always.get()) {
+			long age = System.currentTimeMillis() - shownAt;
+			alpha = Math.max(0F, Math.min(1F, (SHOW_MS - age) / (float) FADE_MS));
+			if (alpha <= 0.02F) {
+				return;
+			}
 		}
 
 		ResourcePackLoader.Entry pack = topPack(client);
-		String name = pack == null ? "Meu pacote de textura.zip" : safeName(pack);
-		String description = pack == null ? "por você" : firstLine(safeDescription(pack));
-
-		int w = contentWidth(client, preview);
-		int h = contentHeight(client, preview);
-		Render2D.outlinedRect(0, 0, w, h, 4, Theme.withAlpha(0xFFB48CFF, alpha), Theme.withAlpha(0xD0101014, alpha));
-
-		drawIcon(client, pack, alpha);
 		TextRenderer text = client.textRenderer;
-		int x = PAD * 2 + ICON;
-		text.draw(text.trimToWidth(name, MAX_TEXT), x, PAD + 6, Theme.withAlpha(NAME_COLOR, alpha), true);
-		text.draw(text.trimToWidth(description, MAX_TEXT), x, PAD + 6 + 12, Theme.withAlpha(DESCRIPTION_COLOR, alpha), true);
-		GlStateManager.color(1F, 1F, 1F, 1F);
+		IconCard.Icon icon = c -> {
+			if (pack == null) {
+				return false;
+			}
+			try {
+				pack.bindIcon(c.getTextureManager());
+				return true;
+			} catch (RuntimeException e) {
+				return false;
+			}
+		};
+		IconCard.draw(client, icon, "TX", PURPLE, text.trimToWidth(titleOf(pack), MAX_TEXT),
+				text.trimToWidth(subtitleOf(pack), MAX_TEXT), contentWidth(client, preview), BORDER, alpha);
 	}
 
-	private void drawIcon(MinecraftClient client, ResourcePackLoader.Entry pack, float alpha) {
-		if (pack == null) {
-			return;
-		}
-		GlStateManager.enableBlend();
-		GlStateManager.color(1F, 1F, 1F, alpha);
-		try {
-			pack.bindIcon(client.getTextureManager());
-			// Região 1x1 de uma textura 1x1: a imagem inteira, em qualquer tamanho de ícone.
-			DrawableHelper.drawTexture(PAD, PAD, 0F, 0F, 1, 1, ICON, ICON, 1F, 1F);
-		} catch (RuntimeException e) {
-			// Pacote sem ícone legível: fica só o texto.
-		}
-		GlStateManager.color(1F, 1F, 1F, 1F);
+	private static String titleOf(ResourcePackLoader.Entry pack) {
+		return pack == null ? "Meu pacote de textura.zip" : safeName(pack);
 	}
 
-	private int textWidth(MinecraftClient client, boolean preview) {
-		ResourcePackLoader.Entry pack = topPack(client);
-		TextRenderer text = client.textRenderer;
-		String name = pack == null ? "Meu pacote de textura.zip" : safeName(pack);
-		String description = pack == null ? "por você" : firstLine(safeDescription(pack));
-		return Math.min(MAX_TEXT, Math.max(text.getStringWidth(name), text.getStringWidth(description))) + PAD;
+	private static String subtitleOf(ResourcePackLoader.Entry pack) {
+		return pack == null ? "por você" : firstLine(safeDescription(pack));
 	}
 
 	/** O pacote de maior prioridade (o último da lista), ou {@code null} se só o padrão estiver ativo. */

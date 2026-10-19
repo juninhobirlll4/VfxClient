@@ -28,7 +28,10 @@ public abstract class NametagLogoMixin {
 
 	@Inject(method = "renderLabelIfPresent", at = @At("HEAD"))
 	private void vfx$checkBadge(Entity entity, String text, double x, double y, double z, int maxDistance, CallbackInfo ci) {
-		vfx$badge = entity instanceof PlayerEntity && VfxUsers.showsBadge(((PlayerEntity) entity).getGameProfile().getName());
+		// Só no nome do jogador: o jogo chama este método de novo para a linha da vida ("20 ♥") embaixo dele.
+		vfx$badge = entity instanceof PlayerEntity
+				&& VfxUsers.showsBadge(((PlayerEntity) entity).getGameProfile().getName())
+				&& text.equals(entity.getName().asFormattedString());
 	}
 
 	/** A segunda escrita do nome é a visível (a primeira é o contorno por trás de paredes). */
