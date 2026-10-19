@@ -4,11 +4,11 @@
 
 <p align="center">
   <b>Client de Minecraft 1.8.9 feito por nós, para nós.</b><br>
-  Menu próprio, HUD personalizável, otimizações de FPS e OptiFine no mesmo jogo.
+  Menu próprio, HUD personalizável, emotes, skins para os amigos, otimizações de FPS e OptiFine no mesmo jogo.
 </p>
 
 <p align="center">
-  <img alt="Versão" src="https://img.shields.io/badge/vers%C3%A3o-0.7.0-7B2FF7">
+  <img alt="Versão" src="https://img.shields.io/badge/vers%C3%A3o-0.15.0-7B2FF7">
   <img alt="Minecraft" src="https://img.shields.io/badge/Minecraft-1.8.9-62B47A">
   <img alt="Windows" src="https://img.shields.io/badge/Windows-10%20%7C%2011-0078D6">
   <img alt="Build" src="https://github.com/juninhobirlll4/VfxClient/actions/workflows/build.yml/badge.svg">
@@ -21,6 +21,7 @@
 - [O que é](#o-que-é)
 - [Novidades da v0.15](#novidades-da-v015)
 - [Instalar e jogar](#instalar-e-jogar)
+- [Emotes e skins para quem usa o VfxClient](#emotes-e-skins-para-quem-usa-o-vfxclient)
 - [Recursos](#recursos)
 - [Desempenho](#desempenho)
 - [Para desenvolvedores](#para-desenvolvedores)
@@ -112,6 +113,25 @@ um `OptiFine_1.8.9_*.jar` na Área de Trabalho, em Downloads ou no `.minecraft`.
 
 Comandos no chat: `/vfx`, `/vfx menu`, `/vfx hud` (editor de HUD) e `/vfx reset`.
 
+## Emotes e skins para quem usa o VfxClient
+
+Emotes, skins e a logo ao lado do nick aparecem **para quem também usa o VfxClient** no mesmo servidor de Minecraft.
+Quem joga com outro client ou com o jogo normal não vê nada disso (e também não atrapalha).
+
+| Recurso | Quem vê | Como funciona |
+|---|---|---|
+| **Emotes** (tecla **B**) | Quem usa o VfxClient no mesmo servidor | Segure **B**, aponte e solte. São 56 emotes em 7 páginas (a rodinha do mouse troca de página). Com o mouse sobre um emote, apertar uma tecla cria o atalho dele. |
+| **Logo ao lado do nick** | Quem usa o VfxClient no mesmo servidor | Aparece em cima do jogador e na lista de jogadores (Tab). |
+| **Skin** | Quem usa o VfxClient, em **servidor offline** | No launcher, aba **Conta**, escolha o PNG da skin. Ela é enviada ao servidor do VfxClient e os amigos passam a vê-la. |
+
+- Tudo isso passa por um servidor do próprio VfxClient na Cloudflare (pasta [`relay/`](relay/README.md)). O client manda só um código
+  gerado a partir do endereço do servidor de Minecraft, nunca o endereço em si, e nada de emote fica guardado.
+- **Skins:** valem para **contas offline** (servidores sem verificação). Quem tem conta original (Microsoft) continua com a
+  skin oficial. O primeiro envio de um nick o "reivindica" com uma chave secreta guardada no seu launcher; só você troca a sua skin,
+  e em outro PC o nick aparece como ocupado.
+- Para desligar: **Social > Emotes** (ver os emotes dos outros, mostrar os seus, logo ao lado do nick) e
+  **Geral > Skins do VfxClient** (ver a skin dos amigos).
+
 ## Recursos
 
 ### HUD
@@ -127,22 +147,26 @@ Comandos no chat: `/vfx`, `/vfx menu`, `/vfx hud` (editor de HUD) e `/vfx reset`
 | Efeitos | ícone, nível, tempo, cor do efeito, pisca no fim |
 | Servidor / Tempo de jogo | endereço atual; sessão, hoje ou total |
 | Texto livre | qualquer texto na tela |
+| Aviso do pacote de textura | logo, nome inteiro do arquivo e descrição do pacote em uso, ao entrar no mundo ou trocar de pacote |
 
 - **Editor de HUD:** arraste para mover; arraste o canto ou use a rodinha para mudar o tamanho; botão direito volta ao padrão.
 - **Estilo global:** cor do texto, cor de destaque, fundo, cantos (0 a 10 px), sombra, modo Compacto/Avançado.
 - **Layouts prontos:** Minimal, PvP, Survival, Content Creator, Competitivo.
 
 ### Utilidades e visual
-- Sprint automático e agachar alternado, mira personalizada (5 formatos, com prévia), contorno de bloco, cor do hit.
+- Sprint automático e agachar alternado, contorno de bloco, cor do hit.
+- **Mira:** formatos prontos com as opções de uma mira de CS (espaço, espessura, ponto no centro, contorno, abrir ao andar e
+  atacar) e um **editor para desenhar a sua** (grade 17x17, 11 cores, espelho, desfazer, predefinições e prévia).
+- **Zoom suave:** entra e sai com animação; com a tecla segurada, a rodinha do mouse ajusta a aproximação.
 - Chat com horário, mensagens repetidas agrupadas e histórico de até 1000 linhas; placar sem números; ping em número na Tab.
 - Auto GG (desligado por padrão), print copiado para a área de transferência.
-- Zoom suave, brilho total, fogo baixo, sem tremor ao levar dano, hora e clima locais.
+- Brilho total, fogo baixo, sem tremor ao levar dano, hora e clima locais.
 - Freelook (desligado por padrão; **alguns servidores proíbem**), Motion blur e Saturação de cor.
 
 ### Geral
 - Perfis de configuração (ex.: "PvP" e "Construção"), exportar/importar em JSON.
 - Seletor de cor com RGB, alfa, HEX e paleta; valores digitáveis; opções avançadas no modo Completo.
-- Skin local para conta offline.
+- Skin para conta offline, vista também pelos amigos que usam o VfxClient (veja acima).
 
 > Nenhum módulo dá vantagem injusta (nada de reach, killaura, X-ray etc.). Respeite as regras de cada servidor.
 
@@ -156,6 +180,9 @@ se o FPS ficar abaixo da meta).
 |---|---|---|
 | Não desenhar entidades atrás de blocos | Culling de entidades | Alto em lobbies e farms |
 | Distância máxima de entidades e de baús/placas | Distância de entidades / de baús | Alto em lobbies cheios |
+| Esconder suportes de armadura, molduras, XP e fogos | Esconder decorações | Alto em lobbies com decoração |
+| Jogadores longe sem capa, armadura, item na mão e camadas da skin | Jogadores longe simples | Médio em PvP com muita gente |
+| Texto das placas só de perto; banners e cabeças por distância | Placas e blocos | Médio |
 | Menos partículas (por tipo) | Partículas | Alto em PvP (crits, poções) |
 | Texturas animadas, céu, chuva, brilho e nuvens desligáveis | Ajustes de render / Sem nuvens | Médio, maior em PCs fracos |
 | Itens no chão como um só modelo | Ajustes de render | Médio com muitos drops |
@@ -163,6 +190,9 @@ se o FPS ficar abaixo da meta).
 | Opções gráficas do Minecraft dentro do menu | Opções gráficas / Preset | Alto, varia por placa de vídeo |
 | Texto da HUD recalculado no máximo 20x por segundo | Estilo da HUD | Pequeno, sempre ligado |
 | FPS limitado sem foco e parado (AFK) | FPS dinâmico | Libera o PC fora do jogo |
+
+As novas (decorações, jogadores longe, placas) vêm **desligadas**. O módulo **Teste de FPS** mede 30 segundos e mostra a média, os
+1% mais lentos e o pior segundo no chat, para comparar antes e depois de ligar uma opção.
 
 ## Para desenvolvedores
 
@@ -177,6 +207,7 @@ se o FPS ficar abaixo da meta).
 VfxClient/
 ├── core/                 # mod "vfxcore" (id: vfx)
 ├── launcher/             # launcher JavaFX
+├── relay/                # servidor de emotes e skins (Cloudflare Workers)
 ├── installer/            # Inno Setup + build-installer.ps1
 ├── site/                 # página de download (GitHub Pages)
 ├── branding/             # logo (SVG fonte, PNG/ICO gerados) e paleta
@@ -203,14 +234,18 @@ Regras de trabalho: **[CONTRIBUTING.md](CONTRIBUTING.md)**.
 
 ### Publicar uma versão
 
+Suba o número em `client_version` (`gradle.properties`) e o texto em `launcher/src/main/resources/com/vfxclient/launcher/changelog.txt`
+e dê push:
+
 ```bat
 git push origin main
-git tag v0.7.0
-git push origin v0.7.0
 ```
 
-A CI publica no GitHub Releases o instalador, o zip portátil e o jar do mod (sem OptiFine).
-Tags com sufixo (`v0.8.0-beta`) saem como *pre-release*. O launcher instalado avisa quando há versão nova.
+Se a versão `v<client_version>` ainda não existir, a CI publica no GitHub Releases o instalador, o zip portátil e o jar do mod
+(sem OptiFine). Se já existir, nada é publicado: por isso **sempre suba o número** antes do push. Tags com sufixo
+(`v0.8.0-beta`) saem como *pre-release*. O launcher instalado avisa quando há versão nova.
+
+O servidor de emotes e skins é publicado à parte, com `npx wrangler deploy` dentro de `relay/` (veja [relay/README.md](relay/README.md)).
 
 ## Histórico de versões
 
@@ -224,7 +259,8 @@ Tags com sufixo (`v0.8.0-beta`) saem como *pre-release*. O launcher instalado av
 | 0.10 | Launcher mais simples e animado, arrastar a skin |
 | 0.9 | Primeira tela inicial nova, Texto automático, chat anti-spam, cabeças na Tab, galeria de prints |
 | 0.8 | Launcher minimalista, OptiFine junto sem opções na tela |
-| 0.7 | VfxClient + OptiFine no mesmo perfil, visual plano, menu com cartões e busca, prévia da mira || 0.6 | Forge embutido, HUD com âncoras e layouts, redimensionar no editor, módulos novos (Servidor, Tempo de jogo, Freelook, Auto GG...) |
+| 0.7 | VfxClient + OptiFine no mesmo perfil, visual plano, menu com cartões e busca, prévia da mira |
+| 0.6 | Forge embutido, HUD com âncoras e layouts, redimensionar no editor, módulos novos (Servidor, Tempo de jogo, Freelook, Auto GG...) |
 | 0.5.1 | Botões de loader: VfxClient / OptiFine / Forge |
 | 0.5 | Launcher completo (contas, skin, RAM, diagnóstico, atualização, instalador), seletor de cor, perfis de config, presets de FPS |
 | 0.4 | Utilidades (sprint, mira, chat, placar) e opções gráficas no menu; site de download |
@@ -234,10 +270,12 @@ Tags com sufixo (`v0.8.0-beta`) saem como *pre-release*. O launcher instalado av
 
 ## Próximos passos
 
-- [x] **Emotes** e **skins online** (v0.14)
+- [x] **Emotes**, **skins online** e **logo no nick** (v0.15)
+- [x] Tela inicial do jogo e launcher no mesmo visual novo
+- [x] Zoom suave, mira estilo CS com editor e aviso do pacote de textura (v0.15)
+- [ ] **Cosméticos** (itens visuais para os amigos que usam o client)
 - [ ] **Social:** waypoints (criar, cor, distância, compartilhar no chat) e minimapa opcional
 - [ ] **Contas VfxClient:** cadastro próprio (as skins online já funcionam para contas offline, sem cadastro)
-- [x] Tela inicial do jogo e launcher no mesmo visual novo
 - [ ] **v1.0 – Polimento:** arte final, testes com o grupo
 
 ## Terceiros e licenças
