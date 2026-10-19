@@ -24,6 +24,7 @@ import com.vfxclient.core.module.hud.KeystrokesModule;
 import com.vfxclient.core.module.hud.PingModule;
 import com.vfxclient.core.module.hud.PlaytimeModule;
 import com.vfxclient.core.module.hud.PotionEffectsModule;
+import com.vfxclient.core.module.hud.TexturePackModule;
 import com.vfxclient.core.module.hud.ServerIpModule;
 import com.vfxclient.core.module.performance.BlockDetailsModule;
 import com.vfxclient.core.module.performance.BlockEntityDistanceModule;
@@ -107,6 +108,7 @@ public final class ModuleManager {
 		register(new ArmorModule());
 		register(new PotionEffectsModule());
 		register(new CustomTextModule());
+		register(new TexturePackModule());
 	}
 
 	private void registerUtilities() {
