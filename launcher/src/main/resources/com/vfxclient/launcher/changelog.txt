@@ -1,3 +1,12 @@
+# v0.15
+Roda de emotes nova, igual à do Lunar: 56 emotes em 7 páginas
+Rodinha do mouse troca de página; aperte uma tecla sobre um emote para criar o atalho
+Logo do VfxClient ao lado do nick de quem usa o client (em cima do jogador e na Tab)
+Skins online: seus amigos com o VfxClient veem a sua skin
+Zoom suave, com a rodinha do mouse ajustando a aproximação
+Mira estilo CS e editor para desenhar a sua mira
+Aviso do pacote de textura com a logo e o nome completo
+Corrigido: emotes deixavam a cabeça e as pernas tortas em todo mundo
 # v0.14
 Emotes: aperte B, escolha e solte (Social > Emotes)
 Quem usa o VfxClient no mesmo servidor vê os seus emotes

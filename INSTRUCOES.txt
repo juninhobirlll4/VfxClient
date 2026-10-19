@@ -234,7 +234,20 @@ No jogo (Right Shift)
   O primeiro envio de um nick fica com o seu launcher (chave secreta guardada na conta); em outro PC o nick
   aparece como ocupado. Só vale em servidor offline; contas originais usam a skin oficial.
   Teste do servidor: node relay\test\skins.mjs https://vfx-emotes.vfxclient-sand.workers.dev
-- Social > Emotes (v0.14): segure B, aponte para um emote e solte (ou clique). Andar cancela.
+- Social > Emotes (v0.15): segure B (a tecla muda nas opções), aponte para um emote e solte, ou clique.
+  São 56 emotes em 7 páginas de 8 (Cumprimentos, Social, Danças, Reações, Gestos, Ação, Poses).
+  A rodinha do mouse (ou as setas) troca de página. Com o mouse sobre um emote, aperte uma tecla para
+  criar o atalho dele (Delete tira); a etiqueta da tecla aparece na roda e a tecla faz o emote direto no
+  jogo. Andar, pular, agachar ou bater cancela o emote.
+- Logo do VfxClient (v0.15): quem usa o client no servidor em que você está ganha a logo ao lado do nick,
+  em cima do jogador e na Tab (precisa do servidor de emotes; opção em Social > Emotes).
+- Zoom (v0.15): segure a tecla do zoom (C); a rodinha do mouse aumenta/diminui a aproximação (e não troca
+  o item da barra enquanto você segura). A entrada e a saída são animadas (Visual > Zoom: suavidade).
+- Mira (v0.15): Utilidades > Mira. Opções como as do CS: espaço, espessura, ponto no centro, contorno e
+  "abrir ao andar e atacar". O formato "Meu desenho" usa o editor: botão "Desenhar a minha mira" (grade 17x17,
+  cores, espelho, desfazer com Ctrl+Z, predefinições e prévia).
+- Aviso do pacote de textura (v0.15): ao entrar no mundo ou trocar de pacote aparece a logo, o nome inteiro
+  do arquivo e a descrição (HUD > Aviso do pacote de textura; dá para mover no editor de HUD).
   A câmera vira de frente durante o emote (opção). Quem usa o VfxClient no mesmo servidor vê
   os seus emotes, se o servidor de emotes estiver publicado (relay/README.md). Em mundo local,
   só você vê.

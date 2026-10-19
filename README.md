@@ -19,7 +19,7 @@
 ## Sumário
 
 - [O que é](#o-que-é)
-- [Novidades da v0.13](#novidades-da-v013)
+- [Novidades da v0.15](#novidades-da-v015)
 - [Instalar e jogar](#instalar-e-jogar)
 - [Recursos](#recursos)
 - [Desempenho](#desempenho)
@@ -45,7 +45,18 @@ No launcher você escolhe o loader do 1.8.9:
 | OptiFine | Só o Minecraft com OptiFine |
 | Forge | Forge 1.8.9 para os seus mods (com OptiFine opcional) |
 
-## Novidades da v0.13
+## Novidades da v0.15
+
+- **Roda de emotes** como a do Lunar: segure **B**, aponte e solte. São **56 emotes em 7 páginas** (a rodinha do mouse troca
+  de página) e dá para criar um **atalho de tecla** para qualquer um deles. Quem usa o VfxClient no mesmo servidor vê os seus emotes.
+- **Logo do VfxClient** ao lado do nick de quem usa o client, em cima do jogador e na Tab.
+- **Skins online**: os amigos que usam o client veem a sua skin (contas offline, com chave secreta por nick).
+- **Zoom suave**: entra e sai com animação e a rodinha do mouse ajusta a aproximação.
+- **Mira estilo CS** (ponto no centro, contorno, abrir ao andar e atacar) e um **editor para desenhar a sua mira**.
+- **Aviso do pacote de textura** com a logo, o nome completo e a descrição.
+
+<details>
+<summary><b>Novidades da v0.13</b></summary>
 
 - **Telas do jogo no visual do VfxClient**, com as letras Montserrat (títulos e botões) e Inter (textos):
   - **tela inicial** redesenhada, com a logo grande e os botões no centro;
@@ -54,6 +65,8 @@ No launcher você escolhe o loader do 1.8.9:
   - **Opções, Vídeo, Controles** e as demais telas do jogo (inclusive as do OptiFine) com botões planos e fundo escuro.
 - Tudo volta ao original em **Geral > Telas do VfxClient**.
 - Código reorganizado (imports, métodos menores), sem mudança de comportamento.
+
+</details>
 
 <details>
 <summary><b>Novidades da v0.7</b></summary>
@@ -203,7 +216,8 @@ Tags com sufixo (`v0.8.0-beta`) saem como *pre-release*. O launcher instalado av
 
 | Versão | Principais mudanças |
 |---|---|
-| **0.14** | Emotes (tecla B) e skins vistos por quem usa o VfxClient, opções de desempenho novas, teste de FPS, launcher com as fontes do jogo |
+| **0.15** | Roda de emotes com 56 emotes e atalhos, logo no nick e na Tab, zoom suave, mira estilo CS com editor, aviso do pacote de textura |
+| 0.14 | Emotes (tecla B) e skins vistos por quem usa o VfxClient, opções de desempenho novas, teste de FPS, launcher com as fontes do jogo |
 | 0.13 | Tela inicial, menu de pausa (com desfoque), multijogador e Opções no visual novo; fontes Montserrat e Inter |
 | 0.12 | Contorno verde/vermelho no menu, tecla de atalho em todo módulo, Hitbox, FOV, cor das partículas, launcher na bandeja |
 | 0.11 | Atualização dentro do launcher (Atualizar agora / Mais tarde) |

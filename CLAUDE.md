@@ -88,6 +88,26 @@ Tudo é nosso: nome, logo, cores (roxo → branco), código e assets.
   testados abrindo via CLI (v0.6). CLI `--join host:porta` entra direto num servidor (`-Dvfx.join`).
   OptiFine/Forge rodam SEM os recursos do VfxClient (decisão do usuário: opção 1; port para Forge fica para depois).
 
+## v0.15
+- Emotes: 56 em 7 páginas (`emote/*Emotes.java`, uma página por arquivo; `Emotes.PER_PAGE=8`). Escritos com `Poses.aim`
+  (aponta braço/perna por direção out/up/forward em vez de ângulos). `gui/EmoteWheelScreen` (anel de 8 fatias, rodinha/setas
+  trocam a página, tecla sobre um emote = atalho salvo em `EmotesModule` "shortcuts" como `id=tecla,...`), ícones por
+  `gui/PoseIcon` (aplica a animação num `PlayerEntityModel` solto e projeta em 2D; zera os ângulos antes).
+- **ARMADILHA: o `PlayerEntityModel` é o mesmo para todos os jogadores e o jogo nunca zera `head.posZ` e `leg.posZ`**;
+  `EmoteState.applyPose` zera os dois a cada quadro (senão o roll de um emote vaza para todos).
+- Presença: servidor de emotes manda `roster`/`join`/`leave`; `net/VfxUsers` guarda os nicks; logo em cima do jogador
+  (`NametagLogoMixin`, redirect do 2º `TextRenderer.draw` de `renderLabelIfPresent`) e na Tab (`PlayerListHudMixin`: `§z` +
+  2 espaços em `getPlayerName` reservam o lugar, redirect de `drawWithShadow` desenha `Logo.drawSmall`).
+- `ZoomModule`: nível anima (`approach`, em escala log) com a rodinha (`consumeScroll`, redirect de `scrollInHotbar` em
+  `MinecraftClientMixin`). `CrosshairModule` + `CrosshairDrawing` (grade 17x17 em texto, letra = cor da paleta) +
+  `gui/CrosshairEditorScreen`. `module/hud/TexturePackModule` (ícone/nome/descrição do último pacote selecionado).
+- Testes novos (TestShots): `-Dvfx.emoteSheet=true` (um print por emote em `screenshots/emote-<id>.png`), `-Dvfx.openMenu=emotes|mira`,
+  `-Dvfx.wheelPage/wheelHover/shortcuts`, `-Dvfx.tab=true`, `-Dvfx.zoomHeld/zoomScroll`, `-Dvfx.crosshair=<predefinição>` (este
+  muda a configuração do módulo: guarde e restaure `config/profiles/Padrao.json`).
+- Cuidado ao automatizar edições no PowerShell: uma lista com UM só par de textos `@(@("a","b"))` vira uma lista de
+  caracteres e corrompe o arquivo; use `@(,@("a","b"))`. As fontes decompiladas ficam extraídas do jar `-sources.jar` do
+  cache do loom (`~/.gradle/caches/fabric-loom/minecraftMaven/...`).
+
 ## v0.14
 - Emotes: `emote/` (`Emotes` com 8 animações por ângulos; `EmoteState` quem faz o quê + `applyPose` no TAIL de
   PlayerEntityModel.setAngles; corpo alinhado à cabeça no tick; braço em 1ª pessoa ignorado via EmoteArmMixin),
