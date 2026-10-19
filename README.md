@@ -46,6 +46,14 @@ No launcher você escolhe o loader do 1.8.9:
 | OptiFine | Só o Minecraft com OptiFine |
 | Forge | Forge 1.8.9 para os seus mods (com OptiFine opcional) |
 
+## Novidades da v0.16
+
+- **Motor de FPS** (Desempenho, desligado por padrão): *FPS Boost* (corta enfeites sozinho quando o FPS cai), *World Optimization*
+  (sem sombras de entidades), *Lazy Chunk Loading* (chunks aos poucos) e *GPU Fencing* (menos atraso de entrada). Funciona junto com o OptiFine.
+- **Cartão do servidor** no HUD com o ícone do servidor, o endereço, o ping e os jogadores, com o ícone esmaecido no fundo; o aviso do
+  pacote de textura usa o mesmo cartão.
+- A logo do VfxClient fica só ao lado do nome (não ao lado da vida).
+
 ## Novidades da v0.15
 
 - **Roda de emotes** como a do Lunar: segure **B**, aponte e solte. São **56 emotes em 7 páginas** (a rodinha do mouse troca
@@ -145,9 +153,10 @@ Quem joga com outro client ou com o jogo normal não vê nada disso (e também n
 | Teclas | WASD, cliques com CPS, espaço, Shift; estilos, cores e tamanho |
 | Armadura | durabilidade em número ou %, barra e cor por estado |
 | Efeitos | ícone, nível, tempo, cor do efeito, pisca no fim |
-| Servidor / Tempo de jogo | endereço atual; sessão, hoje ou total |
+| Servidor | cartão com o ícone do servidor, endereço, ping e jogadores |
+| Tempo de jogo | sessão, hoje ou total |
 | Texto livre | qualquer texto na tela |
-| Aviso do pacote de textura | logo, nome inteiro do arquivo e descrição do pacote em uso, ao entrar no mundo ou trocar de pacote |
+| Pacote de textura | ícone, nome inteiro do arquivo e descrição do pacote em uso, ao entrar no mundo ou trocar de pacote (ou sempre) |
 
 - **Editor de HUD:** arraste para mover; arraste o canto ou use a rodinha para mudar o tamanho; botão direito volta ao padrão.
 - **Estilo global:** cor do texto, cor de destaque, fundo, cantos (0 a 10 px), sombra, modo Compacto/Avançado.
@@ -190,6 +199,10 @@ se o FPS ficar abaixo da meta).
 | Opções gráficas do Minecraft dentro do menu | Opções gráficas / Preset | Alto, varia por placa de vídeo |
 | Texto da HUD recalculado no máximo 20x por segundo | Estilo da HUD | Pequeno, sempre ligado |
 | FPS limitado sem foco e parado (AFK) | FPS dinâmico | Libera o PC fora do jogo |
+| Corta enfeites sozinho quando o FPS cai (FPS Boost) | Motor de FPS | Médio, só quando precisa |
+| Sem sombras de entidades (World Optimization) | Motor de FPS | Pequeno a médio |
+| Chunks aos poucos (Lazy Chunk Loading) | Motor de FPS | Menos travadas ao andar |
+| Espera a placa terminar o quadro (GPU Fencing) | Motor de FPS | Menos atraso de entrada |
 
 As novas (decorações, jogadores longe, placas) vêm **desligadas**. O módulo **Teste de FPS** mede 30 segundos e mostra a média, os
 1% mais lentos e o pior segundo no chat, para comparar antes e depois de ligar uma opção.
@@ -251,7 +264,8 @@ O servidor de emotes e skins é publicado à parte, com `npx wrangler deploy` de
 
 | Versão | Principais mudanças |
 |---|---|
-| **0.15** | Roda de emotes com 56 emotes e atalhos, logo no nick e na Tab, zoom suave, mira estilo CS com editor, aviso do pacote de textura |
+| **0.16** | Motor de FPS (FPS Boost, sombras, chunks aos poucos, GPU Fencing), cartão do servidor e do pacote de textura com ícone |
+| 0.15 | Roda de emotes com 56 emotes e atalhos, logo no nick e na Tab, zoom suave, mira estilo CS com editor, aviso do pacote de textura |
 | 0.14 | Emotes (tecla B) e skins vistos por quem usa o VfxClient, opções de desempenho novas, teste de FPS, launcher com as fontes do jogo |
 | 0.13 | Tela inicial, menu de pausa (com desfoque), multijogador e Opções no visual novo; fontes Montserrat e Inter |
 | 0.12 | Contorno verde/vermelho no menu, tecla de atalho em todo módulo, Hitbox, FOV, cor das partículas, launcher na bandeja |

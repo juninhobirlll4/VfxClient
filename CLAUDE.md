@@ -88,6 +88,16 @@ Tudo é nosso: nome, logo, cores (roxo → branco), código e assets.
   testados abrindo via CLI (v0.6). CLI `--join host:porta` entra direto num servidor (`-Dvfx.join`).
   OptiFine/Forge rodam SEM os recursos do VfxClient (decisão do usuário: opção 1; port para Forge fica para depois).
 
+## v0.16
+- `EngineModule` (`engine`, Desempenho, desligado): FPS Boost = `low` com histerese no `onTick` (ENTER 30 ticks / LEAVE 80);
+  `RenderTweaksModule` consulta `pauseAnimations/hideWeather/hideGlint/chunkBudgetNanos`; sombras via `EntityShadowMixin`
+  (`renderShadow`); GPU Fencing = ARB_sync em `MinecraftClientMixin.updateDisplay` TAIL (`afterFrame`, ignora se não houver `GL_ARB_sync`).
+- `gui/IconCard` (ícone + fundo com o ícone esticado) usado por `ServerIpModule` (HudModule, desligado) e `TexturePackModule`;
+  `gui/ServerIcons` decodifica `ServerInfo.getIcon()` (cai na lista salva, `ServerList.loadFile`, na conexão direta; tenta a cada 30 s).
+- `NametagLogoMixin`: logo só quando o texto é o nome (`entity.getName().asFormattedString()`), não a vida.
+- Testes novos: `-Dvfx.enable/-Dvfx.disable=id,id`, `-Dvfx.fakeServer=Nome@endereço`, `-Dvfx.set=modulo.opcao=valor,...`.
+- Ao editar arquivos pelo PowerShell use `[IO.File]::ReadAllText(path, UTF8)`; `Get-Content -Raw`/`Set-Content` sem encoding quebra os acentos.
+  Em strings com aspas duplas o crase (`) é escape: use here-string de aspas simples para texto com crases.
 ## v0.15
 - Emotes: 56 em 7 páginas (`emote/*Emotes.java`, uma página por arquivo; `Emotes.PER_PAGE=8`). Escritos com `Poses.aim`
   (aponta braço/perna por direção out/up/forward em vez de ângulos). `gui/EmoteWheelScreen` (anel de 8 fatias, rodinha/setas

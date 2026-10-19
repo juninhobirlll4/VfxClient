@@ -238,7 +238,9 @@ No jogo (Right Shift)
   São 56 emotes em 7 páginas de 8 (Cumprimentos, Social, Danças, Reações, Gestos, Ação, Poses).
   A rodinha do mouse (ou as setas) troca de página. Com o mouse sobre um emote, aperte uma tecla para
   criar o atalho dele (Delete tira); a etiqueta da tecla aparece na roda e a tecla faz o emote direto no
-  jogo. Andar, pular, agachar ou bater cancela o emote.
+  jogo. Andar, pular, agachar ou bater cancela o emote. A câmera vira de frente durante o emote (opção).
+  Quem usa o VfxClient no mesmo servidor vê os seus emotes, se o servidor de emotes estiver publicado
+  (relay/README.md). Em mundo local, só você vê.
 - Logo do VfxClient (v0.15): quem usa o client no servidor em que você está ganha a logo ao lado do nick,
   em cima do jogador e na Tab (precisa do servidor de emotes; opção em Social > Emotes).
 - Zoom (v0.15): segure a tecla do zoom (C); a rodinha do mouse aumenta/diminui a aproximação (e não troca
@@ -246,11 +248,39 @@ No jogo (Right Shift)
 - Mira (v0.15): Utilidades > Mira. Opções como as do CS: espaço, espessura, ponto no centro, contorno e
   "abrir ao andar e atacar". O formato "Meu desenho" usa o editor: botão "Desenhar a minha mira" (grade 17x17,
   cores, espelho, desfazer com Ctrl+Z, predefinições e prévia).
-- Aviso do pacote de textura (v0.15): ao entrar no mundo ou trocar de pacote aparece a logo, o nome inteiro
-  do arquivo e a descrição (HUD > Aviso do pacote de textura; dá para mover no editor de HUD).
-  A câmera vira de frente durante o emote (opção). Quem usa o VfxClient no mesmo servidor vê
-  os seus emotes, se o servidor de emotes estiver publicado (relay/README.md). Em mundo local,
-  só você vê.
+- Pacote de textura (HUD > Pacote de textura): cartão com o ícone do pacote (também esticado e esmaecido no
+  fundo), o nome inteiro do arquivo e a descrição. Aparece ao entrar no mundo ou ao trocar de pacote e some
+  sozinho; a opção "Deixar sempre na tela" mantém o cartão. Dá para mover no editor de HUD.
+- Servidor (HUD > Servidor, desligado por padrão): cartão com o ícone que o próprio servidor envia (o da
+  lista de servidores; na conexão direta usa o ícone salvo na lista, se houver), o endereço (ou o nome salvo)
+  e, embaixo, ping e jogadores. Sem ícone, aparecem as iniciais.
+- A logo do VfxClient aparece só ao lado do NOME do jogador (não mais ao lado da vida).
+- Desempenho > Motor de FPS (v0.16, desligado por padrão; convive com o OptiFine, que continua cuidando de
+  Fast Render, Fast Math, partículas, animações e shaders):
+  FPS Boost: quando o FPS fica abaixo do limite escolhido por ~1,5 s, corta enfeites (texturas animadas,
+    chuva/neve, brilho de encantamento, chunks mais devagar) e volta quando o FPS se recupera (~4 s acima
+    do limite + 15). As opções avançadas escolhem o que é cortado.
+  World Optimization: tira as sombras de entidades.
+  Lazy Chunk Loading: limita o tempo por quadro gasto enviando chunks à placa (padrão 2 ms); menos
+    travadas ao andar e voar, mas os chunks novos aparecem um pouco mais devagar.
+  GPU Fencing: espera a placa terminar o quadro anterior (ARB_sync) e não deixa quadros acumulados na
+    fila; reduz o atraso entre mexer o mouse e ver na tela, e pode custar poucos FPS. Se a placa não
+    tiver suporte, a técnica é ignorada (aviso no log).
+COMO FUNCIONAM SKINS E EMOTES PARA OS OUTROS JOGADORES
+- Só quem usa o VfxClient vê. Quem joga com outro client ou com o Minecraft normal não vê nada (e nada
+  quebra para ele). Precisa ser a versão 0.15 ou mais nova dos dois lados.
+- Emotes: ao entrar num servidor o client abre uma conexão com o servidor do VfxClient (Cloudflare,
+  vfx-emotes.vfxclient-sand.workers.dev) numa "sala" feita do endereço do servidor de Minecraft (só um
+  código de SHA-256, nunca o endereço). Você faz o emote, o client avisa a sala e os outros clients da mesma
+  sala tocam a animação no seu boneco. Nada fica guardado. Se o servidor de emotes cair, só você vê.
+  Configurar: Social > Emotes (ver os emotes dos outros, mostrar os seus, tecla B, câmera, atalhos).
+- Skins: no launcher, Conta > escolha o PNG (64x64 ou 64x32, até 24 KB). O launcher guarda a skin e a
+  envia ao servidor do VfxClient com uma chave secreta própria do seu nick (criada no 1º envio; o servidor
+  guarda só o hash). Quando um amigo com o VfxClient entra no mesmo servidor, o client dele baixa a sua skin
+  e a coloca no seu boneco (atualiza a cada 10 min). Só vale para conta OFFLINE em servidor offline; contas
+  Microsoft continuam com a skin oficial. Se o nick já tiver dono em outro PC, o launcher avisa (403).
+  Configurar: Geral > Skins do VfxClient (ver a skin dos amigos) e launcher > Conta (a sua skin).
+- A logo ao lado do nick usa a mesma lista de presença da sala: quem está na sala com o client ganha a logo.
 - Desempenho (v0.14, todas desligadas por padrão):
   Esconder decorações: suportes de armadura (textos flutuantes ficam), molduras, XP, fogos,
     itens no chão (opcional). Bom em lobbies.
