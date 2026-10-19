@@ -3,9 +3,12 @@ package com.vfxclient.core;
 import com.vfxclient.core.emote.Emote;
 import com.vfxclient.core.emote.Emotes;
 import com.vfxclient.core.gui.ClickGuiScreen;
+import com.vfxclient.core.gui.CrosshairEditorScreen;
 import com.vfxclient.core.gui.EmoteWheelScreen;
 import com.vfxclient.core.gui.VfxTitleScreen;
 import com.vfxclient.core.module.social.EmotesModule;
+import com.vfxclient.core.module.util.CrosshairDrawing;
+import com.vfxclient.core.module.util.CrosshairModule;
 import com.vfxclient.core.module.visual.ZoomModule;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.GameMenuScreen;
@@ -33,6 +36,7 @@ import net.minecraft.client.util.ScreenshotUtils;
  *   <li>{@code -Dvfx.openMenu=mundo}: o mundo sem nenhuma tela aberta ({@code vfx-teste.png});</li>
  *   <li>{@code -Dvfx.emote=<id>} junto com o openMenu: faz esse emote antes do print;</li>
  *   <li>{@code -Dvfx.emoteSheet=true}: um print de cada emote ({@code emote-<id>.png}), para revisar as animações;</li>
+ *   <li>{@code -Dvfx.openMenu=mira}: editor da mira; {@code -Dvfx.crosshair=Alvo}: usa essa predefinição como mira;</li>
  *   <li>{@code -Dvfx.zoomHeld=true} e {@code -Dvfx.zoomScroll=n}: zoom como se a tecla estivesse segurada, com n cliques de rodinha;</li>
  *   <li>{@code -Dvfx.tab=true}: a lista de jogadores (Tab) fica aberta no print;</li>
  *   <li>{@code -Dvfx.remoteSelf=true}: você também recebe a skin do servidor do VfxClient (para testar).</li>
@@ -116,7 +120,10 @@ final class TestShots {
 		if (!ready || --menuTicks > 0) {
 			return;
 		}
-		if ("pausa".equals(menuMode)) {
+		applyTestCrosshair();
+		if ("mira".equals(menuMode)) {
+			client.setScreen(new CrosshairEditorScreen(VfxCore.get().getModules().get(CrosshairModule.class), null));
+		} else if ("pausa".equals(menuMode)) {
 			client.setScreen(new GameMenuScreen());
 		} else if ("emotes".equals(menuMode)) {
 			client.setScreen(new EmoteWheelScreen(VfxCore.get().getModules().get(EmotesModule.class), 0));
@@ -166,6 +173,16 @@ final class TestShots {
 		Emote emote = Emotes.byId(System.getProperty("vfx.emote", ""));
 		if (emote != null) {
 			VfxCore.get().getModules().get(EmotesModule.class).play(emote);
+		}
+	}
+
+	/** {@code -Dvfx.crosshair=<predefinição>}: usa a predefinição como mira (veja CrosshairDrawing.PRESETS). */
+	private static void applyTestCrosshair() {
+		String preset = System.getProperty("vfx.crosshair");
+		if (preset != null) {
+			CrosshairModule module = VfxCore.get().getModules().get(CrosshairModule.class);
+			module.setDrawing(CrosshairDrawing.preset(preset));
+			module.useDrawing();
 		}
 	}
 

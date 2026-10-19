@@ -51,6 +51,11 @@ public final class Canvas {
 		Fonts.useGuiScale();
 	}
 
+	/** @return quantas unidades da tela cada medida de referência ocupa (para desenhar algo em tamanho real) */
+	public float unit() {
+		return unit;
+	}
+
 	/** @return largura da área, em medidas de referência (1920 ou mais) */
 	public float width() {
 		return width;
