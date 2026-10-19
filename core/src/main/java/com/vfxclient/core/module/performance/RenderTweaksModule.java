@@ -1,5 +1,6 @@
 package com.vfxclient.core.module.performance;
 
+import com.vfxclient.core.VfxCore;
 import com.vfxclient.core.module.Category;
 import com.vfxclient.core.module.Module;
 import com.vfxclient.core.module.setting.BooleanSetting;
@@ -29,6 +30,9 @@ public class RenderTweaksModule extends Module {
 
 	/** @return se as texturas animadas devem ser atualizadas */
 	public boolean animatedTextures() {
+		if (engine() != null && engine().pauseAnimations()) {
+			return false;
+		}
 		return !isEnabled() || animatedTextures.get();
 	}
 
@@ -74,6 +78,9 @@ public class RenderTweaksModule extends Module {
 
 	/** @return se chuva e neve devem aparecer */
 	public boolean weather() {
+		if (engine() != null && engine().hideWeather()) {
+			return false;
+		}
 		return !isEnabled() || weather.get();
 	}
 
@@ -84,6 +91,9 @@ public class RenderTweaksModule extends Module {
 
 	/** @return se o brilho de encantamento deve ser desenhado */
 	public boolean glint() {
+		if (engine() != null && engine().hideGlint()) {
+			return false;
+		}
 		return !isEnabled() || glint.get();
 	}
 
@@ -98,6 +108,15 @@ public class RenderTweaksModule extends Module {
 	 * @return {@code 0} para usar o padrão do jogo
 	 */
 	public long chunkBudgetNanos() {
-		return isEnabled() ? chunkBudget.getInt() * 1_000_000L : 0L;
+		long own = isEnabled() ? chunkBudget.getInt() * 1_000_000L : 0L;
+		long boost = engine() == null ? 0L : engine().chunkBudgetNanos();
+		if (own > 0 && boost > 0) {
+			return Math.min(own, boost);
+		}
+		return own > 0 ? own : boost;
+	}
+
+	private static EngineModule engine() {
+		return VfxCore.module(EngineModule.class);
 	}
 }

@@ -2,6 +2,7 @@ package com.vfxclient.core.mixin;
 
 import com.vfxclient.core.VfxCore;
 import com.vfxclient.core.gui.ScreenSwap;
+import com.vfxclient.core.module.performance.EngineModule;
 import com.vfxclient.core.module.performance.FpsLimiterModule;
 import com.vfxclient.core.module.visual.ZoomModule;
 import net.minecraft.client.MinecraftClient;
@@ -33,6 +34,15 @@ public abstract class MinecraftClientMixin {
 		ZoomModule zoom = VfxCore.module(ZoomModule.class);
 		if (zoom == null || !zoom.consumeScroll(scroll)) {
 			inventory.scrollInHotbar(scroll);
+		}
+	}
+
+	/** GPU Fencing: depois de trocar o quadro. */
+	@Inject(method = "updateDisplay()V", at = @At("TAIL"))
+	private void vfx(CallbackInfo ci) {
+		EngineModule engine = VfxCore.module(EngineModule.class);
+		if (engine != null) {
+			engine.afterFrame();
 		}
 	}
 

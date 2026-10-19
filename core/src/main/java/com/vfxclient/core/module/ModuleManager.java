@@ -28,6 +28,7 @@ import com.vfxclient.core.module.hud.TexturePackModule;
 import com.vfxclient.core.module.hud.ServerIpModule;
 import com.vfxclient.core.module.performance.BlockDetailsModule;
 import com.vfxclient.core.module.performance.BlockEntityDistanceModule;
+import com.vfxclient.core.module.performance.EngineModule;
 import com.vfxclient.core.module.performance.EntityCullingModule;
 import com.vfxclient.core.module.performance.EntityDistanceModule;
 import com.vfxclient.core.module.performance.FarPlayersModule;
@@ -148,6 +149,7 @@ public final class ModuleManager {
 		register(new PerformanceProfileModule());
 		register(new VanillaOptionsModule());
 		register(new RenderTweaksModule());
+		register(new EngineModule());
 		register(new EntityCullingModule());
 		register(new EntityDistanceModule());
 		register(new BlockEntityDistanceModule());

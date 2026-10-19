@@ -1,3 +1,8 @@
+# v0.16
+Motor de FPS (Desempenho): FPS Boost, sem sombras de entidades, chunks aos poucos e GPU Fencing
+Cartão do servidor no HUD com o ícone do servidor e um detalhe de fundo
+Cartão do pacote de textura no mesmo estilo, com opção de ficar sempre na tela
+A logo do VfxClient aparece só ao lado do nome, não mais da vida
 # v0.15
 Roda de emotes nova, igual à do Lunar: 56 emotes em 7 páginas
 Rodinha do mouse troca de página; aperte uma tecla sobre um emote para criar o atalho

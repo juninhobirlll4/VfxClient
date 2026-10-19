@@ -13,6 +13,9 @@ import com.vfxclient.core.gui.ClickGuiScreen;
 import com.vfxclient.core.gui.CrosshairEditorScreen;
 import com.vfxclient.core.gui.EmoteWheelScreen;
 import com.vfxclient.core.gui.VfxTitleScreen;
+import com.vfxclient.core.module.setting.BooleanSetting;
+import com.vfxclient.core.module.setting.NumberSetting;
+import com.vfxclient.core.module.setting.Setting;
 import com.vfxclient.core.module.social.EmotesModule;
 import com.vfxclient.core.module.util.CrosshairDrawing;
 import com.vfxclient.core.module.util.CrosshairModule;
@@ -46,6 +49,7 @@ import net.minecraft.client.util.ScreenshotUtils;
  *   <li>{@code -Dvfx.emoteSheet=true}: um print de cada emote ({@code emote-<id>.png}), para revisar as animações;</li>
  *   <li>{@code -Dvfx.openMenu=mira}: editor da mira; {@code -Dvfx.crosshair=Alvo}: usa essa predefinição como mira;</li>
  *   <li>{@code -Dvfx.enable=serverIp,texturePack} e {@code -Dvfx.fakeServer=Nome@endereço}: liga módulos e finge um servidor da lista;</li>
+ *   <li>{@code -Dvfx.set=modulo.opcao=valor,...}: muda opções de módulos;</li>
  *   <li>{@code -Dvfx.zoomHeld=true} e {@code -Dvfx.zoomScroll=n}: zoom como se a tecla estivesse segurada, com n cliques de rodinha;</li>
  *   <li>{@code -Dvfx.tab=true}: a lista de jogadores (Tab) fica aberta no print;</li>
  *   <li>{@code -Dvfx.remoteSelf=true}: você também recebe a skin do servidor do VfxClient (para testar).</li>
@@ -215,12 +219,32 @@ final class TestShots {
 			}
 		}
 
+		applyTestSettings();
+
 		String fake = System.getProperty("vfx.fakeServer");
 		if (fake != null) {
 			String[] parts = fake.split("@", 2);
 			ServerInfo info = new ServerInfo(parts[0], parts.length > 1 ? parts[1] : parts[0], false);
 			info.setIcon(testIcon());
 			client.setCurrentServerEntry(info);
+		}
+	}
+
+	/** {@code -Dvfx.set=modulo.opcao=valor,...}: muda opções (booleanas ou numéricas) de módulos. */
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	private static void applyTestSettings() {
+		String set = System.getProperty("vfx.set");
+		if (set == null) {
+			return;
+		}
+		for (String entry : set.split(",")) {
+			String[] parts = entry.split("[.=]");
+			Setting setting = VfxCore.get().getModules().get(parts[0]).getSetting(parts[1]);
+			if (setting instanceof BooleanSetting) {
+				setting.set(Boolean.valueOf(parts[2]));
+			} else if (setting instanceof NumberSetting) {
+				setting.set(Double.valueOf(parts[2]));
+			}
 		}
 	}
 

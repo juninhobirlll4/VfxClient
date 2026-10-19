@@ -36,6 +36,7 @@
     "perf.BlockEntityRenderDispatcherMixin",
     "perf.ChestBlockEntityRendererMixin",
     "perf.EntityLabelMixin",
+    "perf.EntityShadowMixin",
     "perf.ItemEntityRendererMixin",
     "perf.ItemRendererMixin",
     "perf.LivingEntityFeaturesMixin",
